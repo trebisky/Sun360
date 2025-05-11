@@ -6,16 +6,23 @@
 #DUMP = m68k-linux-gnu-objdump -m68030 -z -d
 DUMP = m68k-linux-gnu-objdump -m68020 -z -d
 
-all:	wrap sun360.dis
+all:	wrap dump32
+
+dis: sun360.dis
 
 wrap: wrap.c
 	cc -o wrap wrap.c
+
+dump32: dump32.c
+	cc -o dump32 dump32.c
+
+# --------------------
 
 xstrings: xstrings.c
 	cc -o xstrings xstrings.c
 
 sun360.elf: sun360.bin
-	./wrap sun360.bin sun360.elf fefe0000
+	./wrap sun360.bin sun360.elf 0fef0000
 
 sun360.dis: sun360.elf
 	$(DUMP) sun360.elf >sun360.dis
