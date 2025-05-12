@@ -203,6 +203,7 @@ main ( int argc, char **argv )
 
 		/* End address is last address in last string */
 		if ( argc == 0 ) {
+			// These are from the 3-80 disassembly
 			// batch ( STR_START, STR_END );
 			// batch ( 0xfeff4468, 0xfeff4c90 );
 			// batch ( 0xfeff60d0, 0xfeff6b76 );
@@ -219,7 +220,10 @@ main ( int argc, char **argv )
 			// batch ( 0xfefeb31e, 0xfefeb61c );
 			// batch ( 0xfefec500, 0xfefec800 );
 			// batch ( 0xfefea872, 0xfefeaa50 );
-			batch ( 0xfefeab0c, 0xfefeaf94 );
+			// batch ( 0xfefeab0c, 0xfefeaf94 );
+
+			// These are from the 3-60 disassembly
+			batch ( 0x0fefe738, 0x0feff480 );
 		} else if ( argc == 1 ) {
 			single ( argv[0] );
 		} else {
