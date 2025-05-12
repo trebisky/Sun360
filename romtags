@@ -5,7 +5,7 @@ import re
 outfile = "tags"
 infile = "rom.dis"
 
-pattern = r"^fef.....:"
+pattern = r"^fef....:"
 num = 1
 
 of = open ( outfile, "w")
@@ -14,7 +14,7 @@ of = open ( outfile, "w")
 def process ( line, num, prefix ) :
     tag = re.sub ( r":.*", "", line )
     xtag = prefix + tag
-    srch = "/^" + tag + "/"
+    srch = "/^ " + tag + "/"
     cmd = [ xtag, infile, srch ]
     of.write ( "\t".join(cmd) + "\n" )
 

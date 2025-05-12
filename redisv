@@ -1,0 +1,51 @@
+#!/bin/python
+
+# redisv - 
+# Repeat the disassembly of a small section
+# This is intended to be invoked as a vim filter
+# Tom Trebisky  10-29-2024
+
+import sys
+import os
+import re
+import subprocess
+
+def redo ( addr ) :
+    # This doesn't mind a 0x prefix
+    # adding 2 here is the trick to fix our
+    # botched disassembly
+    naddr = int ( addr, 16 ) + 2
+    match_addr = f'{naddr:x}'
+
+    addr1 = hex ( naddr )
+    addr2 = hex ( naddr + 16 )
+
+    cmd = [ "m68k-linux-gnu-objdump" ]
+    cmd.append ( "-m68030" )
+    cmd.append ( "-z" )
+    cmd.append ( "-d" )
+    cmd.append ( "--start-address=" + addr1 )
+    cmd.append ( "--stop-address=" + addr2 )
+    cmd.append ( "sun360.elf" )
+
+    output = subprocess.run ( cmd, stdout=subprocess.PIPE )
+    stuff = output.stdout.decode ( 'utf-8' ).split ( '\n' )
+
+    for x in stuff :
+        #print ( "RAW: " + x )
+        if "text" in x :
+            continue
+        if match_addr not in x :
+            continue
+        print ( x )
+
+orig_line = sys.stdin.readline().strip()
+ww = orig_line.split()
+addr = re.sub ( ":", "", ww[0] )
+
+print ( "XXX" )
+print ( orig_line )
+redo ( addr )
+print ( "XXX" )
+
+# THE END

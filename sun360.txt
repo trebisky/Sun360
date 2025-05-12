@@ -6,13 +6,25 @@
 ;
 ; The ROM image is 64K (65536 bytes) in size.
 ; The last 16 bit word is a checksum.
+;
+; Some condensed notes on the m68k
+; "motion" in the syntax is left to right, so
+;   moveq #3,%d0 places 3 into the d0 register.
+; This is exactly opposite from ARM where
+; "motion" is from right to left, here:
+;   movs    r0, #0  places the value 0 into r0
 
+; ==========================================
 ; The first two words are read by the processor at reset
 0fef0000:  0fe60c00		; stack pointer
 0fef0004:  0fef00ee		; initial PC
 
 ; The rest of these are a "jump table" into various
 ;  places in the ROM
+; I wonder what it means when the word begins
+;    with ffff ?  Comparing to the Sun3-80 rom,
+;    I see the same entries there begin with fef7
+;    which is clearly not in the ROM space.
 
 0fef0008:  0fef2d34
 0fef000c:  0fef00e4
@@ -345,6 +357,7 @@
  fef04da:	116f 0007 0002 	moveb %sp@(7),%a0@(2)
  fef04e0:	7001           	moveq #1,%d0
  fef04e2:	4e75           	rts
+
  fef04e4:	7000           	moveq #0,%d0
  fef04e6:	4e7a 8000      	movec %sfc,%a0
  fef04ea:	7203           	moveq #3,%d1
@@ -353,6 +366,7 @@
  fef04f6:	0000 
  fef04f8:	4e7b 8000      	movec %a0,%sfc
  fef04fc:	4e75           	rts
+
  fef04fe:	302f 0006      	movew %sp@(6),%d0
  fef0502:	4e7a 8001      	movec %dfc,%a0
  fef0506:	7203           	moveq #3,%d1
@@ -361,6 +375,7 @@
  fef0512:	0000 
  fef0514:	4e7b 8001      	movec %a0,%dfc
  fef0518:	4e75           	rts
+
  fef051a:	4e7a 8001      	movec %dfc,%a0
  fef051e:	7203           	moveq #3,%d1
  fef0520:	4e7b 1001      	movec %d1,%dfc
@@ -618,8 +633,9 @@
  fef0888:	2d7c aaaa aaaa 	movel #-1431655766,%fp@(-12)
  fef088e:	fff4 
  fef0890:	4878 0001      	pea 0x1
- fef0894:	4879 0fef c54a 	pea 0xfefc54a
- fef089a:	61ff 0000 923e 	bsrl 0xfef9ada
+fef0894:	4879 0fef c54a 	pea 0xfefc54a
+; 0xfefc54a Memory
+ fef089a:	61ff 0000 923e 	bsrl 0xfef9ada		; announce_test
  fef08a0:	504f           	addqw #8,%sp
  fef08a2:	2d6e fffc ffe8 	movel %fp@(-4),%fp@(-24)
  fef08a8:	2f2e fff8      	movel %fp@(-8),%sp@-
@@ -3675,7 +3691,7 @@
  fef3572:	2e87           	movel %d7,%sp@
  fef3574:	7e00           	moveq #0,%d7
  fef3576:	4878 002d      	pea 0x2d
- fef357a:	6100 2104      	bsrw 0xfef5680
+ fef357a:	6100 2104      	bsrw 0xfef5680			; putchar
  fef357e:	584f           	addqw #4,%sp
  fef3580:	5287           	addql #1,%d7
  fef3582:	724c           	moveq #76,%d1
@@ -3697,7 +3713,7 @@
  fef35b8:	7c00           	moveq #0,%d6
  fef35ba:	600c           	bras 0xfef35c8
  fef35bc:	4878 0020      	pea 0x20
- fef35c0:	6100 20be      	bsrw 0xfef5680
+ fef35c0:	6100 20be      	bsrw 0xfef5680			; putchar
  fef35c4:	584f           	addqw #4,%sp
  fef35c6:	5286           	addql #1,%d6
  fef35c8:	bc87           	cmpl %d7,%d6
@@ -4016,7 +4032,7 @@
  fef3a36:	6100 1aac      	bsrw 0xfef54e4
  fef3a3a:	504f           	addqw #8,%sp
  fef3a3c:	4878 000a      	pea 0xa
- fef3a40:	6100 1c3e      	bsrw 0xfef5680
+ fef3a40:	6100 1c3e      	bsrw 0xfef5680			; putchar
  fef3a44:	584f           	addqw #4,%sp
  fef3a46:	6000 00e6      	braw 0xfef3b2e
  fef3a4a:	6100 1008      	bsrw 0xfef4a54
@@ -4821,7 +4837,7 @@
  fef44fa:	6002           	bras 0xfef44fe
  fef44fc:	702e           	moveq #46,%d0
  fef44fe:	2f00           	movel %d0,%sp@-
- fef4500:	6100 117e      	bsrw 0xfef5680
+ fef4500:	6100 117e      	bsrw 0xfef5680			; putchar
  fef4504:	584f           	addqw #4,%sp
  fef4506:	5285           	addql #1,%d5
  fef4508:	202e ff5c      	movel %fp@(-164),%d0
@@ -4885,7 +4901,7 @@
  fef45cc:	0c40 0004      	cmpiw #4,%d0
  fef45d0:	6714           	beqs 0xfef45e6
  fef45d2:	4878 003e      	pea 0x3e
- fef45d6:	6100 10a8      	bsrw 0xfef5680
+ fef45d6:	6100 10a8      	bsrw 0xfef5680			; putchar
  fef45da:	584f           	addqw #4,%sp
  fef45dc:	4878 0001      	pea 0x1
  fef45e0:	6100 0d8a      	bsrw 0xfef536c
@@ -5023,7 +5039,7 @@
  fef478c:	4a80           	tstl %d0
  fef478e:	6c00 00a2      	bgew 0xfef4832
  fef4792:	4878 000a      	pea 0xa
- fef4796:	6100 0ee8      	bsrw 0xfef5680
+ fef4796:	6100 0ee8      	bsrw 0xfef5680			; putchar
  fef479a:	584f           	addqw #4,%sp
  fef479c:	0c2e 000d ffff 	cmpib #13,%fp@(-1)
  fef47a2:	6778           	beqs 0xfef481c
@@ -5084,7 +5100,7 @@
  fef484e:	6100 0de6      	bsrw 0xfef5636
  fef4852:	504f           	addqw #8,%sp
  fef4854:	4878 000a      	pea 0xa
- fef4858:	6100 0e26      	bsrw 0xfef5680
+ fef4858:	6100 0e26      	bsrw 0xfef5680			; putchar
  fef485c:	584f           	addqw #4,%sp
  fef485e:	6100 0bde      	bsrw 0xfef543e
  fef4862:	6100 0bca      	bsrw 0xfef542e
@@ -5784,7 +5800,7 @@
  fef518c:	4a38 e01a      	tstb 0xffffe01a
  fef5190:	660a           	bnes 0xfef519c
  fef5192:	4878 006e      	pea 0x6e
- fef5196:	6100 04e8      	bsrw 0xfef5680
+ fef5196:	6100 04e8      	bsrw 0xfef5680			; putchar
  fef519a:	584f           	addqw #4,%sp
  fef519c:	4879 0fef db54 	pea 0xfefdb54
  fef51a2:	6100 0340      	bsrw 0xfef54e4
@@ -5973,14 +5989,14 @@
  fef53d6:	4a87           	tstl %d7
  fef53d8:	6708           	beqs 0xfef53e2
  fef53da:	2f05           	movel %d5,%sp@-
- fef53dc:	6100 02a2      	bsrw 0xfef5680
+ fef53dc:	6100 02a2      	bsrw 0xfef5680			; putchar
  fef53e0:	584f           	addqw #4,%sp
  fef53e2:	0c15 000d      	cmpib #13,%a5@
  fef53e6:	66ba           	bnes 0xfef53a2
  fef53e8:	4a87           	tstl %d7
  fef53ea:	670a           	beqs 0xfef53f6
  fef53ec:	4878 000a      	pea 0xa
- fef53f0:	6100 028e      	bsrw 0xfef5680
+ fef53f0:	6100 028e      	bsrw 0xfef5680			; putchar
  fef53f4:	584f           	addqw #4,%sp
  fef53f6:	524d           	addqw #1,%a5
  fef53f8:	4215           	clrb %a5@
@@ -6067,8 +6083,9 @@
  fef54da:	2e2e fffc      	movel %fp@(-4),%d7
  fef54de:	4e5e           	unlk %fp
  fef54e0:	4e75           	rts
- fef54e2:	0000 4e56      	orib #86,%d0
- fef54e6:	ffe8           	.short 0xffe8
+
+; Subroutine "printf" ? many calls
+ fef54e4:	4e56 ffe8      	linkw %fp,#-24
  fef54e8:	48d7 38c0      	moveml %d6-%d7/%a3-%a5,%sp@
  fef54ec:	2a6e 0008      	moveal %fp@(8),%a5
  fef54f0:	49ee 000c      	lea %fp@(12),%a4
@@ -6078,7 +6095,7 @@
  fef54fe:	be86           	cmpl %d6,%d7
  fef5500:	670c           	beqs 0xfef550e
  fef5502:	2f07           	movel %d7,%sp@-
- fef5504:	6100 017a      	bsrw 0xfef5680
+ fef5504:	6100 017a      	bsrw 0xfef5680		; putchar
  fef5508:	584f           	addqw #4,%sp
  fef550a:	6000 0082      	braw 0xfef558e
  fef550e:	7e00           	moveq #0,%d7
@@ -6111,7 +6128,7 @@
  fef5546:	7e00           	moveq #0,%d7
  fef5548:	1e2c 0003      	moveb %a4@(3),%d7
  fef554c:	2f07           	movel %d7,%sp@-
- fef554e:	6100 0130      	bsrw 0xfef5680
+ fef554e:	6100 0130      	bsrw 0xfef5680		; putchar
  fef5552:	584f           	addqw #4,%sp
  fef5554:	6036           	bras 0xfef558c
  fef5556:	2654           	moveal %a4@,%a3
@@ -6120,14 +6137,14 @@
  fef555c:	2e00           	movel %d0,%d7
  fef555e:	672c           	beqs 0xfef558c
  fef5560:	2f07           	movel %d7,%sp@-
- fef5562:	6100 011c      	bsrw 0xfef5680
+ fef5562:	6100 011c      	bsrw 0xfef5680		; putchar
  fef5566:	584f           	addqw #4,%sp
  fef5568:	60ee           	bras 0xfef5558
  fef556a:	42a7           	clrl %sp@-
  fef556c:	4878 000a      	pea 0xa
  fef5570:	6012           	bras 0xfef5584
  fef5572:	42a7           	clrl %sp@-
- fef5574:	600a           	bras 0xfef5580
+ fef5574:	600a           	bras 0xfef5580		; putchar
  fef5576:	7278           	moveq #120,%d1
  fef5578:	be81           	cmpl %d1,%d7
  fef557a:	6610           	bnes 0xfef558c
@@ -6135,7 +6152,7 @@
  fef557e:	2f06           	movel %d6,%sp@-
  fef5580:	4878 0010      	pea 0x10
  fef5584:	2f14           	movel %a4@,%sp@-
- fef5586:	611a           	bsrs 0xfef55a2
+ fef5586:	611a           	bsrs 0xfef55a2		; directly below
  fef5588:	4fef 000c      	lea %sp@(12),%sp
  fef558c:	588c           	addql #4,%a4
  fef558e:	7000           	moveq #0,%d0
@@ -6145,6 +6162,8 @@
  fef5598:	4cee 38c0 ffe8 	moveml %fp@(-24),%d6-%d7/%a3-%a5
  fef559e:	4e5e           	unlk %fp
  fef55a0:	4e75           	rts
+
+; only called from above
  fef55a2:	4e56 fff8      	linkw %fp,#-8
  fef55a6:	202e 0008      	movel %fp@(8),%d0
  fef55aa:	4c6e 0000 000c 	divull %fp@(12),%d0,%d0
@@ -6156,7 +6175,7 @@
  fef55be:	2f00           	movel %d0,%sp@-
  fef55c0:	2f2e 000c      	movel %fp@(12),%sp@-
  fef55c4:	2f2e fffc      	movel %fp@(-4),%sp@-
- fef55c8:	61d8           	bsrs 0xfef55a2
+ fef55c8:	61d8           	bsrs 0xfef55a2			; recursion
  fef55ca:	4fef 000c      	lea %sp@(12),%sp
  fef55ce:	0c2e 0010 000f 	cmpib #16,%fp@(15)
  fef55d4:	660c           	bnes 0xfef55e2
@@ -6177,7 +6196,7 @@
  fef55fc:	2d41 fff8      	movel %d1,%fp@(-8)
  fef5600:	600e           	bras 0xfef5610
  fef5602:	4878 0030      	pea 0x30
- fef5606:	6100 0078      	bsrw 0xfef5680
+ fef5606:	6100 0078      	bsrw 0xfef5680			; putchar
  fef560a:	584f           	addqw #4,%sp
  fef560c:	52ae fff8      	addql #1,%fp@(-8)
  fef5610:	102e 0013      	moveb %fp@(19),%d0
@@ -6189,12 +6208,13 @@
  fef5626:	7000           	moveq #0,%d0
  fef5628:	1010           	moveb %a0@,%d0
  fef562a:	2f00           	movel %d0,%sp@-
- fef562c:	6100 0052      	bsrw 0xfef5680
+ fef562c:	6100 0052      	bsrw 0xfef5680		; putchar
  fef5630:	584f           	addqw #4,%sp
  fef5632:	4e5e           	unlk %fp
  fef5634:	4e75           	rts
+
  fef5636:	4e56 fff8      	linkw %fp,#-8
- fef563a:	48d7 00c0      	moveml %d6-%d7,%sp@
+ fef563a:	48d7 00c0      	moveml %d6-%d7,%sp@		; save regs
  fef563e:	2e2e 0008      	movel %fp@(8),%d7
  fef5642:	202e 000c      	movel %fp@(12),%d0
  fef5646:	5380           	subql #1,%d0
@@ -6205,26 +6225,27 @@
  fef5650:	601e           	bras 0xfef5670
  fef5652:	2007           	movel %d7,%d0
  fef5654:	eca0           	asrl %d6,%d0
- fef5656:	720f           	moveq #15,%d1
+ fef5656:	720f           	moveq #15,%d1			; mask to 4 bits
  fef5658:	c081           	andl %d1,%d0
- fef565a:	41f9 0fef db88 	lea 0xfefdb88,%a0
+ fef565a:	41f9 0fef db88 	lea 0xfefdb88,%a0		; table of ascii [0-9A-F]
  fef5660:	1030 0800      	moveb %a0@(0,%d0:l),%d0
  fef5664:	49c0           	extbl %d0
  fef5666:	2f00           	movel %d0,%sp@-
- fef5668:	6100 0016      	bsrw 0xfef5680
+ fef5668:	6100 0016      	bsrw 0xfef5680			; putchar
  fef566c:	584f           	addqw #4,%sp
  fef566e:	5986           	subql #4,%d6
  fef5670:	4a86           	tstl %d6
- fef5672:	6cde           	bges 0xfef5652
+ fef5672:	6cde           	bges 0xfef5652			; loop back
+
  fef5674:	4cee 00c0 fff8 	moveml %fp@(-8),%d6-%d7
  fef567a:	4e5e           	unlk %fp
  fef567c:	4e75           	rts
 
 ; -----------------------------
 ; Subroutine -- putchar
-; Mis
- fef567e:	0000 4e56      	orib #86,%d0
- fef5682:	fffc           	.short 0xfffc
+; -- many calls
+
+ fef5680:	4e56 fffc      	linkw %fp,#-4
  fef5684:	2e87           	movel %d7,%sp@
 
  fef5686:	1e2e 000b      	moveb %fp@(11),%d7
@@ -6238,7 +6259,7 @@
  fef569a:	1007           	moveb %d7,%d0
  fef569c:	2f00           	movel %d0,%sp@-
 
- fef569e:	610e           	bsrs 0xfef56ae
+ fef569e:	610e           	bsrs 0xfef56ae			; putchar2 (below)
  fef56a0:	584f           	addqw #4,%sp
 
  fef56a2:	4a80           	tstl %d0
@@ -6250,6 +6271,7 @@
 
 ; -----------------------------
 ; subroutine -- "putchar2"
+; only called from the above.
 
  fef56ae:	4e56 fffc      	linkw %fp,#-4
  fef56b2:	2e87           	movel %d7,%sp@
@@ -6324,7 +6346,7 @@
  fef5780:	7000           	moveq #0,%d0
  fef5782:	1007           	moveb %d7,%d0
  fef5784:	2f00           	movel %d0,%sp@-
- fef5786:	6100 fef8      	bsrw 0xfef5680
+ fef5786:	6100 fef8      	bsrw 0xfef5680			; putchar
  fef578a:	584f           	addqw #4,%sp
  fef578c:	7000           	moveq #0,%d0
  fef578e:	1007           	moveb %d7,%d0
@@ -9528,8 +9550,9 @@
  fef7f54:	6736           	beqs 0xfef7f8c
  fef7f56:	6100 1c14      	bsrw 0xfef9b6c
  fef7f5a:	42a7           	clrl %sp@-
- fef7f5c:	4879 0fef e738 	pea 0xfefe738
- fef7f62:	6100 1b76      	bsrw 0xfef9ada
+fef7f5c:	4879 0fef e738 	pea 0xfefe738
+; 0xfefe738 AMD Ethernet
+ fef7f62:	6100 1b76      	bsrw 0xfef9ada		; announce_test
  fef7f66:	504f           	addqw #8,%sp
  fef7f68:	4879 0fef e745 	pea 0xfefe745
  fef7f6e:	6100 d574      	bsrw 0xfef54e4
@@ -10061,8 +10084,9 @@
  fef8630:	6700 008a      	beqw 0xfef86bc
  fef8634:	6100 1536      	bsrw 0xfef9b6c
  fef8638:	42a7           	clrl %sp@-
- fef863a:	4879 0fef e8c6 	pea 0xfefe8c6
- fef8640:	6100 1498      	bsrw 0xfef9ada
+fef863a:	4879 0fef e8c6 	pea 0xfefe8c6
+; 0xfefe8c6 SCSI Interface
+ fef8640:	6100 1498      	bsrw 0xfef9ada		; announce_test
  fef8644:	504f           	addqw #8,%sp
  fef8646:	4879 0fef e8d7 	pea 0xfefe8d7
  fef864c:	4879 0fef e8d5 	pea 0xfefe8d5
@@ -10764,8 +10788,9 @@
  fef8fae:	4879 0fef ea4a 	pea 0xfefea4a
  fef8fb4:	600a           	bras 0xfef8fc0
  fef8fb6:	4878 0001      	pea 0x1
- fef8fba:	4879 0fef ea5f 	pea 0xfefea5f
- fef8fc0:	6100 0b18      	bsrw 0xfef9ada
+fef8fba:	4879 0fef ea5f 	pea 0xfefea5f
+; 0xfefea5f Serial Ports
+ fef8fc0:	6100 0b18      	bsrw 0xfef9ada		; announce_test
  fef8fc4:	504f           	addqw #8,%sp
  fef8fc6:	4aae 0008      	tstl %fp@(8)
  fef8fca:	6708           	beqs 0xfef8fd4
@@ -11557,6 +11582,7 @@
  fef9a68:	202e fff8      	movel %fp@(-8),%d0
  fef9a6c:	4e5e           	unlk %fp
  fef9a6e:	4e75           	rts
+
  fef9a70:	4e56 0000      	linkw %fp,#0
  fef9a74:	4879 0fef ed4d 	pea 0xfefed4d
  fef9a7a:	6100 ba68      	bsrw 0xfef54e4
@@ -11584,20 +11610,28 @@
  fef9ace:	584f           	addqw #4,%sp
  fef9ad0:	4e5e           	unlk %fp
  fef9ad2:	4e75           	rts
+
  fef9ad4:	6100 0096      	bsrw 0xfef9b6c
  fef9ad8:	609a           	bras 0xfef9a74
+
+; Called with message on stack (type of test)
+; name of test
+: Subroutine - announce_ test
  fef9ada:	4e56 0000      	linkw %fp,#0
  fef9ade:	2f2e 0008      	movel %fp@(8),%sp@-
  fef9ae2:	4879 0fef ee41 	pea 0xfefee41
+; 0xfefee41 \n%s Tests:  (Enter 'q' to return to Test Menu)\n\n
  fef9ae8:	6100 b9fa      	bsrw 0xfef54e4
  fef9aec:	504f           	addqw #8,%sp
  fef9aee:	4a2e 000f      	tstb %fp@(15)
  fef9af2:	660c           	bnes 0xfef9b00
  fef9af4:	4879 0fef ee72 	pea 0xfefee72
+; 0xfefee72 Cmd -  Test\n\n
  fef9afa:	6100 b9e8      	bsrw 0xfef54e4
  fef9afe:	584f           	addqw #4,%sp
  fef9b00:	4e5e           	unlk %fp
  fef9b02:	4e75           	rts
+
  fef9b04:	4e56 0000      	linkw %fp,#0
  fef9b08:	2f2e 000c      	movel %fp@(12),%sp@-
  fef9b0c:	2f2e 0008      	movel %fp@(8),%sp@-
@@ -17124,16 +17158,20 @@
  fefdb7e:	6e64           	bgts 0xfefdbe4
  fefdb80:	0a00 0000      	eorib #0,%d0
  fefdb84:	0820 0800      	btst #0,%a0@-
- fefdb88:	3031 3233      	movew %a1@(33,%d3:w:2),%d0
- fefdb8c:	3435 3637      	movew %a5@(37,%d3:w:8),%d2
- fefdb90:	3839 4142 4344 	movew 0x41424344,%d4
- fefdb96:	4546           	.short 0x4546
- fefdb98:	0000 0000      	orib #0,%d0
- fefdb9c:	3031 3233      	movew %a1@(33,%d3:w:2),%d0
- fefdba0:	3435 3637      	movew %a5@(37,%d3:w:8),%d2
- fefdba4:	3839 4142 4344 	movew 0x41424344,%d4
- fefdbaa:	4546           	.short 0x4546
- fefdbac:	0000 0000      	orib #0,%d0
+
+; data - list of ascii (and hex) digits.
+ fefdb88:	3031 3233
+ fefdb8c:	3435 3637
+ fefdb90:	3839 4142 4344
+ fefdb96:	4546
+ fefdb98:	0000 0000
+
+; data, same as above
+ fefdb9c:	3031 3233
+ fefdba0:	3435 3637
+ fefdba4:	3839 4142 4344
+ fefdbaa:	4546
+ fefdbac:	0000 0000
  fefdbb0:	0a2a 2a2a 204d 	eorib #42,%a2@(8269)
  fefdbb6:	6573           	bcss 0xfefdc2b
  fefdbb8:	7361           	.short 0x7361
@@ -19003,7 +19041,9 @@
  fefee6a:	4d65           	.short 0x4d65
  fefee6c:	6e75           	bgts 0xfefeee3
  fefee6e:	290a           	movel %a2,%a4@-
- fefee70:	0a00 436d      	eorib #109,%d0
+ fefee70:	0a00
+
+ fefee72:	436d
  fefee74:	6420           	bccs 0xfefee96
  fefee76:	2d20           	movel %a0@-,%fp@-
  fefee78:	2054           	moveal %a4@,%a0

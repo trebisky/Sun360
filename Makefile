@@ -6,9 +6,9 @@
 #DUMP = m68k-linux-gnu-objdump -m68030 -z -d
 DUMP = m68k-linux-gnu-objdump -m68020 -z -d
 
-all:	wrap dump32
+all:	wrap dump32 xstrings
 
-dis: sun360.dis
+dis: sun360.dis sun360.odx
 
 wrap: wrap.c
 	cc -o wrap wrap.c

@@ -1,0 +1,75 @@
+#!/bin/python
+
+# vim_string
+# This is a "helper" intended to be invoked as
+# a vim filter from a line in my .vimrc
+# that looks like this:
+#   nnoremap <leader>s :.!./vim_string<CR>
+# Tom Trebisky  11-2-2024
+
+# We invoke it on a line like this:
+# fefeafd6:	49fa 03f6      	lea %pc@(0xfefeb3ce),%a4
+# or this:
+# fefe744e:   49f9 fefe ab1c  lea 0xfefeab1c,%a4
+
+#
+# 0000b3c0 4135 2020 4f62 733a 3078 2564 3200 0d0a   A5  Obs:0x%d2
+# 0000b3d0 3c49 6e69 7469 616c 697a 696e 6720 4d61   <Initializing Ma
+# 0000b3e0 696e 204d 656d 6f72 792e 2e2e 2000 3078   in Memory...  0x
+# 0000b3f0 2564 3120 4d65 6761 6279 7465 7320 496e   %d1 Megabytes In
+# 0000b400 6974 6961 6c69 7a65 643e 0d0a 0d0a 000a   itialized>
+
+import sys
+import os
+import re
+import subprocess
+
+def show_stuff ( stuff ) :
+    ii = 1
+    for x in stuff :
+        print ( ii, x )
+        ii += 1
+
+def get_string ( addr ) :
+
+    cmd = [ "./xstrings" ]
+    cmd.append ( addr )
+
+    output = subprocess.run ( cmd, stdout=subprocess.PIPE )
+    #print ( "Return code: ", output.returncode )
+    stuff = output.stdout.decode ( 'utf-8' ).split ( '\n' )
+
+    #show_stuff ( stuff )
+    print ( stuff[0] )
+
+# for debug
+# orig_line = "fefeafd6:	49fa 03f6      	lea %pc@(0xfefeb3ce),%a4"
+# orig_line = "fefe744e:   49f9 fefe ab1c  lea 0xfefeab1c,%a4"
+
+orig_line = sys.stdin.readline().strip()
+ww = orig_line.split()
+
+# We repeat the original line to put it back into the file,
+print ( orig_line )
+
+# fefeafd6:	49fa 03f6      	lea %pc@(0xfefeb3ce),%a4
+if len(ww) == 5 :
+    #print ( ww[4] )
+    tmp1 = re.sub ( r".*\(", "", ww[4] )
+    addr = re.sub ( r"\).*", "", tmp1 )
+    #print ( addr )
+    print ( "; " + addr + " ", end='' )
+    get_string ( addr )
+    exit ()
+
+# fefe744e:   49f9 fefe ab1c  lea 0xfefeab1c,%a4
+if len(ww) == 6 :
+    #print ( ww[5] )
+    addr = re.sub ( r",.*", "", ww[5] )
+    print ( "; " + addr + " ", end='' )
+    get_string ( addr )
+    exit ()
+
+print ( " --- Sorry" )
+
+# THE END
