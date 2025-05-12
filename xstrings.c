@@ -19,9 +19,6 @@ int romsize;
 unsigned int rombase = 0x0fef0000;
 unsigned int romend;
 
-#define STR_START	0xfeff3c8c
-#define STR_END 	0xfeff4266
-
 void
 read_rom ( char *path )
 {
@@ -111,8 +108,10 @@ batch ( unsigned int start, unsigned int end )
 	unsigned int a_str;
 	char ss[1024];
 
-	o_start = start - rombase;
-	o_end = end - rombase;
+	// o_start = start - rombase;
+	o_start = start;
+	// o_end = end - rombase;
+	o_end = end;
 	index = o_start;
 
 	for ( ;; ) {
@@ -204,6 +203,8 @@ main ( int argc, char **argv )
 		/* End address is last address in last string */
 		if ( argc == 0 ) {
 			// These are from the 3-80 disassembly
+#define STR_START	0xfeff3c8c
+#define STR_END 	0xfeff4266
 			// batch ( STR_START, STR_END );
 			// batch ( 0xfeff4468, 0xfeff4c90 );
 			// batch ( 0xfeff60d0, 0xfeff6b76 );
@@ -223,7 +224,9 @@ main ( int argc, char **argv )
 			// batch ( 0xfefeab0c, 0xfefeaf94 );
 
 			// These are from the 3-60 disassembly
-			batch ( 0x0fefe738, 0x0feff480 );
+			// batch ( 0xe738, 0xf480 );
+			// batch ( 0xdb34, 0xdc10 );
+			batch ( 0xc544, 0xda90 );
 		} else if ( argc == 1 ) {
 			single ( argv[0] );
 		} else {

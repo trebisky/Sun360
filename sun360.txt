@@ -2979,10 +2979,14 @@ fef0894:	4879 0fef c54a 	pea 0xfefc54a
  fef2ad2:	0000 
  fef2ad4:	0801 0000      	btst #0,%d1
  fef2ad8:	6700 00a0      	beqw 0xfef2b7a
+
+; Peculiar call method
  fef2adc:	363c 0004      	movew #4,%d3
- fef2ae0:	49f9 0fef d4d4 	lea 0xfefd4d4,%a4
- fef2ae6:	4dfa 0006      	lea %pc@(0xfef2aee),%fp
+ fef2ae0:	49f9 0fef d4d4 	lea 0xfefd4d4,%a4			; 10 seconds
+; 0fefd4d4: \nType a character within 10 seconds to enter Menu Tests...
+fef2ae6:	4dfa 0006      	lea %pc@(0xfef2aee),%fp
  fef2aea:	6000 042c      	braw 0xfef2f18
+
  fef2aee:	49f9 0fef d02b 	lea 0xfefd02b,%a4
  fef2af4:	4dfa 0006      	lea %pc@(0xfef2afc),%fp
  fef2af8:	6000 041e      	braw 0xfef2f18
@@ -4040,10 +4044,14 @@ fef0894:	4879 0fef c54a 	pea 0xfefc54a
  fef3a52:	6100 1244      	bsrw 0xfef4c98
  fef3a56:	584f           	addqw #4,%sp
  fef3a58:	6000 00d4      	braw 0xfef3b2e
- fef3a5c:	4879 0fef d4d4 	pea 0xfefd4d4
- fef3a62:	4879 0fef d713 	pea 0xfefd713
+
+ fef3a5c:	4879 0fef d4d4 	pea 0xfefd4d4			; 10 seconds
+; 0fefd4d4: \nType a character within 10 seconds to enter Menu Tests...
+fef3a62:	4879 0fef d713 	pea 0xfefd713
+; 0xfefd713 %s
  fef3a68:	6100 1a7a      	bsrw 0xfef54e4
  fef3a6c:	504f           	addqw #8,%sp
+
  fef3a6e:	42ae ff68      	clrl %fp@(-152)
  fef3a72:	6100 1d24      	bsrw 0xfef5798
  fef3a76:	7eff           	moveq #-1,%d7
@@ -14882,2203 +14890,433 @@ fef8fba:	4879 0fef ea5f 	pea 0xfefea5f
  fefc53c:	8000           	orb %d0,%d0
  fefc53e:	2000           	movel %d0,%d0
  fefc540:	0000 0000      	orib #0,%d0
- fefc544:	5669 6465      	addqw #3,%a1@(25701)
- fefc548:	6f00 4d65      	blew 0xff012af
- fefc54c:	6d6f           	blts 0xfefc5bd
- fefc54e:	7279           	moveq #121,%d1
- fefc550:	0045 6e74      	oriw #28276,%d5
- fefc554:	6572           	bcss 0xfefc5c8
- fefc556:	2043           	moveal %d3,%a0
- fefc558:	6d64           	blts 0xfefc5be
- fefc55a:	205b           	moveal %a3@+,%a0
- fefc55c:	6c6f           	bges 0xfefc5cd
- fefc55e:	7720           	.short 0x7720
- fefc560:	6164           	bsrs 0xfefc5c6
- fefc562:	6472           	bccs 0xfefc5d6
- fefc564:	203e           	.short 0x203e
- fefc566:	2025           	movel %a5@-,%d0
- fefc568:	785d           	moveq #93,%d4
- fefc56a:	205b           	moveal %a3@+,%a0
- fefc56c:	6869           	bvcs 0xfefc5d7
- fefc56e:	2061           	moveal %a1@-,%a0
- fefc570:	6464           	bccs 0xfefc5d6
- fefc572:	7220           	moveq #32,%d1
- fefc574:	3c20           	movew %a0@-,%d6
- fefc576:	3078 2578      	moveaw 0x2578,%a0
- fefc57a:	5d20           	subqb #6,%a0@-
- fefc57c:	5b70 6174 746e 	subqw #5,%a0@(746e5d0a)@(0)
- fefc582:	5d0a 
- fefc584:	0a00 436d      	eorib #109,%d0
- fefc588:	6420           	bccs 0xfefc5aa
- fefc58a:	2d20           	movel %a0@-,%fp@-
- fefc58c:	2054           	moveal %a4@,%a0
- fefc58e:	6573           	bcss 0xfefc603
- fefc590:	740a           	moveq #10,%d2
- fefc592:	0a61 202d      	eoriw #8237,%a1@-
- fefc596:	2041           	moveal %d1,%a0
- fefc598:	6464           	bccs 0xfefc5fe
- fefc59a:	7265           	moveq #101,%d1
- fefc59c:	7373           	.short 0x7373
- fefc59e:	2054           	moveal %a4@,%a0
- fefc5a0:	6573           	bcss 0xfefc615
- fefc5a2:	740a           	moveq #10,%d2
- fefc5a4:	6320           	blss 0xfefc5c6
- fefc5a6:	2d20           	movel %a0@-,%fp@-
- fefc5a8:	5772 2f52 642f 	subqw #3,%a2@(0)@(642f)
- fefc5ae:	436f           	.short 0x436f
- fefc5b0:	6d70           	blts 0xfefc622
- fefc5b2:	6172           	bsrs 0xfefc626
- fefc5b4:	6520           	bcss 0xfefc5d6
- fefc5b6:	5465           	addqw #2,%a5@-
- fefc5b8:	7374           	.short 0x7374
- fefc5ba:	0a73 202d 2053 	eoriw #8237,%a3@(53,%d2:w)
- fefc5c0:	6361           	blss 0xfefc623
- fefc5c2:	6e20           	bgts 0xfefc5e4
- fefc5c4:	4d65           	.short 0x4d65
- fefc5c6:	6d6f           	blts 0xfefc637
- fefc5c8:	7279           	moveq #121,%d1
- fefc5ca:	2054           	moveal %a4@,%a0
- fefc5cc:	6573           	bcss 0xfefc641
- fefc5ce:	740a           	moveq #10,%d2
- fefc5d0:	7720           	.short 0x7720
- fefc5d2:	2d20           	movel %a0@-,%fp@-
- fefc5d4:	5772 6974 6520 	subqw #3,%a2@(65204f6e)@(0)
- fefc5da:	4f6e 
- fefc5dc:	6c79           	bges 0xfefc657
- fefc5de:	2054           	moveal %a4@,%a0
- fefc5e0:	6573           	bcss 0xfefc655
- fefc5e2:	7400           	moveq #0,%d2
- fefc5e4:	0a25 7320      	eorib #32,%a5@-
- fefc5e8:	5465           	addqw #2,%a5@-
- fefc5ea:	7374           	.short 0x7374
- fefc5ec:	2066           	moveal %fp@-,%a0
- fefc5ee:	726f           	moveq #111,%d1
- fefc5f0:	6d20           	blts 0xfefc612
- fefc5f2:	5b30 7825      	subqb #5,%a0@(25,%d7:l)
- fefc5f6:	7820           	moveq #32,%d4
- fefc5f8:	2d20           	movel %a0@-,%fp@-
- fefc5fa:	3078 2578      	moveaw 0x2578,%a0
- fefc5fe:	5d2e 0a0a      	subqb #6,%fp@(2570)
- fefc602:	0056 6964      	oriw #26980,%fp@
- fefc606:	656f           	bcss 0xfefc677
- fefc608:	004d           	.short 0x004d
- fefc60a:	656d           	bcss 0xfefc679
- fefc60c:	6f72           	bles 0xfefc680
- fefc60e:	7900           	.short 0x7900
- fefc610:	2d5c 7c2f      	movel %a4@+,%fp@(31791)
- fefc614:	0025 6308      	orib #8,%a5@-
- fefc618:	0044 6174      	oriw #24948,%d4
- fefc61c:	6120           	bsrs 0xfefc63e
- fefc61e:	4572           	.short 0x4572
- fefc620:	726f           	moveq #111,%d1
- fefc622:	7220           	moveq #32,%d1
- fefc624:	2825           	movel %a5@-,%d4
- fefc626:	6429           	bccs 0xfefc651
- fefc628:	3a20           	movew %a0@-,%d5
- fefc62a:	2041           	moveal %d1,%a0
- fefc62c:	6464           	bccs 0xfefc692
- fefc62e:	7220           	moveq #32,%d1
- fefc630:	3d20           	movew %a0@-,%fp@-
- fefc632:	3078 2578      	moveaw 0x2578,%a0
- fefc636:	002c 2045 7870 	orib #69,%a4@(30832)
- fefc63c:	203d           	.short 0x203d
- fefc63e:	2030 7825      	movel %a0@(25,%d7:l),%d0
- fefc642:	782c           	moveq #44,%d4
- fefc644:	204f           	moveal %sp,%a0
- fefc646:	6273           	bhis 0xfefc6bb
- fefc648:	203d           	.short 0x203d
- fefc64a:	2030 7825      	movel %a0@(25,%d7:l),%d0
- fefc64e:	782c           	moveq #44,%d4
- fefc650:	2058           	moveal %a0@+,%a0
- fefc652:	6f72           	bles 0xfefc6c6
- fefc654:	203d           	.short 0x203d
- fefc656:	2030 7825      	movel %a0@(25,%d7:l),%d0
- fefc65a:	782e           	moveq #46,%d4
- fefc65c:	0a00 4861      	eorib #97,%d0
- fefc660:	6c74           	bges 0xfefc6d6
- fefc662:	6564           	bcss 0xfefc6c8
- fefc664:	206f 6e20      	moveal %sp@(28192),%a0
- fefc668:	6572           	bcss 0xfefc6dc
- fefc66a:	726f           	moveq #111,%d1
- fefc66c:	7220           	moveq #32,%d1
- fefc66e:	3d3e           	.short 0x3d3e
- fefc670:	2000           	movel %d0,%d0
- fefc672:	6869           	bvcs 0xfefc6dd
- fefc674:	7420           	moveq #32,%d2
- fefc676:	616e           	bsrs 0xfefc6e6
- fefc678:	7920           	.short 0x7920
- fefc67a:	6b65           	bmis 0xfefc6e1
- fefc67c:	7920           	.short 0x7920
- fefc67e:	746f           	moveq #111,%d2
- fefc680:	2063           	moveal %a3@-,%a0
- fefc682:	6f6e           	bles 0xfefc6f2
- fefc684:	7469           	moveq #105,%d2
- fefc686:	6e75           	bgts 0xfefc6fd
- fefc688:	6521           	bcss 0xfefc6ab
- fefc68a:	0a00 4c6f      	eorib #111,%d0
- fefc68e:	6f70           	bles 0xfefc700
- fefc690:	696e           	bvss 0xfefc700
- fefc692:	6720           	beqs 0xfefc6b4
- fefc694:	6f6e           	bles 0xfefc704
- fefc696:	2065           	moveal %a5@-,%a0
- fefc698:	7272           	moveq #114,%d1
- fefc69a:	6f72           	bles 0xfefc70e
- fefc69c:	202e 2e2e      	movel %fp@(11822),%d0
- fefc6a0:	0a00 2d5c      	eorib #92,%d0
- fefc6a4:	7c2f           	moveq #47,%d6
- fefc6a6:	004d           	.short 0x004d
- fefc6a8:	6f6e           	bles 0xfefc718
- fefc6aa:	6f63           	bles 0xfefc70f
- fefc6ac:	6872           	bvcs 0xfefc720
- fefc6ae:	6f6d           	bles 0xfefc71d
- fefc6b0:	6520           	bcss 0xfefc6d2
- fefc6b2:	5669 6465      	addqw #3,%a1@(25701)
- fefc6b6:	6f00 456e      	blew 0xff00c26
- fefc6ba:	6162           	bsrs 0xfefc71e
- fefc6bc:	6c65           	bges 0xfefc723
- fefc6be:	2050           	moveal %a0@,%a0
- fefc6c0:	6c61           	bges 0xfefc723
- fefc6c2:	6e65           	bgts 0xfefc729
- fefc6c4:	0043 6f6c      	oriw #28524,%d3
- fefc6c8:	6f72           	bles 0xfefc73c
- fefc6ca:	2046           	moveal %d6,%a0
- fefc6cc:	7261           	moveq #97,%d1
- fefc6ce:	6d65           	blts 0xfefc735
- fefc6d0:	2042           	moveal %d2,%a0
- fefc6d2:	7566           	.short 0x7566
- fefc6d4:	6665           	bnes 0xfefc73b
- fefc6d6:	7200           	moveq #0,%d1
- fefc6d8:	436f           	.short 0x436f
- fefc6da:	6c6f           	bges 0xfefc74b
- fefc6dc:	7220           	moveq #32,%d1
- fefc6de:	4d61           	.short 0x4d61
- fefc6e0:	7000           	moveq #0,%d0
- fefc6e2:	4f76           	.short 0x4f76
- fefc6e4:	6572           	bcss 0xfefc758
- fefc6e6:	6c61           	bges 0xfefc749
- fefc6e8:	7920           	.short 0x7920
- fefc6ea:	506c 616e      	addqw #8,%a4@(24942)
- fefc6ee:	6500 7465      	bcsw 0xff03b55
- fefc6f2:	7374           	.short 0x7374
- fefc6f4:	5f74 7970 6520 	subqw #7,%a4@(65202531)
- fefc6fa:	2531 
- fefc6fc:	6420           	bccs 0xfefc71e
- fefc6fe:	646f           	bccs 0xfefc76f
- fefc700:	6573           	bcss 0xfefc775
- fefc702:	206e 6f74      	moveal %fp@(28532),%a0
- fefc706:	2065           	moveal %a5@-,%a0
- fefc708:	7869           	moveq #105,%d4
- fefc70a:	7374           	.short 0x7374
- fefc70c:	2066           	moveal %fp@-,%a0
- fefc70e:	6f72           	bles 0xfefc782
- fefc710:	206d 656d      	moveal %a5@(25965),%a0
- fefc714:	6f72           	bles 0xfefc788
- fefc716:	795f           	.short 0x795f
- fefc718:	7465           	moveq #101,%d2
- fefc71a:	7374           	.short 0x7374
- fefc71c:	2829 0a00      	movel %a1@(2560),%d4
- fefc720:	0a25 7320      	eorib #32,%a5@-
- fefc724:	5465           	addqw #2,%a5@-
- fefc726:	7374           	.short 0x7374
- fefc728:	733a           	.short 0x733a
- fefc72a:	2020           	movel %a0@-,%d0
- fefc72c:	2845           	moveal %d5,%a4
- fefc72e:	6e74           	bgts 0xfefc7a4
- fefc730:	6572           	bcss 0xfefc7a4
- fefc732:	2027           	movel %sp@-,%d0
- fefc734:	7127           	.short 0x7127
- fefc736:	2074 6f20 7265 	moveal %a4@(7265,%d6:l:8),%a0
- fefc73c:	7475           	moveq #117,%d2
- fefc73e:	726e           	moveq #110,%d1
- fefc740:	2074 6f20 5465 	moveal %a4@(5465,%d6:l:8),%a0
- fefc746:	7374           	.short 0x7374
- fefc748:	204d           	moveal %a5,%a0
- fefc74a:	656e           	bcss 0xfefc7ba
- fefc74c:	7529           	.short 0x7529
- fefc74e:	0a0a           	.short 0x0a0a
- fefc750:	0045 6e74      	oriw #28276,%d5
- fefc754:	6572           	bcss 0xfefc7c8
- fefc756:	2043           	moveal %d3,%a0
- fefc758:	6d64           	blts 0xfefc7be
- fefc75a:	205b           	moveal %a3@+,%a0
- fefc75c:	6c6f           	bges 0xfefc7cd
- fefc75e:	7720           	.short 0x7720
- fefc760:	6164           	bsrs 0xfefc7c6
- fefc762:	6472           	bccs 0xfefc7d6
- fefc764:	203e           	.short 0x203e
- fefc766:	3d20           	movew %a0@-,%fp@-
- fefc768:	305d           	moveaw %a5@+,%a0
- fefc76a:	205b           	moveal %a3@+,%a0
- fefc76c:	6869           	bvcs 0xfefc7d7
- fefc76e:	2061           	moveal %a1@-,%a0
- fefc770:	6464           	bccs 0xfefc7d6
- fefc772:	7220           	moveq #32,%d1
- fefc774:	3c3d           	.short 0x3c3d
- fefc776:	2030 7825      	movel %a0@(25,%d7:l),%d0
- fefc77a:	785d           	moveq #93,%d4
- fefc77c:	0020 5b70      	orib #112,%a0@-
- fefc780:	6174           	bsrs 0xfefc7f6
- fefc782:	746e           	moveq #110,%d2
- fefc784:	5d0a           	subqb #6,%a2
- fefc786:	0a00 436d      	eorib #109,%d0
- fefc78a:	6420           	bccs 0xfefc7ac
- fefc78c:	2d20           	movel %a0@-,%fp@-
- fefc78e:	5465           	addqw #2,%a5@-
- fefc790:	7374           	.short 0x7374
- fefc792:	0a0a           	.short 0x0a0a
- fefc794:	0020 6120      	orib #32,%a0@-
- fefc798:	202d 2041      	movel %a5@(8257),%d0
- fefc79c:	6464           	bccs 0xfefc802
- fefc79e:	7265           	moveq #101,%d1
- fefc7a0:	7373           	.short 0x7373
- fefc7a2:	2054           	moveal %a4@,%a0
- fefc7a4:	6573           	bcss 0xfefc819
- fefc7a6:	740a           	moveq #10,%d2
- fefc7a8:	0020 6320      	orib #32,%a0@-
- fefc7ac:	202d 2057      	movel %a5@(8279),%d0
- fefc7b0:	7269           	moveq #105,%d1
- fefc7b2:	7465           	moveq #101,%d2
- fefc7b4:	2f52 6561      	movel %a2@,%sp@(25953)
- fefc7b8:	6420           	bccs 0xfefc7da
- fefc7ba:	5465           	addqw #2,%a5@-
- fefc7bc:	7374           	.short 0x7374
- fefc7be:	0a00 2073      	eorib #115,%d0
- fefc7c2:	2020           	movel %a0@-,%d0
- fefc7c4:	2d20           	movel %a0@-,%fp@-
- fefc7c6:	5363           	subqw #1,%a3@-
- fefc7c8:	616e           	bsrs 0xfefc838
- fefc7ca:	204d           	moveal %a5,%a0
- fefc7cc:	656d           	bcss 0xfefc83b
- fefc7ce:	6f72           	bles 0xfefc842
- fefc7d0:	7920           	.short 0x7920
- fefc7d2:	5465           	addqw #2,%a5@-
- fefc7d4:	7374           	.short 0x7374
- fefc7d6:	0a00 2077      	eorib #119,%d0
- fefc7da:	2020           	movel %a0@-,%d0
- fefc7dc:	2d20           	movel %a0@-,%fp@-
- fefc7de:	5772 6974 6520 	subqw #3,%a2@(65204f6e)@(0)
- fefc7e4:	4f6e 
- fefc7e6:	6c79           	bges 0xfefc861
- fefc7e8:	2054           	moveal %a4@,%a0
- fefc7ea:	6573           	bcss 0xfefc85f
- fefc7ec:	740a           	moveq #10,%d2
- fefc7ee:	000a           	.short 0x000a
- fefc7f0:	436d           	.short 0x436d
- fefc7f2:	643d           	bccs 0xfefc831
- fefc7f4:	3e00           	movew %d0,%d7
- fefc7f6:	4164           	.short 0x4164
- fefc7f8:	6472           	bccs 0xfefc86c
- fefc7fa:	6573           	bcss 0xfefc86f
- fefc7fc:	7320           	.short 0x7320
- fefc7fe:	7261           	moveq #97,%d1
- fefc800:	6e67           	bgts 0xfefc869
- fefc802:	6520           	bcss 0xfefc824
- fefc804:	6572           	bcss 0xfefc878
- fefc806:	726f           	moveq #111,%d1
- fefc808:	723a           	moveq #58,%d1
- fefc80a:	2072 616e 6765 	moveal %a2@(6765)@(2030),%a0
- fefc810:	2030 
- fefc812:	202d 2025      	movel %a5@(8229),%d0
- fefc816:	782e           	moveq #46,%d4
- fefc818:	0a00 0a25      	eorib #37,%d0
- fefc81c:	7320           	.short 0x7320
- fefc81e:	7465           	moveq #101,%d2
- fefc820:	7374           	.short 0x7374
- fefc822:	2066           	moveal %fp@-,%a0
- fefc824:	726f           	moveq #111,%d1
- fefc826:	6d20           	blts 0xfefc848
- fefc828:	6164           	bsrs 0xfefc88e
- fefc82a:	6472           	bccs 0xfefc89e
- fefc82c:	6573           	bcss 0xfefc8a1
- fefc82e:	7320           	.short 0x7320
- fefc830:	3078 0020      	moveaw 0x20,%a0
- fefc834:	746f           	moveq #111,%d2
- fefc836:	2030 7800      	movel %a0@(0,%d7:l),%d0
- fefc83a:	2e0a           	movel %a2,%d7
- fefc83c:	0a00 4461      	eorib #97,%d0
- fefc840:	7461           	moveq #97,%d2
- fefc842:	2063           	moveal %a3@-,%a0
- fefc844:	6f6d           	bles 0xfefc8b3
- fefc846:	7061           	moveq #97,%d0
- fefc848:	7265           	moveq #101,%d1
- fefc84a:	2065           	moveal %a5@-,%a0
- fefc84c:	7272           	moveq #114,%d1
- fefc84e:	6f72           	bles 0xfefc8c2
- fefc850:	2825           	movel %a5@-,%d4
- fefc852:	6429           	bccs 0xfefc87d
- fefc854:	3a0a           	movew %a2,%d5
- fefc856:	0020 2020      	orib #32,%a0@-
- fefc85a:	6164           	bsrs 0xfefc8c0
- fefc85c:	6472           	bccs 0xfefc8d0
- fefc85e:	203d           	.short 0x203d
- fefc860:	2030 7800      	movel %a0@(0,%d7:l),%d0
- fefc864:	2c20           	movel %a0@-,%d6
- fefc866:	6578           	bcss 0xfefc8e0
- fefc868:	7020           	moveq #32,%d0
- fefc86a:	3d20           	movew %a0@-,%fp@-
- fefc86c:	3078 002c      	moveaw 0x2c,%a0
- fefc870:	206f 6273      	moveal %sp@(25203),%a0
- fefc874:	203d           	.short 0x203d
- fefc876:	2030 7800      	movel %a0@(0,%d7:l),%d0
- fefc87a:	2c20           	movel %a0@-,%d6
- fefc87c:	786f           	moveq #111,%d4
- fefc87e:	7220           	moveq #32,%d1
- fefc880:	3d20           	movew %a0@-,%fp@-
- fefc882:	3078 002e      	moveaw 0x2e,%a0
- fefc886:	0a00 2020      	eorib #32,%d0
- fefc88a:	2042           	moveal %d2,%a0
- fefc88c:	6164           	bsrs 0xfefc8f2
- fefc88e:	2053           	moveal %a3@,%a0
- fefc890:	494d           	.short 0x494d
- fefc892:	4d20           	chkl %a0@-,%d6
- fefc894:	4d6f           	.short 0x4d6f
- fefc896:	6475           	bccs 0xfefc90d
- fefc898:	6c65           	bges 0xfefc8ff
- fefc89a:	2023           	movel %a3@-,%d0
- fefc89c:	203d           	.short 0x203d
- fefc89e:	2025           	movel %a5@-,%d0
- fefc8a0:	640a           	bccs 0xfefc8ac
- fefc8a2:	0048           	.short 0x0048
- fefc8a4:	616c           	bsrs 0xfefc912
- fefc8a6:	7465           	moveq #101,%d2
- fefc8a8:	6420           	bccs 0xfefc8ca
- fefc8aa:	6f6e           	bles 0xfefc91a
- fefc8ac:	2065           	moveal %a5@-,%a0
- fefc8ae:	7272           	moveq #114,%d1
- fefc8b0:	6f72           	bles 0xfefc924
- fefc8b2:	203d           	.short 0x203d
- fefc8b4:	3e20           	movew %a0@-,%d7
- fefc8b6:	0068 6974 2061 	oriw #26996,%a0@(8289)
- fefc8bc:	6e79           	bgts 0xfefc937
- fefc8be:	206b 6579      	moveal %a3@(25977),%a0
- fefc8c2:	2074 6f20 636f 	moveal %a4@(636f,%d6:l:8),%a0
- fefc8c8:	6e74           	bgts 0xfefc93e
- fefc8ca:	696e           	bvss 0xfefc93a
- fefc8cc:	7565           	.short 0x7565
- fefc8ce:	210a           	movel %a2,%a0@-
- fefc8d0:	004c           	.short 0x004c
- fefc8d2:	6f6f           	bles 0xfefc943
- fefc8d4:	7069           	moveq #105,%d0
- fefc8d6:	6e67           	bgts 0xfefc93f
- fefc8d8:	206f 6e20      	moveal %sp@(28192),%a0
- fefc8dc:	6572           	bcss 0xfefc950
- fefc8de:	726f           	moveq #111,%d1
- fefc8e0:	7220           	moveq #32,%d1
- fefc8e2:	2e2e 2e0a      	movel %fp@(11786),%d7
- fefc8e6:	0025 6308      	orib #8,%a5@-
- fefc8ea:	000c           	.short 0x000c
- fefc8ec:	0025 7320      	orib #32,%a5@-
- fefc8f0:	7465           	moveq #101,%d2
- fefc8f2:	7374           	.short 0x7374
- fefc8f4:	2063           	moveal %a3@-,%a0
- fefc8f6:	6f6d           	bles 0xfefc965
- fefc8f8:	706c           	moveq #108,%d0
- fefc8fa:	6574           	bcss 0xfefc970
- fefc8fc:	6564           	bcss 0xfefc962
- fefc8fe:	2070 6173 7320 	moveal %a0@(73202564)@(20776974),%a0
- fefc904:	2564 2077 6974 
- fefc90a:	6820           	bvcs 0xfefc92c
- fefc90c:	2564 2065      	movel %a4@-,%a2@(8293)
- fefc910:	7272           	moveq #114,%d1
- fefc912:	6f72           	bles 0xfefc986
- fefc914:	732e           	.short 0x732e
- fefc916:	0a00 2d5c      	eorib #92,%d0
- fefc91a:	7c2f           	moveq #47,%d6
- fefc91c:	0025 6308      	orib #8,%a5@-
- fefc920:	000a           	.short 0x000a
- fefc922:	0a4d           	.short 0x0a4d
- fefc924:	656d           	bcss 0xfefc993
- fefc926:	6f72           	bles 0xfefc99a
- fefc928:	7920           	.short 0x7920
- fefc92a:	4572           	.short 0x4572
- fefc92c:	726f           	moveq #111,%d1
- fefc92e:	7220           	moveq #32,%d1
- fefc930:	6174           	bsrs 0xfefc9a6
- fefc932:	2030 7825      	movel %a0@(25,%d7:l),%d0
- fefc936:	783a           	moveq #58,%d4
- fefc938:	0020 4578      	orib #120,%a0@-
- fefc93c:	7020           	moveq #32,%d0
- fefc93e:	3d20           	movew %a0@-,%fp@-
- fefc940:	3078 2578      	moveaw 0x2578,%a0
- fefc944:	2c20           	movel %a0@-,%d6
- fefc946:	4f62           	.short 0x4f62
- fefc948:	7320           	.short 0x7320
- fefc94a:	3d20           	movew %a0@-,%fp@-
- fefc94c:	3078 2578      	moveaw 0x2578,%a0
- fefc950:	2c20           	movel %a0@-,%d6
- fefc952:	586f 7220      	addqw #4,%sp@(29216)
- fefc956:	3d20           	movew %a0@-,%fp@-
- fefc958:	3078 2578      	moveaw 0x2578,%a0
- fefc95c:	210a           	movel %a2,%a0@-
- fefc95e:	0000 0000      	orib #0,%d0
- fefc962:	0003 0fe2      	orib #-30,%d3
- fefc966:	0000 0001      	orib #1,%d0
- fefc96a:	c007           	andb %d7,%d0
- fefc96c:	f800           	.short 0xf800
- fefc96e:	0fe4           	bset %d7,%a4@-
- fefc970:	0000 8000      	orib #0,%d0
- fefc974:	2000           	movel %d0,%d0
- fefc976:	0000 0c00      	orib #0,%d0
- fefc97a:	4545           	.short 0x4545
- fefc97c:	5052           	addqw #8,%a2@
- fefc97e:	4f4d           	.short 0x4f4d
- fefc980:	3a20           	movew %a0@-,%d5
- fefc982:	5573 696e 6720 	subqw #2,%a3@(6720)@(5253)
- fefc988:	5253 
- fefc98a:	3233 3220      	movew %a3@(20,%d3:w:2),%d1
- fefc98e:	4120           	chkl %a0@-,%d0
- fefc990:	706f           	moveq #111,%d0
- fefc992:	7274           	moveq #116,%d1
- fefc994:	2e0a           	movel %a2,%d7
- fefc996:	0045 4550      	oriw #17744,%d5
- fefc99a:	524f           	addqw #1,%sp
- fefc99c:	4d3a 2055      	chkl %pc@(0xfefe9f3),%d6
- fefc9a0:	7369           	.short 0x7369
- fefc9a2:	6e67           	bgts 0xfefca0b
- fefc9a4:	2052           	moveal %a2@,%a0
- fefc9a6:	5332 3332 2042 	subqb #1,%a2@(20422070,%d3:w:2)@(6f72)
- fefc9ac:	2070 6f72 
- fefc9b0:	742e           	moveq #46,%d2
- fefc9b2:	0a00 4e6f      	eorib #111,%d0
- fefc9b6:	206b 6579      	moveal %a3@(25977),%a0
- fefc9ba:	626f           	bhis 0xfefca2b
- fefc9bc:	6172           	bsrs 0xfefca30
- fefc9be:	6420           	bccs 0xfefc9e0
- fefc9c0:	666f           	bnes 0xfefca31
- fefc9c2:	756e           	.short 0x756e
- fefc9c4:	643a           	bccs 0xfefca00
- fefc9c6:	2055           	moveal %a5@,%a0
- fefc9c8:	7369           	.short 0x7369
- fefc9ca:	6e67           	bgts 0xfefca33
- fefc9cc:	2052           	moveal %a2@,%a0
- fefc9ce:	5332 3332 2050 	subqb #1,%a2@(20506f72,%d3:w:2)@(7420)
- fefc9d4:	6f72 7420 
- fefc9d8:	4120           	chkl %a0@-,%d0
- fefc9da:	6173           	bsrs 0xfefca4f
- fefc9dc:	2069 6e70      	moveal %a1@(28272),%a0
- fefc9e0:	7574           	.short 0x7574
- fefc9e2:	210a           	movel %a2,%a0@-
- fefc9e4:	000a           	.short 0x000a
- fefc9e6:	5465           	addqw #2,%a5@-
- fefc9e8:	7374           	.short 0x7374
- fefc9ea:	696e           	bvss 0xfefca5a
- fefc9ec:	6720           	beqs 0xfefca0e
- fefc9ee:	2564 204d      	movel %a4@-,%a2@(8269)
- fefc9f2:	6567           	bcss 0xfefca5b
- fefc9f4:	6162           	bsrs 0xfefca58
- fefc9f6:	7974           	.short 0x7974
- fefc9f8:	6573           	bcss 0xfefca6d
- fefc9fa:	206f 6620      	moveal %sp@(26144),%a0
- fefc9fe:	4d65           	.short 0x4d65
- fefca00:	6d6f           	blts 0xfefca71
- fefca02:	7279           	moveq #121,%d1
- fefca04:	202e 2e2e      	movel %fp@(11822),%d0
- fefca08:	2000           	movel %d0,%d0
- fefca0a:	436f           	.short 0x436f
- fefca0c:	6d70           	blts 0xfefca7e
- fefca0e:	6c65           	bges 0xfefca75
- fefca10:	7465           	moveq #101,%d2
- fefca12:	642e           	bccs 0xfefca42
- fefca14:	0a0a           	.short 0x0a0a
- fefca16:	0000 09c0      	orib #-64,%d0
- fefca1a:	0446 03c0      	subiw #960,%d6
- fefca1e:	05e2           	bset %d2,%a2@-
- fefca20:	0902           	btst %d4,%d2
- fefca22:	0b55           	bchg %d5,%a5@
- fefca24:	0c0e           	.short 0x0c0e
- fefca26:	0d00           	btst %d6,%d0
- fefca28:	0e02           	.short 0x0e02
- fefca2a:	03c1           	bset %d1,%d1
- fefca2c:	05ea 0e03      	bset %d2,%a2@(3587)
- fefca30:	0030 0030 0010 	orib #48,%a0@(10,%d0:w)
- fefca36:	ffff           	.short 0xffff
- fefca38:	0010 0446      	orib #70,%a0@
- fefca3c:	03c0           	bset %d1,%d0
- fefca3e:	05e2           	bset %d2,%a2@-
- fefca40:	0902           	btst %d4,%d2
- fefca42:	0b55           	bchg %d5,%a5@
- fefca44:	0c7e           	.short 0x0c7e
- fefca46:	0d00           	btst %d6,%d0
- fefca48:	0e02           	.short 0x0e02
- fefca4a:	03c1           	bset %d1,%d1
- fefca4c:	05ea 0e03      	bset %d2,%a2@(3587)
- fefca50:	0010 0010      	orib #16,%a0@
- fefca54:	ffff           	.short 0xffff
- fefca56:	0d0a 426f      	movepw %a2@(17007),%d6
- fefca5a:	6f74           	bles 0xfefcad0
- fefca5c:	2050           	moveal %a0@,%a0
- fefca5e:	524f           	addqw #1,%sp
- fefca60:	4d20           	chkl %a0@-,%d6
- fefca62:	5365           	subqw #1,%a5@-
- fefca64:	6c66           	bges 0xfefcacc
- fefca66:	7465           	moveq #101,%d2
- fefca68:	7374           	.short 0x7374
- fefca6a:	0a00 0d0a      	eorib #10,%d0
- fefca6e:	5052           	addqw #8,%a2@
- fefca70:	4f4d           	.short 0x4f4d
- fefca72:	2043           	moveal %d3,%a0
- fefca74:	6865           	bvcs 0xfefcadb
- fefca76:	636b           	blss 0xfefcae3
- fefca78:	7375           	.short 0x7375
- fefca7a:	6d20           	blts 0xfefca9c
- fefca7c:	5465           	addqw #2,%a5@-
- fefca7e:	7374           	.short 0x7374
- fefca80:	000d           	.short 0x000d
- fefca82:	0a44 564d      	eoriw #22093,%d4
- fefca86:	4120           	chkl %a0@-,%d0
- fefca88:	5265           	addqw #1,%a5@-
- fefca8a:	6720           	beqs 0xfefcaac
- fefca8c:	5465           	addqw #2,%a5@-
- fefca8e:	7374           	.short 0x7374
- fefca90:	000d           	.short 0x000d
- fefca92:	0a20 4572      	eorib #114,%a0@-
- fefca96:	7220           	moveq #32,%d1
- fefca98:	313a 2045      	movew %pc@(0xfefeadf),%a0@-
- fefca9c:	7870           	moveq #112,%d4
- fefca9e:	2030 7825      	movel %a0@(25,%d7:l),%d0
- fefcaa2:	6431           	bccs 0xfefcad5
- fefcaa4:	2c20           	movel %a0@-,%d6
- fefcaa6:	4f62           	.short 0x4f62
- fefcaa8:	7320           	.short 0x7320
- fefcaaa:	3078 2564      	moveaw 0x2564,%a0
- fefcaae:	302c 2058      	movew %a4@(8280),%d0
- fefcab2:	6f72           	bles 0xfefcb26
- fefcab4:	2030 7825      	movel %a0@(25,%d7:l),%d0
- fefcab8:	6432           	bccs 0xfefcaec
- fefcaba:	000d           	.short 0x000d
- fefcabc:	0a20 4572      	eorib #114,%a0@-
- fefcac0:	7220           	moveq #32,%d1
- fefcac2:	323a 2041      	movew %pc@(0xfefeb05),%d1
- fefcac6:	6464           	bccs 0xfefcb2c
- fefcac8:	7220           	moveq #32,%d1
- fefcaca:	3078 2561      	moveaw 0x2561,%a0
- fefcace:	352c 2045      	movew %a4@(8261),%a2@-
- fefcad2:	7870           	moveq #112,%d4
- fefcad4:	2030 7825      	movel %a0@(25,%d7:l),%d0
- fefcad8:	6431           	bccs 0xfefcb0b
- fefcada:	2c20           	movel %a0@-,%d6
- fefcadc:	4f62           	.short 0x4f62
- fefcade:	7320           	.short 0x7320
- fefcae0:	3078 2564      	moveaw 0x2564,%a0
- fefcae4:	3000           	movew %d0,%d0
- fefcae6:	0d0a 2045      	movepw %a2@(8261),%d6
- fefcaea:	7272           	moveq #114,%d1
- fefcaec:	2032 3a20      	movel %a2@(20,%d3:l:2),%d0
- fefcaf0:	4164           	.short 0x4164
- fefcaf2:	6472           	bccs 0xfefcb66
- fefcaf4:	2030 7825      	movel %a0@(25,%d7:l),%d0
- fefcaf8:	6135           	bsrs 0xfefcb2f
- fefcafa:	2c20           	movel %a0@-,%d6
- fefcafc:	4578           	.short 0x4578
- fefcafe:	7020           	moveq #32,%d0
- fefcb00:	3078 2564      	moveaw 0x2564,%a0
- fefcb04:	312c 204f      	movew %a4@(8271),%a0@-
- fefcb08:	6273           	bhis 0xfefcb7d
- fefcb0a:	2030 7825      	movel %a0@(25,%d7:l),%d0
- fefcb0e:	6430           	bccs 0xfefcb40
- fefcb10:	2c20           	movel %a0@-,%d6
- fefcb12:	586f 7220      	addqw #4,%sp@(29216)
- fefcb16:	3078 2564      	moveaw 0x2564,%a0
- fefcb1a:	3200           	movew %d0,%d1
- fefcb1c:	0d0a 2045      	movepw %a2@(8261),%d6
- fefcb20:	7272           	moveq #114,%d1
- fefcb22:	2032 3a20      	movel %a2@(20,%d3:l:2),%d0
- fefcb26:	4164           	.short 0x4164
- fefcb28:	6472           	bccs 0xfefcb9c
- fefcb2a:	2030 7825      	movel %a0@(25,%d7:l),%d0
- fefcb2e:	6135           	bsrs 0xfefcb65
- fefcb30:	2c20           	movel %a0@-,%d6
- fefcb32:	4578           	.short 0x4578
- fefcb34:	7020           	moveq #32,%d0
- fefcb36:	3078 2564      	moveaw 0x2564,%a0
- fefcb3a:	312c 204f      	movew %a4@(8271),%a0@-
- fefcb3e:	6273           	bhis 0xfefcbb3
- fefcb40:	2030 7825      	movel %a0@(25,%d7:l),%d0
- fefcb44:	6430           	bccs 0xfefcb76
- fefcb46:	2c20           	movel %a0@-,%d6
- fefcb48:	4d6f           	.short 0x4d6f
- fefcb4a:	6475           	bccs 0xfefcbc1
- fefcb4c:	6c65           	bges 0xfefcbb3
- fefcb4e:	2030 7825      	movel %a0@(25,%d7:l),%d0
- fefcb52:	6432           	bccs 0xfefcb86
- fefcb54:	000d           	.short 0x000d
- fefcb56:	0a43 6f6e      	eoriw #28526,%d3
- fefcb5a:	7465           	moveq #101,%d2
- fefcb5c:	7874           	moveq #116,%d4
- fefcb5e:	2052           	moveal %a2@,%a0
- fefcb60:	6567           	bcss 0xfefcbc9
- fefcb62:	2054           	moveal %a4@,%a0
- fefcb64:	6573           	bcss 0xfefcbd9
- fefcb66:	7400           	moveq #0,%d2
- fefcb68:	0d0a 5365      	movepw %a2@(21349),%d6
- fefcb6c:	676d           	beqs 0xfefcbdb
- fefcb6e:	656e           	bcss 0xfefcbde
- fefcb70:	7420           	moveq #32,%d2
- fefcb72:	4d61           	.short 0x4d61
- fefcb74:	7020           	moveq #32,%d0
- fefcb76:	5772 2f52 6420 	subqw #3,%a2@(0)@(6420)
- fefcb7c:	5465           	addqw #2,%a5@-
- fefcb7e:	7374           	.short 0x7374
- fefcb80:	000d           	.short 0x000d
- fefcb82:	0a53 6567      	eoriw #25959,%a3@
- fefcb86:	6d65           	blts 0xfefcbed
- fefcb88:	6e74           	bgts 0xfefcbfe
- fefcb8a:	204d           	moveal %a5,%a0
- fefcb8c:	6170           	bsrs 0xfefcbfe
- fefcb8e:	2041           	moveal %d1,%a0
- fefcb90:	6464           	bccs 0xfefcbf6
- fefcb92:	7265           	moveq #101,%d1
- fefcb94:	7373           	.short 0x7373
- fefcb96:	2054           	moveal %a4@,%a0
- fefcb98:	6573           	bcss 0xfefcc0d
- fefcb9a:	7400           	moveq #0,%d2
- fefcb9c:	0d0a 5061      	movepw %a2@(20577),%d6
- fefcba0:	6765           	beqs 0xfefcc07
- fefcba2:	204d           	moveal %a5,%a0
- fefcba4:	6170           	bsrs 0xfefcc16
- fefcba6:	2054           	moveal %a4@,%a0
- fefcba8:	6573           	bcss 0xfefcc1d
- fefcbaa:	7400           	moveq #0,%d2
- fefcbac:	0d0a 4d65      	movepw %a2@(19813),%d6
- fefcbb0:	6d6f           	blts 0xfefcc21
- fefcbb2:	7279           	moveq #121,%d1
- fefcbb4:	2050           	moveal %a0@,%a0
- fefcbb6:	6174           	bsrs 0xfefcc2c
- fefcbb8:	6820           	bvcs 0xfefcbda
- fefcbba:	4461           	negw %a1@-
- fefcbbc:	7461           	moveq #97,%d2
- fefcbbe:	2054           	moveal %a4@,%a0
- fefcbc0:	6573           	bcss 0xfefcc35
- fefcbc2:	7400           	moveq #0,%d2
- fefcbc4:	0d0a 4e58      	movepw %a2@(20056),%d6
- fefcbc8:	4d20           	chkl %a0@-,%d6
- fefcbca:	4275 7320 4572 	clrw %a5@(4572,%d7:w:2)
- fefcbd0:	726f           	moveq #111,%d1
- fefcbd2:	7220           	moveq #32,%d1
- fefcbd4:	5465           	addqw #2,%a5@-
- fefcbd6:	7374           	.short 0x7374
- fefcbd8:	000d           	.short 0x000d
- fefcbda:	0a20 4572      	eorib #114,%a0@-
- fefcbde:	7220           	moveq #32,%d1
- fefcbe0:	333a 204e      	movew %pc@(0xfefec30),%a1@-
- fefcbe4:	6f20           	bles 0xfefcc06
- fefcbe6:	4e58           	unlk %a0
- fefcbe8:	4d20           	chkl %a0@-,%d6
- fefcbea:	4275 7320 4572 	clrw %a5@(4572,%d7:w:2)
- fefcbf0:	726f           	moveq #111,%d1
- fefcbf2:	7221           	moveq #33,%d1
- fefcbf4:	000d           	.short 0x000d
- fefcbf6:	0a49           	.short 0x0a49
- fefcbf8:	6e74           	bgts 0xfefcc6e
- fefcbfa:	6572           	bcss 0xfefcc6e
- fefcbfc:	7275           	moveq #117,%d1
- fefcbfe:	7074           	moveq #116,%d0
- fefcc00:	2054           	moveal %a4@,%a0
- fefcc02:	6573           	bcss 0xfefcc77
- fefcc04:	7400           	moveq #0,%d2
- fefcc06:	0d0a 2045      	movepw %a2@(8261),%d6
- fefcc0a:	7272           	moveq #114,%d1
- fefcc0c:	2034 3a20      	movel %a4@(20,%d3:l:2),%d0
- fefcc10:	4e6f           	movel %usp,%sp
- fefcc12:	204c           	moveal %a4,%a0
- fefcc14:	6576           	bcss 0xfefcc8c
- fefcc16:	656c           	bcss 0xfefcc84
- fefcc18:	2031 2069      	movel %a1@(69,%d2:w),%d0
- fefcc1c:	6e74           	bgts 0xfefcc92
- fefcc1e:	6572           	bcss 0xfefcc92
- fefcc20:	7275           	moveq #117,%d1
- fefcc22:	7074           	moveq #116,%d0
- fefcc24:	2100           	movel %d0,%a0@-
- fefcc26:	0d0a 544f      	movepw %a2@(21583),%d6
- fefcc2a:	4420           	negb %a0@-
- fefcc2c:	436c           	.short 0x436c
- fefcc2e:	6f63           	bles 0xfefcc93
- fefcc30:	6b20           	bmis 0xfefcc52
- fefcc32:	496e           	.short 0x496e
- fefcc34:	7465           	moveq #101,%d2
- fefcc36:	7272           	moveq #114,%d1
- fefcc38:	7570           	.short 0x7570
- fefcc3a:	7420           	moveq #32,%d2
- fefcc3c:	5465           	addqw #2,%a5@-
- fefcc3e:	7374           	.short 0x7374
- fefcc40:	000d           	.short 0x000d
- fefcc42:	0a20 4572      	eorib #114,%a0@-
- fefcc46:	7220           	moveq #32,%d1
- fefcc48:	3231 3a20      	movew %a1@(20,%d3:l:2),%d1
- fefcc4c:	544f           	addqw #2,%sp
- fefcc4e:	4420           	negb %a0@-
- fefcc50:	6661           	bnes 0xfefccb3
- fefcc52:	696c           	bvss 0xfefccc0
- fefcc54:	6564           	bcss 0xfefccba
- fefcc56:	2074 6f20 696e 	moveal %a4@(696e,%d6:l:8),%a0
- fefcc5c:	7465           	moveq #101,%d2
- fefcc5e:	7272           	moveq #114,%d1
- fefcc60:	7570           	.short 0x7570
- fefcc62:	7421           	moveq #33,%d2
- fefcc64:	000d           	.short 0x000d
- fefcc66:	0a4d           	.short 0x0a4d
- fefcc68:	4d55           	.short 0x4d55
- fefcc6a:	2041           	moveal %d1,%a0
- fefcc6c:	6363           	blss 0xfefccd1
- fefcc6e:	6573           	bcss 0xfefcce3
- fefcc70:	7320           	.short 0x7320
- fefcc72:	4269 7420      	clrw %a1@(29728)
- fefcc76:	5465           	addqw #2,%a5@-
- fefcc78:	7374           	.short 0x7374
- fefcc7a:	000d           	.short 0x000d
- fefcc7c:	0a4d           	.short 0x0a4d
- fefcc7e:	4d55           	.short 0x4d55
- fefcc80:	2041           	moveal %d1,%a0
- fefcc82:	6363           	blss 0xfefcce7
- fefcc84:	6573           	bcss 0xfefccf9
- fefcc86:	732f           	.short 0x732f
- fefcc88:	4d6f           	.short 0x4d6f
- fefcc8a:	6469           	bccs 0xfefccf5
- fefcc8c:	6679           	bnes 0xfefcd07
- fefcc8e:	2042           	moveal %d2,%a0
- fefcc90:	6974           	bvss 0xfefcd06
- fefcc92:	2054           	moveal %a4@,%a0
- fefcc94:	6573           	bcss 0xfefcd09
- fefcc96:	7400           	moveq #0,%d2
- fefcc98:	0d0a 4d4d      	movepw %a2@(19789),%d6
- fefcc9c:	5520           	subqb #2,%a0@-
- fefcc9e:	496e           	.short 0x496e
- fefcca0:	7661           	moveq #97,%d3
- fefcca2:	6c69           	bges 0xfefcd0d
- fefcca4:	6420           	bccs 0xfefccc6
- fefcca6:	5061           	addqw #8,%a1@-
- fefcca8:	6765           	beqs 0xfefcd0f
- fefccaa:	2054           	moveal %a4@,%a0
- fefccac:	6573           	bcss 0xfefcd21
- fefccae:	7400           	moveq #0,%d2
- fefccb0:	0d0a 4d4d      	movepw %a2@(19789),%d6
- fefccb4:	5520           	subqb #2,%a0@-
- fefccb6:	5072 6f74 6563 	addqw #8,%a2@(65637465)@(0)
- fefccbc:	7465 
- fefccbe:	6420           	bccs 0xfefcce0
- fefccc0:	5061           	addqw #8,%a1@-
- fefccc2:	6765           	beqs 0xfefcd29
- fefccc4:	2054           	moveal %a4@,%a0
- fefccc6:	6573           	bcss 0xfefcd3b
- fefccc8:	7400           	moveq #0,%d2
- fefccca:	0d0a 2045      	movepw %a2@(8261),%d6
- fefccce:	7272           	moveq #114,%d1
- fefccd0:	2035 3a20      	movel %a5@(20,%d3:l:2),%d0
- fefccd4:	5061           	addqw #8,%a1@-
- fefccd6:	6765           	beqs 0xfefcd3d
- fefccd8:	204d           	moveal %a5,%a0
- fefccda:	6170           	bsrs 0xfefcd4c
- fefccdc:	2073 7461      	moveal %a3@(61,%d7:w:4),%a0
- fefcce0:	7475           	moveq #117,%d2
- fefcce2:	732c           	.short 0x732c
- fefcce4:	2045           	moveal %d5,%a0
- fefcce6:	7870           	moveq #112,%d4
- fefcce8:	2030 7825      	movel %a0@(25,%d7:l),%d0
- fefccec:	6431           	bccs 0xfefcd1f
- fefccee:	2c20           	movel %a0@-,%d6
- fefccf0:	4f62           	.short 0x4f62
- fefccf2:	7320           	.short 0x7320
- fefccf4:	3078 2564      	moveaw 0x2564,%a0
- fefccf8:	302c 2058      	movew %a4@(8280),%d0
- fefccfc:	6f72           	bles 0xfefcd70
- fefccfe:	2030 7825      	movel %a0@(25,%d7:l),%d0
- fefcd02:	6435           	bccs 0xfefcd39
- fefcd04:	000d           	.short 0x000d
- fefcd06:	0a20 4572      	eorib #114,%a0@-
- fefcd0a:	7220           	moveq #32,%d1
- fefcd0c:	363a 204e      	movew %pc@(0xfefed5c),%d3
- fefcd10:	6f20           	bles 0xfefcd32
- fefcd12:	6275           	bhis 0xfefcd89
- fefcd14:	7320           	.short 0x7320
- fefcd16:	6572           	bcss 0xfefcd8a
- fefcd18:	726f           	moveq #111,%d1
- fefcd1a:	7220           	moveq #32,%d1
- fefcd1c:	666f           	bnes 0xfefcd8d
- fefcd1e:	7220           	moveq #32,%d1
- fefcd20:	696e           	bvss 0xfefcd90
- fefcd22:	7661           	moveq #97,%d3
- fefcd24:	6c69           	bges 0xfefcd8f
- fefcd26:	6420           	bccs 0xfefcd48
- fefcd28:	7061           	moveq #97,%d0
- fefcd2a:	6765           	beqs 0xfefcd91
- fefcd2c:	2100           	movel %d0,%a0@-
- fefcd2e:	0d0a 2045      	movepw %a2@(8261),%d6
- fefcd32:	7272           	moveq #114,%d1
- fefcd34:	2037 3a20      	movel %sp@(20,%d3:l:2),%d0
- fefcd38:	4275 7320 6572 	clrw %a5@(6572,%d7:w:2)
- fefcd3e:	726f           	moveq #111,%d1
- fefcd40:	7220           	moveq #32,%d1
- fefcd42:	7265           	moveq #101,%d1
- fefcd44:	6720           	beqs 0xfefcd66
- fefcd46:	2045           	moveal %d5,%a0
- fefcd48:	7870           	moveq #112,%d4
- fefcd4a:	2030 7825      	movel %a0@(25,%d7:l),%d0
- fefcd4e:	6431           	bccs 0xfefcd81
- fefcd50:	2c20           	movel %a0@-,%d6
- fefcd52:	4f62           	.short 0x4f62
- fefcd54:	7320           	.short 0x7320
- fefcd56:	3078 2564      	moveaw 0x2564,%a0
- fefcd5a:	302c 2058      	movew %a4@(8280),%d0
- fefcd5e:	6f72           	bles 0xfefcdd2
- fefcd60:	2030 7825      	movel %a0@(25,%d7:l),%d0
- fefcd64:	6432           	bccs 0xfefcd98
- fefcd66:	000d           	.short 0x000d
- fefcd68:	0a20 4572      	eorib #114,%a0@-
- fefcd6c:	7220           	moveq #32,%d1
- fefcd6e:	383a 204e      	movew %pc@(0xfefedbe),%d4
- fefcd72:	6f20           	bles 0xfefcd94
- fefcd74:	6275           	bhis 0xfefcdeb
- fefcd76:	7320           	.short 0x7320
- fefcd78:	6572           	bcss 0xfefcdec
- fefcd7a:	726f           	moveq #111,%d1
- fefcd7c:	7220           	moveq #32,%d1
- fefcd7e:	666f           	bnes 0xfefcdef
- fefcd80:	7220           	moveq #32,%d1
- fefcd82:	7072           	moveq #114,%d0
- fefcd84:	6f74           	bles 0xfefcdfa
- fefcd86:	6563           	bcss 0xfefcdeb
- fefcd88:	7465           	moveq #101,%d2
- fefcd8a:	6420           	bccs 0xfefcdac
- fefcd8c:	7061           	moveq #97,%d0
- fefcd8e:	6765           	beqs 0xfefcdf5
- fefcd90:	2100           	movel %d0,%a0@-
- fefcd92:	0d0a 2045      	movepw %a2@(8261),%d6
- fefcd96:	7272           	moveq #114,%d1
- fefcd98:	2039 3a20 4261 	movel 0x3a204261,%d0
- fefcd9e:	6420           	bccs 0xfefcdc0
- fefcda0:	7061           	moveq #97,%d0
- fefcda2:	7269           	moveq #105,%d1
- fefcda4:	7479           	moveq #121,%d2
- fefcda6:	2073 686f      	moveal %a3@(6f,%d6:l),%a0
- fefcdaa:	756c           	.short 0x756c
- fefcdac:	6420           	bccs 0xfefcdce
- fefcdae:	6361           	blss 0xfefce11
- fefcdb0:	7573           	.short 0x7573
- fefcdb2:	6520           	bcss 0xfefcdd4
- fefcdb4:	6e6d           	bgts 0xfefce23
- fefcdb6:	6900 0d0a      	bvsw 0xfefdac2
- fefcdba:	2045           	moveal %d5,%a0
- fefcdbc:	7272           	moveq #114,%d1
- fefcdbe:	2031 303a      	movel %a1@(3a,%d3:w),%d0
- fefcdc2:	2050           	moveal %a0@,%a0
- fefcdc4:	6172           	bsrs 0xfefce38
- fefcdc6:	6974           	bvss 0xfefce3c
- fefcdc8:	7920           	.short 0x7920
- fefcdca:	6572           	bcss 0xfefce3e
- fefcdcc:	726f           	moveq #111,%d1
- fefcdce:	7220           	moveq #32,%d1
- fefcdd0:	6174           	bsrs 0xfefce46
- fefcdd2:	2041           	moveal %d1,%a0
- fefcdd4:	6464           	bccs 0xfefce3a
- fefcdd6:	7220           	moveq #32,%d1
- fefcdd8:	3078 2561      	moveaw 0x2561,%a0
- fefcddc:	352c 2044      	movew %a4@(8260),%a2@-
- fefcde0:	6174           	bsrs 0xfefce56
- fefcde2:	6120           	bsrs 0xfefce04
- fefcde4:	3078 2564      	moveaw 0x2564,%a0
- fefcde8:	332c 0d0a      	movew %a4@(3338),%a1@-
- fefcdec:	2053           	moveal %a3@,%a0
- fefcdee:	7461           	moveq #97,%d2
- fefcdf0:	7475           	moveq #117,%d2
- fefcdf2:	7320           	.short 0x7320
- fefcdf4:	4578           	.short 0x4578
- fefcdf6:	7020           	moveq #32,%d0
- fefcdf8:	3078 2564      	moveaw 0x2564,%a0
- fefcdfc:	312c 204f      	movew %a4@(8271),%a0@-
- fefce00:	6273           	bhis 0xfefce75
- fefce02:	2030 7825      	movel %a0@(25,%d7:l),%d0
- fefce06:	6430           	bccs 0xfefce38
- fefce08:	000d           	.short 0x000d
- fefce0a:	0a4d           	.short 0x0a4d
- fefce0c:	656d           	bcss 0xfefce7b
- fefce0e:	6f72           	bles 0xfefce82
- fefce10:	7920           	.short 0x7920
- fefce12:	5369 7a65      	subqw #1,%a1@(31333)
- fefce16:	2000           	movel %d0,%d0
- fefce18:	3d20           	movew %a0@-,%fp@-
- fefce1a:	3078 2564      	moveaw 0x2564,%a0
- fefce1e:	3320           	movew %a0@-,%a1@-
- fefce20:	4d65           	.short 0x4d65
- fefce22:	6761           	beqs 0xfefce85
- fefce24:	6279           	bhis 0xfefce9f
- fefce26:	7465           	moveq #101,%d2
- fefce28:	7300           	.short 0x7300
- fefce2a:	0d0a 5061      	movepw %a2@(20577),%d6
- fefce2e:	7269           	moveq #105,%d1
- fefce30:	7479           	moveq #121,%d2
- fefce32:	2054           	moveal %a4@,%a0
- fefce34:	6573           	bcss 0xfefcea9
- fefce36:	7400           	moveq #0,%d2
- fefce38:	0d0a 2045      	movepw %a2@(8261),%d6
- fefce3c:	7272           	moveq #114,%d1
- fefce3e:	2031 313a 2050 	movel %a1@(20506172,%d3:w)@(6974),%d0
- fefce44:	6172 6974 
- fefce48:	7920           	.short 0x7920
- fefce4a:	4572           	.short 0x4572
- fefce4c:	726f           	moveq #111,%d1
- fefce4e:	7220           	moveq #32,%d1
- fefce50:	6174           	bsrs 0xfefcec6
- fefce52:	2061           	moveal %a1@-,%a0
- fefce54:	6464           	bccs 0xfefceba
- fefce56:	7265           	moveq #101,%d1
- fefce58:	7373           	.short 0x7373
- fefce5a:	2030 7825      	movel %a0@(25,%d7:l),%d0
- fefce5e:	6135           	bsrs 0xfefce95
- fefce60:	0d0a 2045      	movepw %a2@(8261),%d6
- fefce64:	7870           	moveq #112,%d4
- fefce66:	2030 7825      	movel %a0@(25,%d7:l),%d0
- fefce6a:	6431           	bccs 0xfefce9d
- fefce6c:	2c20           	movel %a0@-,%d6
- fefce6e:	4f62           	.short 0x4f62
- fefce70:	7320           	.short 0x7320
- fefce72:	3078 2564      	moveaw 0x2564,%a0
- fefce76:	302c 204d      	movew %a4@(8269),%d0
- fefce7a:	6f64           	bles 0xfefcee0
- fefce7c:	756c           	.short 0x756c
- fefce7e:	6520           	bcss 0xfefcea0
- fefce80:	3078 2564      	moveaw 0x2564,%a0
- fefce84:	3200           	movew %d0,%d1
- fefce86:	0d0a 2045      	movepw %a2@(8261),%d6
- fefce8a:	7272           	moveq #114,%d1
- fefce8c:	2031 353a 2055 	movel %a1@(20556e65,%d3:w:4)@(7870),%d0
- fefce92:	6e65 7870 
- fefce96:	2764 2070      	movel %a4@-,%a3@(8304)
- fefce9a:	6172           	bsrs 0xfefcf0e
- fefce9c:	6974           	bvss 0xfefcf12
- fefce9e:	7920           	.short 0x7920
- fefcea0:	4552           	.short 0x4552
- fefcea2:	524f           	addqw #1,%sp
- fefcea4:	5220           	addqb #1,%a0@-
- fefcea6:	5472 6170 2c20 	addqw #2,%a2@(2c207063)
- fefceac:	7063 
- fefceae:	2030 7825      	movel %a0@(25,%d7:l),%d0
- fefceb2:	6430           	bccs 0xfefcee4
- fefceb4:	2c20           	movel %a0@-,%d6
- fefceb6:	6d65           	blts 0xfefcf1d
- fefceb8:	6d5f           	blts 0xfefcf19
- fefceba:	6572           	bcss 0xfefcf2e
- fefcebc:	7220           	moveq #32,%d1
- fefcebe:	3078 2564      	moveaw 0x2564,%a0
- fefcec2:	3500           	movew %d0,%a2@-
- fefcec4:	0d0a 2043      	movepw %a2@(8259),%d6
- fefcec8:	6f6e           	bles 0xfefcf38
- fefceca:	7469           	moveq #105,%d2
- fefcecc:	6e75           	bgts 0xfefcf43
- fefcece:	696e           	bvss 0xfefcf3e
- fefced0:	6720           	beqs 0xfefcef2
- fefced2:	7465           	moveq #101,%d2
- fefced4:	7374           	.short 0x7374
- fefced6:	2062           	moveal %a2@-,%a0
- fefced8:	6579           	bcss 0xfefcf53
- fefceda:	6f6e           	bles 0xfefcf4a
- fefcedc:	6420           	bccs 0xfefcefe
- fefcede:	3078 2561      	moveaw 0x2561,%a0
- fefcee2:	3500           	movew %d0,%a2@-
- fefcee4:	0d0a 436f      	movepw %a2@(17263),%d6
- fefcee8:	6e74           	bgts 0xfefcf5e
- fefceea:	696e           	bvss 0xfefcf5a
- fefceec:	7569           	.short 0x7569
- fefceee:	6e67           	bgts 0xfefcf57
- fefcef0:	000d           	.short 0x000d
- fefcef2:	0a4d           	.short 0x0a4d
- fefcef4:	656d           	bcss 0xfefcf63
- fefcef6:	6f72           	bles 0xfefcf6a
- fefcef8:	7920           	.short 0x7920
- fefcefa:	5465           	addqw #2,%a5@-
- fefcefc:	7374           	.short 0x7374
- fefcefe:	2028 5465      	movel %a0@(21605),%d0
- fefcf02:	7374           	.short 0x7374
- fefcf04:	696e           	bvss 0xfefcf74
- fefcf06:	6720           	beqs 0xfefcf28
- fefcf08:	3078 2564      	moveaw 0x2564,%a0
- fefcf0c:	3320           	movew %a0@-,%a1@-
- fefcf0e:	4d42           	.short 0x4d42
- fefcf10:	7974           	.short 0x7974
- fefcf12:	6573           	bcss 0xfefcf87
- fefcf14:	2920           	movel %a0@-,%a4@-
- fefcf16:	2000           	movel %d0,%d0
- fefcf18:	0d0a 2045      	movepw %a2@(8261),%d6
- fefcf1c:	7272           	moveq #114,%d1
- fefcf1e:	2031 323a      	movel %a1@(3a,%d3:w:2),%d0
- fefcf22:	204e           	moveal %fp,%a0
- fefcf24:	4d49           	.short 0x4d49
- fefcf26:	2069 6e74      	moveal %a1@(28276),%a0
- fefcf2a:	2077 6974 6820 	moveal %sp@(68206261)@(0),%a0
- fefcf30:	6261 
- fefcf32:	6420           	bccs 0xfefcf54
- fefcf34:	7374           	.short 0x7374
- fefcf36:	6174           	bsrs 0xfefcfac
- fefcf38:	7573           	.short 0x7573
- fefcf3a:	2c20           	movel %a0@-,%d6
- fefcf3c:	6f62           	bles 0xfefcfa0
- fefcf3e:	7320           	.short 0x7320
- fefcf40:	3078 2564      	moveaw 0x2564,%a0
- fefcf44:	3000           	movew %d0,%d0
- fefcf46:	0d0a 2045      	movepw %a2@(8261),%d6
- fefcf4a:	7272           	moveq #114,%d1
- fefcf4c:	2031 333a 2055 	movel %a1@(20556e65,%d3:w:2)@(7870),%d0
- fefcf52:	6e65 7870 
- fefcf56:	2764 2074      	movel %a4@-,%a3@(8308)
- fefcf5a:	7261           	moveq #97,%d1
- fefcf5c:	702f           	moveq #47,%d0
- fefcf5e:	7665           	moveq #101,%d3
- fefcf60:	6374           	blss 0xfefcfd6
- fefcf62:	6f72           	bles 0xfefcfd6
- fefcf64:	2c20           	movel %a0@-,%d6
- fefcf66:	7063           	moveq #99,%d0
- fefcf68:	2030 7825      	movel %a0@(25,%d7:l),%d0
- fefcf6c:	6430           	bccs 0xfefcf9e
- fefcf6e:	0020 7665      	orib #101,%a0@-
- fefcf72:	6374           	blss 0xfefcfe8
- fefcf74:	6f72           	bles 0xfefcfe8
- fefcf76:	206f 6666      	moveal %sp@(26214),%a0
- fefcf7a:	7365           	.short 0x7365
- fefcf7c:	7420           	moveq #32,%d2
- fefcf7e:	3078 2564      	moveaw 0x2564,%a0
- fefcf82:	3000           	movew %d0,%d0
- fefcf84:	0d0a 2045      	movepw %a2@(8261),%d6
- fefcf88:	7272           	moveq #114,%d1
- fefcf8a:	2031 343a      	movel %a1@(3a,%d3:w:4),%d0
- fefcf8e:	2055           	moveal %a5@,%a0
- fefcf90:	6e65           	bgts 0xfefcff7
- fefcf92:	7870           	moveq #112,%d4
- fefcf94:	2764 2062      	movel %a4@-,%a3@(8290)
- fefcf98:	7573           	.short 0x7573
- fefcf9a:	2065           	moveal %a5@-,%a0
- fefcf9c:	7272           	moveq #114,%d1
- fefcf9e:	2c20           	movel %a0@-,%d6
- fefcfa0:	7063           	moveq #99,%d0
- fefcfa2:	2030 7825      	movel %a0@(25,%d7:l),%d0
- fefcfa6:	6430           	bccs 0xfefcfd8
- fefcfa8:	0020 6163      	orib #99,%a0@-
- fefcfac:	6365           	blss 0xfefd013
- fefcfae:	7373           	.short 0x7373
- fefcfb0:	2061           	moveal %a1@-,%a0
- fefcfb2:	6464           	bccs 0xfefd018
- fefcfb4:	7220           	moveq #32,%d1
- fefcfb6:	3078 2564      	moveaw 0x2564,%a0
- fefcfba:	3000           	movew %d0,%d0
- fefcfbc:	2062           	moveal %a2@-,%a0
- fefcfbe:	7573           	.short 0x7573
- fefcfc0:	2065           	moveal %a5@-,%a0
- fefcfc2:	7272           	moveq #114,%d1
- fefcfc4:	2072 6567 2030 	moveal %a2@(2030)@(78256430),%a0
- fefcfca:	7825 6430 
- fefcfce:	000d           	.short 0x000d
- fefcfd0:	0a0a           	.short 0x0a0a
- fefcfd2:	5365           	subqw #1,%a5@-
- fefcfd4:	6c66           	bges 0xfefd03c
- fefcfd6:	7465           	moveq #101,%d2
- fefcfd8:	7374           	.short 0x7374
- fefcfda:	2070 6173 7365 	moveal %a0@(7365642e)@(d0a000d),%a0
- fefcfe0:	642e 0d0a 000d 
- fefcfe6:	0a0a           	.short 0x0a0a
- fefcfe8:	5365           	subqw #1,%a5@-
- fefcfea:	6c66           	bges 0xfefd052
- fefcfec:	7465           	moveq #101,%d2
- fefcfee:	7374           	.short 0x7374
- fefcff0:	2066           	moveal %fp@-,%a0
- fefcff2:	6169           	bsrs 0xfefd05d
- fefcff4:	6c65           	bges 0xfefd05b
- fefcff6:	642e           	bccs 0xfefd026
- fefcff8:	0d0a 000d      	movepw %a2@(13),%d6
- fefcffc:	0a20 4572      	eorib #114,%a0@-
- fefd000:	7220           	moveq #32,%d1
- fefd002:	3136 3a20      	movew %fp@(20,%d3:l:2),%a0@-
- fefd006:	4368           	.short 0x4368
- fefd008:	6563           	bcss 0xfefd06d
- fefd00a:	6b73           	bmis 0xfefd07f
- fefd00c:	756d           	.short 0x756d
- fefd00e:	2065           	moveal %a5@-,%a0
- fefd010:	7272           	moveq #114,%d1
- fefd012:	6f72           	bles 0xfefd086
- fefd014:	3a20           	movew %a0@-,%d5
- fefd016:	4578           	.short 0x4578
- fefd018:	7020           	moveq #32,%d0
- fefd01a:	3078 2564      	moveaw 0x2564,%a0
- fefd01e:	302c 204f      	movew %a4@(8271),%d0
- fefd022:	6273           	bhis 0xfefd097
- fefd024:	2030 7825      	movel %a0@(25,%d7:l),%d0
- fefd028:	6431           	bccs 0xfefd05b
- fefd02a:	0020 2865      	orib #101,%a0@-
- fefd02e:	2066           	moveal %fp@-,%a0
- fefd030:	6f72           	bles 0xfefd0a4
- fefd032:	2065           	moveal %a5@-,%a0
- fefd034:	6368           	blss 0xfefd09e
- fefd036:	6f20           	bles 0xfefd058
- fefd038:	6d6f           	blts 0xfefd0a9
- fefd03a:	6465           	bccs 0xfefd0a1
- fefd03c:	2920           	movel %a0@-,%a4@-
- fefd03e:	000d           	.short 0x000d
- fefd040:	0a45 6368      	eoriw #25448,%d5
- fefd044:	6f20           	bles 0xfefd066
- fefd046:	6d6f           	blts 0xfefd0b7
- fefd048:	6465           	bccs 0xfefd0af
- fefd04a:	3a20           	movew %a0@-,%d5
- fefd04c:	4f75           	.short 0x4f75
- fefd04e:	7470           	moveq #112,%d2
- fefd050:	7574           	.short 0x7574
- fefd052:	2077 696c 6c20 	moveal %sp@(6c20)@(0),%a0
- fefd058:	6563           	bcss 0xfefd0bd
- fefd05a:	686f           	bvcs 0xfefd0cb
- fefd05c:	2074 6f20 5669 	moveal %a4@(5669,%d6:l:8),%a0
- fefd062:	6465           	bccs 0xfefd0c9
- fefd064:	6f21           	bles 0xfefd087
- fefd066:	0d0a 0020      	movepw %a2@(32),%d6
- fefd06a:	5465           	addqw #2,%a5@-
- fefd06c:	7374           	.short 0x7374
- fefd06e:	696e           	bvss 0xfefd0de
- fefd070:	6700 2e00      	beqw 0xfeffe72
- fefd074:	0d0a 5741      	movepw %a2@(22337),%d6
- fefd078:	524e           	addqw #1,%fp
- fefd07a:	494e           	.short 0x494e
- fefd07c:	472e 2e2e      	chkl %fp@(11822),%d3
- fefd080:	5365           	subqw #1,%a5@-
- fefd082:	6c66           	bges 0xfefd0ea
- fefd084:	5465           	addqw #2,%a5@-
- fefd086:	7374           	.short 0x7374
- fefd088:	2041           	moveal %d1,%a0
- fefd08a:	626f           	bhis 0xfefd0fb
- fefd08c:	7274           	moveq #116,%d1
- fefd08e:	6564           	bcss 0xfefd0f4
- fefd090:	2042           	moveal %d2,%a0
- fefd092:	7920           	.short 0x7920
- fefd094:	5573 6572 0d0a 	subqw #2,%a3@(d0a000d)@(a42)
- fefd09a:	000d 0a42 
- fefd09e:	7572           	.short 0x7572
- fefd0a0:	6e5f           	bgts 0xfefd101
- fefd0a2:	696e           	bvss 0xfefd112
- fefd0a4:	2066           	moveal %fp@-,%a0
- fefd0a6:	6c61           	bges 0xfefd109
- fefd0a8:	6720           	beqs 0xfefd0ca
- fefd0aa:	7365           	.short 0x7365
- fefd0ac:	742e           	moveq #46,%d2
- fefd0ae:	2e2e 2e2e      	movel %fp@(11822),%d7
- fefd0b2:	446f 696e      	negw %sp@(26990)
- fefd0b6:	6720           	beqs 0xfefd0d8
- fefd0b8:	4275 726e      	clrw %a5@(6e,%d7:w:2)
- fefd0bc:	5f69 6e20      	subqw #7,%a1@(28192)
- fefd0c0:	5465           	addqw #2,%a5@-
- fefd0c2:	7374           	.short 0x7374
- fefd0c4:	0d0a 0000      	movepw %a2@(0),%d6
- fefd0c8:	312e 3900      	movew %fp@(14592),%a0@-
- fefd0cc:	0a53 656c      	eoriw #25964,%a3@
- fefd0d0:	6674           	bnes 0xfefd146
- fefd0d2:	6573           	bcss 0xfefd147
- fefd0d4:	7420           	moveq #32,%d2
- fefd0d6:	436f           	.short 0x436f
- fefd0d8:	6d70           	blts 0xfefd14a
- fefd0da:	6c65           	bges 0xfefd141
- fefd0dc:	7465           	moveq #101,%d2
- fefd0de:	642e           	bccs 0xfefd10e
- fefd0e0:	0a0a           	.short 0x0a0a
- fefd0e2:	0025 6300      	orib #0,%a5@-
- fefd0e6:	5375 6e20      	subqw #1,%a5@(20,%d6:l:8)
- fefd0ea:	576f 726b      	subqw #3,%sp@(29291)
- fefd0ee:	7374           	.short 0x7374
- fefd0f0:	6174           	bsrs 0xfefd166
- fefd0f2:	696f           	bvss 0xfefd163
- fefd0f4:	6e2c           	bgts 0xfefd122
- fefd0f6:	204d           	moveal %a5,%a0
- fefd0f8:	6f64           	bles 0xfefd15e
- fefd0fa:	656c           	bcss 0xfefd168
- fefd0fc:	2053           	moveal %a3@,%a0
- fefd0fe:	756e           	.short 0x756e
- fefd100:	2d33 2f36 3025 	movel %a3@(3025732e)@(4d,%d2:l:8),%fp@-
- fefd106:	732e 004d 
- fefd10a:	0043 2f47      	oriw #12103,%d3
- fefd10e:	0025 7300      	orib #0,%a5@-
- fefd112:	0a25 6345      	eorib #69,%a5@-
- fefd116:	4550           	.short 0x4550
- fefd118:	524f           	addqw #1,%sp
- fefd11a:	4d20           	chkl %a0@-,%d6
- fefd11c:	6465           	bccs 0xfefd183
- fefd11e:	6669           	bnes 0xfefd189
- fefd120:	6e65           	bgts 0xfefd187
- fefd122:	6420           	bccs 0xfefd144
- fefd124:	5479 7065 2d25 	addqw #2,0x70652d25
- fefd12a:	6420           	bccs 0xfefd14c
- fefd12c:	4b65           	.short 0x4b65
- fefd12e:	7962           	.short 0x7962
- fefd130:	6f61           	bles 0xfefd193
- fefd132:	7264           	moveq #100,%d1
- fefd134:	2e00           	movel %d0,%d7
- fefd136:	0a25 6357      	eorib #87,%a5@-
- fefd13a:	6172           	bsrs 0xfefd1ae
- fefd13c:	6e69           	bgts 0xfefd1a7
- fefd13e:	6e67           	bgts 0xfefd1a7
- fefd140:	3a20           	movew %a0@-,%d5
- fefd142:	4545           	.short 0x4545
- fefd144:	5052           	addqw #8,%a2@
- fefd146:	4f4d           	.short 0x4f4d
- fefd148:	206e 6f74      	moveal %fp@(28532),%a0
- fefd14c:	2069 6e69      	moveal %a1@(28265),%a0
- fefd150:	7469           	moveq #105,%d2
- fefd152:	616c           	bsrs 0xfefd1c0
- fefd154:	697a           	bvss 0xfefd1d0
- fefd156:	6564           	bcss 0xfefd1bc
- fefd158:	2c20           	movel %a0@-,%d6
- fefd15a:	0064 6566      	oriw #25958,%a4@-
- fefd15e:	6175           	bsrs 0xfefd1d5
- fefd160:	6c74           	bges 0xfefd1d6
- fefd162:	6564           	bcss 0xfefd1c8
- fefd164:	2074 6f20 4550 	moveal %a4@(4550,%d6:l:8),%a0
- fefd16a:	524f           	addqw #1,%sp
- fefd16c:	4d20           	chkl %a0@-,%d6
- fefd16e:	6b65           	bmis 0xfefd1d5
- fefd170:	7920           	.short 0x7920
- fefd172:	7461           	moveq #97,%d2
- fefd174:	626c           	bhis 0xfefd1e2
- fefd176:	6573           	bcss 0xfefd1eb
- fefd178:	2e00           	movel %d0,%d7
- fefd17a:	0a25 6354      	eorib #84,%a5@-
- fefd17e:	7970           	.short 0x7970
- fefd180:	652d           	bcss 0xfefd1af
- fefd182:	2564 204b      	movel %a4@-,%a2@(8267)
- fefd186:	6579           	bcss 0xfefd201
- fefd188:	626f           	bhis 0xfefd1f9
- fefd18a:	6172           	bsrs 0xfefd1fe
- fefd18c:	642e           	bccs 0xfefd1bc
- fefd18e:	000a           	.short 0x000a
- fefd190:	2563 524f      	movel %a3@-,%a2@(21071)
- fefd194:	4d20           	chkl %a0@-,%d6
- fefd196:	5265           	addqw #1,%a5@-
- fefd198:	7620           	moveq #32,%d3
- fefd19a:	2573 2c20 2564 	movel %a3@(20,%d2:l:4),%a2@(9572)
- fefd1a0:	4d42           	.short 0x4d42
- fefd1a2:	206d 656d      	moveal %a5@(25965),%a0
- fefd1a6:	6f72           	bles 0xfefd21a
- fefd1a8:	7920           	.short 0x7920
- fefd1aa:	696e           	bvss 0xfefd21a
- fefd1ac:	7374           	.short 0x7374
- fefd1ae:	616c           	bsrs 0xfefd21c
- fefd1b0:	6c65           	bges 0xfefd217
- fefd1b2:	6400 0a25      	bccw 0xfefdbd9
- fefd1b6:	6349           	blss 0xfefd201
- fefd1b8:	4420           	negb %a0@-
- fefd1ba:	5052           	addqw #8,%a2@
- fefd1bc:	4f4d           	.short 0x4f4d
- fefd1be:	2069 6e76      	moveal %a1@(28278),%a0
- fefd1c2:	616c           	bsrs 0xfefd230
- fefd1c4:	6964           	bvss 0xfefd22a
- fefd1c6:	2e0a           	movel %a2,%d7
- fefd1c8:	0700           	btst %d3,%d0
- fefd1ca:	2c20           	movel %a0@-,%d6
- fefd1cc:	5365           	subqw #1,%a5@-
- fefd1ce:	7269           	moveq #105,%d1
- fefd1d0:	616c           	bsrs 0xfefd23e
- fefd1d2:	2023           	movel %a3@-,%d0
- fefd1d4:	2564 2e0a      	movel %a4@-,%a2@(11786)
- fefd1d8:	0025 6345      	orib #69,%a5@-
- fefd1dc:	7468           	moveq #104,%d2
- fefd1de:	6572           	bcss 0xfefd252
- fefd1e0:	6e65           	bgts 0xfefd247
- fefd1e2:	7420           	moveq #32,%d2
- fefd1e4:	6164           	bsrs 0xfefd24a
- fefd1e6:	6472           	bccs 0xfefd25a
- fefd1e8:	6573           	bcss 0xfefd25d
- fefd1ea:	7320           	.short 0x7320
- fefd1ec:	2578 3a25 783a 	movel 0x3a25,%a2@(30778)
- fefd1f2:	2578 3a25 783a 	movel 0x3a25,%a2@(30778)
- fefd1f8:	2578 3a25 782e 	movel 0x3a25,%a2@(30766)
- fefd1fe:	0a00 0a00      	eorib #0,%d0
- fefd202:	0c00 426f      	cmpib #111,%d0
- fefd206:	6f74           	bles 0xfefd27c
- fefd208:	2050           	moveal %a0@,%a0
- fefd20a:	524f           	addqw #1,%sp
- fefd20c:	4d20           	chkl %a0@-,%d6
- fefd20e:	4d6f           	.short 0x4d6f
- fefd210:	6e69           	bgts 0xfefd27b
- fefd212:	746f           	moveq #111,%d2
- fefd214:	7220           	moveq #32,%d1
- fefd216:	436f           	.short 0x436f
- fefd218:	6d6d           	blts 0xfefd287
- fefd21a:	616e           	bsrs 0xfefd28a
- fefd21c:	6473           	bccs 0xfefd291
- fefd21e:	0a0a           	.short 0x0a0a
- fefd220:	0061 205b      	oriw #8283,%a1@-
- fefd224:	6469           	bccs 0xfefd28f
- fefd226:	6769           	beqs 0xfefd291
- fefd228:	745d           	moveq #93,%d2
- fefd22a:	004f           	.short 0x004f
- fefd22c:	7065           	moveq #101,%d0
- fefd22e:	6e20           	bgts 0xfefd250
- fefd230:	4350           	.short 0x4350
- fefd232:	5520           	subqb #2,%a0@-
- fefd234:	4164           	.short 0x4164
- fefd236:	6472           	bccs 0xfefd2aa
- fefd238:	2052           	moveal %a2@,%a0
- fefd23a:	6567           	bcss 0xfefd2a3
- fefd23c:	2028 302d      	movel %a0@(12333),%d0
- fefd240:	3729 0062      	movew %a1@(98),%a3@-
- fefd244:	205b           	moveal %a3@+,%a0
- fefd246:	6465           	bccs 0xfefd2ad
- fefd248:	7628           	moveq #40,%d3
- fefd24a:	5b63           	subqw #5,%a3@-
- fefd24c:	6e74           	bgts 0xfefd2c2
- fefd24e:	726c           	moveq #108,%d1
- fefd250:	5d2c 5b75      	subqb #6,%a4@(23413)
- fefd254:	6e69           	bgts 0xfefd2bf
- fefd256:	745d           	moveq #93,%d2
- fefd258:	2c5b           	moveal %a3@+,%fp
- fefd25a:	7061           	moveq #97,%d0
- fefd25c:	7274           	moveq #116,%d1
- fefd25e:	5d29 5d00      	subqb #6,%a1@(23808)
- fefd262:	426f 6f74      	clrw %sp@(28532)
- fefd266:	2061           	moveal %a1@-,%a0
- fefd268:	2066           	moveal %fp@-,%a0
- fefd26a:	696c           	bvss 0xfefd2d8
- fefd26c:	6500 6320      	bcsw 0xff0358e
- fefd270:	5b61           	subqw #5,%a1@-
- fefd272:	6464           	bccs 0xfefd2d8
- fefd274:	725d           	moveq #93,%d1
- fefd276:	0043 6f6e      	oriw #28526,%d3
- fefd27a:	7469           	moveq #105,%d2
- fefd27c:	6e75           	bgts 0xfefd2f3
- fefd27e:	6520           	bcss 0xfefd2a0
- fefd280:	7072           	moveq #114,%d0
- fefd282:	6f67           	bles 0xfefd2eb
- fefd284:	7261           	moveq #97,%d1
- fefd286:	6d20           	blts 0xfefd2a8
- fefd288:	6174           	bsrs 0xfefd2fe
- fefd28a:	2041           	moveal %d1,%a0
- fefd28c:	6464           	bccs 0xfefd2f2
- fefd28e:	7200           	moveq #0,%d1
- fefd290:	6420           	bccs 0xfefd2b2
- fefd292:	5b64           	subqw #5,%a4@-
- fefd294:	6967           	bvss 0xfefd2fd
- fefd296:	6974           	bvss 0xfefd30c
- fefd298:	5d00           	subqb #6,%d0
- fefd29a:	4f70           	.short 0x4f70
- fefd29c:	656e           	bcss 0xfefd30c
- fefd29e:	2043           	moveal %d3,%a0
- fefd2a0:	5055           	addqw #8,%a5@
- fefd2a2:	2044           	moveal %d4,%a0
- fefd2a4:	6174           	bsrs 0xfefd31a
- fefd2a6:	6120           	bsrs 0xfefd2c8
- fefd2a8:	5265           	addqw #1,%a5@-
- fefd2aa:	6720           	beqs 0xfefd2cc
- fefd2ac:	2830 2d37 2900 	movel %a0@(29006520)@(5b616464,%d2:l:4),%d4
- fefd2b2:	6520 5b61 6464 
- fefd2b8:	725d           	moveq #93,%d1
- fefd2ba:	004f           	.short 0x004f
- fefd2bc:	7065           	moveq #101,%d0
- fefd2be:	6e20           	bgts 0xfefd2e0
- fefd2c0:	4164           	.short 0x4164
- fefd2c2:	6472           	bccs 0xfefd336
- fefd2c4:	2061           	moveal %a1@-,%a0
- fefd2c6:	7320           	.short 0x7320
- fefd2c8:	3136 2062      	movew %fp@(62,%d2:w),%a0@-
- fefd2cc:	6974           	bvss 0xfefd342
- fefd2ce:	2077 6f72 6400 	moveal %sp@(64006620)@(6265),%a0
- fefd2d4:	6620 6265 
- fefd2d8:	675f           	beqs 0xfefd339
- fefd2da:	6164           	bsrs 0xfefd340
- fefd2dc:	6472           	bccs 0xfefd350
- fefd2de:	2065           	moveal %a5@-,%a0
- fefd2e0:	6e64           	bgts 0xfefd346
- fefd2e2:	5f61           	subqw #7,%a1@-
- fefd2e4:	6464           	bccs 0xfefd34a
- fefd2e6:	7220           	moveq #32,%d1
- fefd2e8:	7061           	moveq #97,%d0
- fefd2ea:	7474           	moveq #116,%d2
- fefd2ec:	6e20           	bgts 0xfefd30e
- fefd2ee:	5b73 697a 655d 	subqw #5,%a3@(655d0046)@(696c)
- fefd2f4:	0046 696c 
- fefd2f8:	6c20           	bges 0xfefd31a
- fefd2fa:	4d65           	.short 0x4d65
- fefd2fc:	6d6f           	blts 0xfefd36d
- fefd2fe:	7279           	moveq #121,%d1
- fefd300:	0067 205b      	oriw #8283,%sp@-
- fefd304:	6164           	bsrs 0xfefd36a
- fefd306:	6472           	bccs 0xfefd37a
- fefd308:	5d00           	subqb #6,%d0
- fefd30a:	476f           	.short 0x476f
- fefd30c:	2074 6f20 4164 	moveal %a4@(4164,%d6:l:8),%a0
- fefd312:	6472           	bccs 0xfefd386
- fefd314:	0068 0048 656c 	oriw #72,%a0@(25964)
- fefd31a:	7020           	moveq #32,%d0
- fefd31c:	4d65           	.short 0x4d65
- fefd31e:	6e75           	bgts 0xfefd395
- fefd320:	006b 205b 6e75 	oriw #8283,%a3@(28277)
- fefd326:	6d62           	blts 0xfefd38a
- fefd328:	6572           	bcss 0xfefd39c
- fefd32a:	5d00           	subqb #6,%d0
- fefd32c:	5265           	addqw #1,%a5@-
- fefd32e:	7365           	.short 0x7365
- fefd330:	7420           	moveq #32,%d2
- fefd332:	2830 2943 5055 	movel %a0@(0)@(50552c20),%d4
- fefd338:	2c20 
- fefd33a:	2831 294d      	movel %a1@(0)@(0),%d4
- fefd33e:	4d55           	.short 0x4d55
- fefd340:	2c20           	movel %a0@-,%d6
- fefd342:	2832 2953 7973 	movel %a2@(0)@(79737465),%d4
- fefd348:	7465 
- fefd34a:	6d00 6c20      	bltw 0xff03f6c
- fefd34e:	5b61           	subqw #5,%a1@-
- fefd350:	6464           	bccs 0xfefd3b6
- fefd352:	725d           	moveq #93,%d1
- fefd354:	004f           	.short 0x004f
- fefd356:	7065           	moveq #101,%d0
- fefd358:	6e20           	bgts 0xfefd37a
- fefd35a:	4164           	.short 0x4164
- fefd35c:	6472           	bccs 0xfefd3d0
- fefd35e:	2061           	moveal %a1@-,%a0
- fefd360:	7320           	.short 0x7320
- fefd362:	3332 2062      	movew %a2@(62,%d2:w),%a1@-
- fefd366:	6974           	bvss 0xfefd3dc
- fefd368:	206c 6f6e      	moveal %a4@(28526),%a0
- fefd36c:	6700 6d20      	beqw 0xff0408e
- fefd370:	5b61           	subqw #5,%a1@-
- fefd372:	6464           	bccs 0xfefd3d8
- fefd374:	725d           	moveq #93,%d1
- fefd376:	004f           	.short 0x004f
- fefd378:	7065           	moveq #101,%d0
- fefd37a:	6e20           	bgts 0xfefd39c
- fefd37c:	5365           	subqw #1,%a5@-
- fefd37e:	676d           	beqs 0xfefd3ed
- fefd380:	656e           	bcss 0xfefd3f0
- fefd382:	7420           	moveq #32,%d2
- fefd384:	4d61           	.short 0x4d61
- fefd386:	7000           	moveq #0,%d0
- fefd388:	6f20           	bles 0xfefd3aa
- fefd38a:	5b61           	subqw #5,%a1@-
- fefd38c:	6464           	bccs 0xfefd3f2
- fefd38e:	725d           	moveq #93,%d1
- fefd390:	004f           	.short 0x004f
- fefd392:	7065           	moveq #101,%d0
- fefd394:	6e20           	bgts 0xfefd3b6
- fefd396:	4164           	.short 0x4164
- fefd398:	6472           	bccs 0xfefd40c
- fefd39a:	2061           	moveal %a1@-,%a0
- fefd39c:	7320           	.short 0x7320
- fefd39e:	3820           	movew %a0@-,%d4
- fefd3a0:	6269           	bhis 0xfefd40b
- fefd3a2:	7420           	moveq #32,%d2
- fefd3a4:	6279           	bhis 0xfefd41f
- fefd3a6:	7465           	moveq #101,%d2
- fefd3a8:	0070 205b 6164 	oriw #8283,%a0@(6472)@(0)
- fefd3ae:	6472 
- fefd3b0:	5d00           	subqb #6,%d0
- fefd3b2:	4f70           	.short 0x4f70
- fefd3b4:	656e           	bcss 0xfefd424
- fefd3b6:	2050           	moveal %a0@,%a0
- fefd3b8:	6167           	bsrs 0xfefd421
- fefd3ba:	6520           	bcss 0xfefd3dc
- fefd3bc:	4d61           	.short 0x4d61
- fefd3be:	7000           	moveq #0,%d0
- fefd3c0:	7120           	.short 0x7120
- fefd3c2:	5b61           	subqw #5,%a1@-
- fefd3c4:	6464           	bccs 0xfefd42a
- fefd3c6:	725d           	moveq #93,%d1
- fefd3c8:	004f           	.short 0x004f
- fefd3ca:	7065           	moveq #101,%d0
- fefd3cc:	6e20           	bgts 0xfefd3ee
- fefd3ce:	4545           	.short 0x4545
- fefd3d0:	5052           	addqw #8,%a2@
- fefd3d2:	4f4d           	.short 0x4f4d
- fefd3d4:	0072 004f 7065 	oriw #79,%a2@(65,%d7:w)
- fefd3da:	6e20           	bgts 0xfefd3fc
- fefd3dc:	4350           	.short 0x4350
- fefd3de:	5520           	subqb #2,%a0@-
- fefd3e0:	5265           	addqw #1,%a5@-
- fefd3e2:	6773           	beqs 0xfefd457
- fefd3e4:	2028 692e      	movel %a0@(26926),%d0
- fefd3e8:	652e           	bcss 0xfefd418
- fefd3ea:	2050           	moveal %a0@,%a0
- fefd3ec:	4329 0073      	chkl %a1@(115),%d1
- fefd3f0:	205b           	moveal %a3@+,%a0
- fefd3f2:	6469           	bccs 0xfefd45d
- fefd3f4:	6769           	beqs 0xfefd45f
- fefd3f6:	745d           	moveq #93,%d2
- fefd3f8:	0053 6574      	oriw #25972,%a3@
- fefd3fc:	2f51 7565      	movel %a1@,%sp@(30053)
- fefd400:	7279           	moveq #121,%d1
- fefd402:	2046           	moveal %d6,%a0
- fefd404:	756e           	.short 0x756e
- fefd406:	6374           	blss 0xfefd47c
- fefd408:	696f           	bvss 0xfefd479
- fefd40a:	6e20           	bgts 0xfefd42c
- fefd40c:	436f           	.short 0x436f
- fefd40e:	6465           	bccs 0xfefd475
- fefd410:	2028 302d      	movel %a0@(12333),%d0
- fefd414:	3729 0074      	movew %a1@(116),%a3@-
- fefd418:	205b           	moveal %a3@+,%a0
- fefd41a:	792f           	.short 0x792f
- fefd41c:	6e2f           	bgts 0xfefd44d
- fefd41e:	635d           	blss 0xfefd47d
- fefd420:	0054 7261      	oriw #29281,%a4@
- fefd424:	6365           	blss 0xfefd48b
- fefd426:	3a20           	movew %a0@-,%d5
- fefd428:	5965           	subqw #4,%a5@-
- fefd42a:	732f           	.short 0x732f
- fefd42c:	4e6f           	movel %usp,%sp
- fefd42e:	2f43 6f6e      	movel %d3,%sp@(28526)
- fefd432:	7469           	moveq #105,%d2
- fefd434:	6e75           	bgts 0xfefd4ab
- fefd436:	6500 7520      	bcsw 0xff04958
- fefd43a:	5b61           	subqw #5,%a1@-
- fefd43c:	7267           	moveq #103,%d1
- fefd43e:	5d00           	subqb #6,%d0
- fefd440:	5365           	subqw #1,%a5@-
- fefd442:	6c65           	bges 0xfefd4a9
- fefd444:	6374           	blss 0xfefd4ba
- fefd446:	2043           	moveal %d3,%a0
- fefd448:	6f6e           	bles 0xfefd4b8
- fefd44a:	736f           	.short 0x736f
- fefd44c:	6c65           	bges 0xfefd4b3
- fefd44e:	2044           	moveal %d4,%a0
- fefd450:	6576           	bcss 0xfefd4c8
- fefd452:	6963           	bvss 0xfefd4b7
- fefd454:	6500 7620      	bcsw 0xff04a76
- fefd458:	6265           	bhis 0xfefd4bf
- fefd45a:	675f           	beqs 0xfefd4bb
- fefd45c:	6164           	bsrs 0xfefd4c2
- fefd45e:	6472           	bccs 0xfefd4d2
- fefd460:	2065           	moveal %a5@-,%a0
- fefd462:	6e64           	bgts 0xfefd4c8
- fefd464:	5f61           	subqw #7,%a1@-
- fefd466:	6464           	bccs 0xfefd4cc
- fefd468:	7220           	moveq #32,%d1
- fefd46a:	5b73 697a 655d 	subqw #5,%a3@(655d0044)@(6973)
- fefd470:	0044 6973 
- fefd474:	706c           	moveq #108,%d0
- fefd476:	6179           	bsrs 0xfefd4f1
- fefd478:	204d           	moveal %a5,%a0
- fefd47a:	656d           	bcss 0xfefd4e9
- fefd47c:	6f72           	bles 0xfefd4f0
- fefd47e:	7900           	.short 0x7900
- fefd480:	7720           	.short 0x7720
- fefd482:	5b61           	subqw #5,%a1@-
- fefd484:	6464           	bccs 0xfefd4ea
- fefd486:	725d           	moveq #93,%d1
- fefd488:	205b           	moveal %a3@+,%a0
- fefd48a:	7374           	.short 0x7374
- fefd48c:	7269           	moveq #105,%d1
- fefd48e:	6e67           	bgts 0xfefd4f7
- fefd490:	5d00           	subqb #6,%d0
- fefd492:	5665           	addqw #3,%a5@-
- fefd494:	6374           	blss 0xfefd50a
- fefd496:	6f72           	bles 0xfefd50a
- fefd498:	0078 0045 7874 	oriw #69,0x7874
- fefd49e:	656e           	bcss 0xfefd50e
- fefd4a0:	6465           	bccs 0xfefd507
- fefd4a2:	6420           	bccs 0xfefd4c4
- fefd4a4:	4469 6167      	negw %a1@(24935)
- fefd4a8:	2054           	moveal %a4@,%a0
- fefd4aa:	6573           	bcss 0xfefd51f
- fefd4ac:	7473           	moveq #115,%d2
- fefd4ae:	007a           	.short 0x007a
- fefd4b0:	205b           	moveal %a3@+,%a0
- fefd4b2:	6164           	bsrs 0xfefd518
- fefd4b4:	6472           	bccs 0xfefd528
- fefd4b6:	5d00           	subqb #6,%d0
- fefd4b8:	5365           	subqw #1,%a5@-
- fefd4ba:	7420           	moveq #32,%d2
- fefd4bc:	4272 6561 6b70 	clrw %a2@(6b70)@(0)
- fefd4c2:	6f69           	bles 0xfefd52d
- fefd4c4:	6e74           	bgts 0xfefd53a
- fefd4c6:	000a           	.short 0x000a
- fefd4c8:	000a           	.short 0x000a
- fefd4ca:	0025 7300      	orib #0,%a5@-
- fefd4ce:	7c20           	moveq #32,%d6
- fefd4d0:	2573 0a00 0a54 	movel %a3@(0,%d0:l:2),%a2@(2644)
- fefd4d6:	7970           	.short 0x7970
- fefd4d8:	6520           	bcss 0xfefd4fa
- fefd4da:	6120           	bsrs 0xfefd4fc
- fefd4dc:	6368           	blss 0xfefd546
- fefd4de:	6172           	bsrs 0xfefd552
- fefd4e0:	6163           	bsrs 0xfefd545
- fefd4e2:	7465           	moveq #101,%d2
- fefd4e4:	7220           	moveq #32,%d1
- fefd4e6:	7769           	.short 0x7769
- fefd4e8:	7468           	moveq #104,%d2
- fefd4ea:	696e           	bvss 0xfefd55a
- fefd4ec:	2031 3020      	movel %a1@(20,%d3:w),%d0
- fefd4f0:	7365           	.short 0x7365
- fefd4f2:	636f           	blss 0xfefd563
- fefd4f4:	6e64           	bgts 0xfefd55a
- fefd4f6:	7320           	.short 0x7320
- fefd4f8:	746f           	moveq #111,%d2
- fefd4fa:	2065           	moveal %a5@-,%a0
- fefd4fc:	6e74           	bgts 0xfefd572
- fefd4fe:	6572           	bcss 0xfefd572
- fefd500:	204d           	moveal %a5,%a0
- fefd502:	656e           	bcss 0xfefd572
- fefd504:	7520           	.short 0x7520
- fefd506:	5465           	addqw #2,%a5@-
- fefd508:	7374           	.short 0x7374
- fefd50a:	732e           	.short 0x732e
- fefd50c:	2e2e 0000      	movel %fp@(0),%d7
- fefd510:	3132 2f30 312f 	movew %a2@(312f3837,%d2:l:8),%a0@-
- fefd516:	3837 
- fefd518:	0000 2f75      	orib #117,%d0
- fefd51c:	7372           	.short 0x7372
- fefd51e:	2f73 7263 2f73 	movel %a3@(63,%d7:w:2),%sp@(12147)
- fefd524:	756e           	.short 0x756e
- fefd526:	2f66 7772      	movel %fp@-,%sp@(30578)
- fefd52a:	656c           	bcss 0xfefd598
- fefd52c:	6561           	bcss 0xfefd58f
- fefd52e:	7365           	.short 0x7365
- fefd530:	2f73 756e 3366 	movel %a3@(3366)@(2f6d),%sp@(28526)
- fefd536:	2f6d 6f6e 
- fefd53a:	2f53 554e      	movel %a3@,%sp@(21838)
- fefd53e:	3346 0000      	movew %d6,%a1@(0)
- fefd542:	7368           	.short 0x7368
- fefd544:	6f77           	bles 0xfefd5bd
- fefd546:	7469           	moveq #105,%d2
- fefd548:	6d65           	blts 0xfefd5af
- fefd54a:	0000 4430      	orib #48,%d0
- fefd54e:	0044 3100      	oriw #12544,%d4
- fefd552:	4432 0044      	negb %a2@(44,%d0:w)
- fefd556:	3300           	movew %d0,%a1@-
- fefd558:	4434 0044      	negb %a4@(44,%d0:w)
- fefd55c:	3500           	movew %d0,%a2@-
- fefd55e:	4436 0044      	negb %fp@(44,%d0:w)
- fefd562:	3700           	movew %d0,%a3@-
- fefd564:	4130 0041      	chkl %a0@(41,%d0:w),%d0
- fefd568:	3100           	movew %d0,%a0@-
- fefd56a:	4132 0041      	chkl %a2@(41,%d0:w),%d0
- fefd56e:	3300           	movew %d0,%a1@-
- fefd570:	4134 0041      	chkl %a4@(41,%d0:w),%d0
- fefd574:	3500           	movew %d0,%a2@-
- fefd576:	4136 0049      	chkl %fp@(49,%d0:w),%d0
- fefd57a:	5300           	subqb #1,%d0
- fefd57c:	4d53           	.short 0x4d53
- fefd57e:	0055 5300      	oriw #21248,%a5@
- fefd582:	5346           	subqw #1,%d6
- fefd584:	0044 4600      	oriw #17920,%d4
- fefd588:	5642           	addqw #3,%d2
- fefd58a:	0043 4100      	oriw #16640,%d3
- fefd58e:	4343           	.short 0x4343
- fefd590:	0043 5800      	oriw #22528,%d3
- fefd594:	5352           	subqw #1,%a2@
- fefd596:	0050 4300      	oriw #17152,%a0@
- fefd59a:	c000           	andb %d0,%d0
- fefd59c:	0000 0000      	orib #0,%d0
- fefd5a0:	0a57 6174      	eoriw #24948,%sp@
- fefd5a4:	6368           	blss 0xfefd60e
- fefd5a6:	646f           	bccs 0xfefd617
- fefd5a8:	6720           	beqs 0xfefd5ca
- fefd5aa:	7265           	moveq #101,%d1
- fefd5ac:	7365           	.short 0x7365
- fefd5ae:	7421           	moveq #33,%d2
- fefd5b0:	0a00 4175      	eorib #117,%d0
- fefd5b4:	746f           	moveq #111,%d2
- fefd5b6:	2d62 6f6f      	movel %a2@-,%fp@(28527)
- fefd5ba:	7420           	moveq #32,%d2
- fefd5bc:	696e           	bvss 0xfefd62c
- fefd5be:	2070 726f      	moveal %a0@(6f,%d7:w:2),%a0
- fefd5c2:	6772           	beqs 0xfefd636
- fefd5c4:	6573           	bcss 0xfefd639
- fefd5c6:	732e           	.short 0x732e
- fefd5c8:	2e2e 0a00      	movel %fp@(2560),%d7
- fefd5cc:	0a41 626f      	eoriw #25199,%d1
- fefd5d0:	7274           	moveq #116,%d1
- fefd5d2:	000a           	.short 0x000a
- fefd5d4:	4d45           	.short 0x4d45
- fefd5d6:	4d4f           	.short 0x4d4f
- fefd5d8:	5259           	addqw #1,%a1@+
- fefd5da:	2045           	moveal %d5,%a0
- fefd5dc:	5252           	addqw #1,%a2@
- fefd5de:	4f52           	.short 0x4f52
- fefd5e0:	2120           	movel %a0@-,%a0@-
- fefd5e2:	2053           	moveal %a3@,%a0
- fefd5e4:	7461           	moveq #97,%d2
- fefd5e6:	7475           	moveq #117,%d2
- fefd5e8:	7320           	.short 0x7320
- fefd5ea:	2578 2c20 4456 	movel 0x2c20,%a2@(17494)
- fefd5f0:	4d41           	.short 0x4d41
- fefd5f2:	2d42 4954      	movel %d2,%fp@(18772)
- fefd5f6:	2025           	movel %a5@-,%d0
- fefd5f8:	782c           	moveq #44,%d4
- fefd5fa:	2043           	moveal %d3,%a0
- fefd5fc:	6f6e           	bles 0xfefd66c
- fefd5fe:	7465           	moveq #101,%d2
- fefd600:	7874           	moveq #116,%d4
- fefd602:	2025           	movel %a5@-,%d0
- fefd604:	782c           	moveq #44,%d4
- fefd606:	000a           	.short 0x000a
- fefd608:	2020           	movel %a0@-,%d0
- fefd60a:	5661           	addqw #3,%a1@-
- fefd60c:	6464           	bccs 0xfefd672
- fefd60e:	723a           	moveq #58,%d1
- fefd610:	2025           	movel %a5@-,%d0
- fefd612:	782c           	moveq #44,%d4
- fefd614:	2050           	moveal %a0@,%a0
- fefd616:	6164           	bsrs 0xfefd67c
- fefd618:	6472           	bccs 0xfefd68c
- fefd61a:	3a20           	movew %a0@-,%d5
- fefd61c:	2538 782c      	movel 0x782c,%a2@-
- fefd620:	2054           	moveal %a4@,%a0
- fefd622:	7970           	.short 0x7970
- fefd624:	6520           	bcss 0xfefd646
- fefd626:	2564 2061      	movel %a4@-,%a2@(8289)
- fefd62a:	7420           	moveq #32,%d2
- fefd62c:	2538 7800      	movel 0x7800,%a2@-
- fefd630:	2c20           	movel %a0@-,%d6
- fefd632:	496e           	.short 0x496e
- fefd634:	7374           	.short 0x7374
- fefd636:	723d           	moveq #61,%d1
- fefd638:	2538 780a      	movel 0x780a,%a2@-
- fefd63c:	000a           	.short 0x000a
- fefd63e:	000a           	.short 0x000a
- fefd640:	4272 6561 6b20 	clrw %a2@(6b20)@(0)
- fefd646:	2534 7800      	movel %a4@(0,%d7:l),%a2@-
- fefd64a:	5472 6163 6520 	addqw #2,%a2@(6520)@(496e76)
- fefd650:	0049 6e76 
- fefd654:	616c           	bsrs 0xfefd6c2
- fefd656:	6964           	bvss 0xfefd6bc
- fefd658:	2050           	moveal %a0@,%a0
- fefd65a:	6167           	bsrs 0xfefd6c3
- fefd65c:	6520           	bcss 0xfefd67e
- fefd65e:	0050 726f      	oriw #29295,%a0@
- fefd662:	7465           	moveq #101,%d2
- fefd664:	6374           	blss 0xfefd6da
- fefd666:	696f           	bvss 0xfefd6d7
- fefd668:	6e20           	bgts 0xfefd68a
- fefd66a:	0054 696d      	oriw #26989,%a4@
- fefd66e:	656f           	bcss 0xfefd6df
- fefd670:	7574           	.short 0x7574
- fefd672:	2000           	movel %d0,%d0
- fefd674:	564d           	addqw #3,%a5
- fefd676:	4562           	.short 0x4562
- fefd678:	7573           	.short 0x7573
- fefd67a:	2000           	movel %d0,%d0
- fefd67c:	4650           	notw %a0@
- fefd67e:	4120           	chkl %a0@-,%d0
- fefd680:	5265           	addqw #1,%a5@-
- fefd682:	7370           	.short 0x7370
- fefd684:	6f6e           	bles 0xfefd6f4
- fefd686:	7365           	.short 0x7365
- fefd688:	2000           	movel %d0,%d0
- fefd68a:	4650           	notw %a0@
- fefd68c:	4120           	chkl %a0@-,%d0
- fefd68e:	456e           	.short 0x456e
- fefd690:	6162           	bsrs 0xfefd6f4
- fefd692:	6c65           	bges 0xfefd6f9
- fefd694:	2000           	movel %d0,%d0
- fefd696:	4275 7320 0041 	clrw %a5@(41,%d7:w:2)
- fefd69c:	6464           	bccs 0xfefd702
- fefd69e:	7265           	moveq #101,%d1
- fefd6a0:	7373           	.short 0x7373
- fefd6a2:	2000           	movel %d0,%d0
- fefd6a4:	4572           	.short 0x4572
- fefd6a6:	726f           	moveq #111,%d1
- fefd6a8:	7200           	moveq #0,%d1
- fefd6aa:	2c20           	movel %a0@-,%d6
- fefd6ac:	6c6f           	bges 0xfefd71d
- fefd6ae:	6e67           	bgts 0xfefd717
- fefd6b0:	003a           	.short 0x003a
- fefd6b2:	0a20 2056      	eorib #86,%a0@-
- fefd6b6:	6164           	bsrs 0xfefd71c
- fefd6b8:	6472           	bccs 0xfefd72c
- fefd6ba:	3a20           	movew %a0@-,%d5
- fefd6bc:	2538 782c      	movel 0x782c,%a2@-
- fefd6c0:	2050           	moveal %a0@,%a0
- fefd6c2:	6164           	bsrs 0xfefd728
- fefd6c4:	6472           	bccs 0xfefd738
- fefd6c6:	3a20           	movew %a0@-,%d5
- fefd6c8:	2538 782c      	movel 0x782c,%a2@-
- fefd6cc:	2054           	moveal %a4@,%a0
- fefd6ce:	7970           	.short 0x7970
- fefd6d0:	6520           	bcss 0xfefd6f2
- fefd6d2:	2564 2c20      	movel %a4@-,%a2@(11296)
- fefd6d6:	2573 2c20 4643 	movel %a3@(20,%d2:l:4),%a2@(17987)
- fefd6dc:	2025           	movel %a5@-,%d0
- fefd6de:	642c           	bccs 0xfefd70c
- fefd6e0:	2053           	moveal %a3@,%a0
- fefd6e2:	697a           	bvss 0xfefd75e
- fefd6e4:	6520           	bcss 0xfefd706
- fefd6e6:	2564 0052      	movel %a4@-,%a2@(82)
- fefd6ea:	6561           	bcss 0xfefd74d
- fefd6ec:	6400 5772      	bccw 0xff02e60
- fefd6f0:	6974           	bvss 0xfefd766
- fefd6f2:	6500 2c20      	bcsw 0xff00314
- fefd6f6:	5043           	addqw #8,%d3
- fefd6f8:	2066           	moveal %fp@-,%a0
- fefd6fa:	6574           	bcss 0xfefd770
- fefd6fc:	6368           	blss 0xfefd766
- fefd6fe:	0020 6174      	orib #116,%a0@-
- fefd702:	2025           	movel %a5@-,%d0
- fefd704:	3878 002c      	moveaw 0x2c,%a4
- fefd708:	2049           	moveal %a1,%a0
- fefd70a:	6e73           	bgts 0xfefd77f
- fefd70c:	7472           	moveq #114,%d2
- fefd70e:	3d25           	movew %a5@-,%fp@-
- fefd710:	3878 0025      	moveaw 0x25,%a4
- fefd714:	7300           	.short 0x7300
- fefd716:	0a45 7863      	eoriw #30819,%d5
- fefd71a:	6570           	bcss 0xfefd78c
- fefd71c:	7469           	moveq #105,%d2
- fefd71e:	6f6e           	bles 0xfefd78e
- fefd720:	2030 7825      	movel %a0@(25,%d7:l),%d0
- fefd724:	7800           	moveq #0,%d4
- fefd726:	2066           	moveal %fp@-,%a0
- fefd728:	6f72           	bles 0xfefd79c
- fefd72a:	6d61           	blts 0xfefd78d
- fefd72c:	7420           	moveq #32,%d2
- fefd72e:	3078 2578      	moveaw 0x2578,%a0
- fefd732:	0025 730a      	orib #10,%a5@-
- fefd736:	0056 6972      	oriw #26994,%fp@
- fefd73a:	7475           	moveq #117,%d2
- fefd73c:	616c           	bsrs 0xfefd7aa
- fefd73e:	2041           	moveal %d1,%a0
- fefd740:	6464           	bccs 0xfefd7a6
- fefd742:	7220           	moveq #32,%d1
- fefd744:	3078 2578      	moveaw 0x2578,%a0
- fefd748:	2069 7320      	moveal %a1@(29472),%a0
- fefd74c:	6d61           	blts 0xfefd7af
- fefd74e:	7070           	moveq #112,%d0
- fefd750:	6564           	bcss 0xfefd7b6
- fefd752:	2074 6f20 5068 	moveal %a4@(5068,%d6:l:8),%a0
- fefd758:	7973           	.short 0x7973
- fefd75a:	6963           	bvss 0xfefd7bf
- fefd75c:	616c           	bsrs 0xfefd7ca
- fefd75e:	2041           	moveal %d1,%a0
- fefd760:	6464           	bccs 0xfefd7c6
- fefd762:	7220           	moveq #32,%d1
- fefd764:	3078 2578      	moveaw 0x2578,%a0
- fefd768:	2e0a           	movel %a2,%d7
- fefd76a:	0043 6f6e      	oriw #28526,%d3
- fefd76e:	7465           	moveq #101,%d2
- fefd770:	7874           	moveq #116,%d4
- fefd772:	203d           	.short 0x203d
- fefd774:	2030 7825      	movel %a0@(25,%d7:l),%d0
- fefd778:	782c           	moveq #44,%d4
- fefd77a:	2020           	movel %a0@-,%d0
- fefd77c:	5365           	subqw #1,%a5@-
- fefd77e:	6720           	beqs 0xfefd7a0
- fefd780:	4d61           	.short 0x4d61
- fefd782:	7020           	moveq #32,%d0
- fefd784:	3d20           	movew %a0@-,%fp@-
- fefd786:	3078 2578      	moveaw 0x2578,%a0
- fefd78a:	2c20           	movel %a0@-,%d6
- fefd78c:	2050           	moveal %a0@,%a0
- fefd78e:	6167           	bsrs 0xfefd7f7
- fefd790:	6520           	bcss 0xfefd7b2
- fefd792:	4d61           	.short 0x4d61
- fefd794:	7020           	moveq #32,%d0
- fefd796:	3d20           	movew %a0@-,%fp@-
- fefd798:	3078 2578      	moveaw 0x2578,%a0
- fefd79c:	2e0a           	movel %a2,%d7
- fefd79e:	0050 6167      	oriw #24935,%a0@
- fefd7a2:	6520           	bcss 0xfefd7c4
- fefd7a4:	3078 2578      	moveaw 0x2578,%a0
- fefd7a8:	2068 6173      	moveal %a0@(24947),%a0
- fefd7ac:	2074 6865      	moveal %a4@(65,%d6:l),%a0
- fefd7b0:	7365           	.short 0x7365
- fefd7b2:	2061           	moveal %a1@-,%a0
- fefd7b4:	7474           	moveq #116,%d2
- fefd7b6:	7269           	moveq #105,%d1
- fefd7b8:	6275           	bhis 0xfefd82f
- fefd7ba:	7465           	moveq #101,%d2
- fefd7bc:	733a           	.short 0x733a
- fefd7be:	0a0a           	.short 0x0a0a
- fefd7c0:	0009           	.short 0x0009
- fefd7c2:	5661           	addqw #3,%a1@-
- fefd7c4:	6c69           	bges 0xfefd82f
- fefd7c6:	6420           	bccs 0xfefd7e8
- fefd7c8:	6269           	bhis 0xfefd833
- fefd7ca:	7420           	moveq #32,%d2
- fefd7cc:	203d           	.short 0x203d
- fefd7ce:	2025           	movel %a5@-,%d0
- fefd7d0:	640a           	bccs 0xfefd7dc
- fefd7d2:	0009           	.short 0x0009
- fefd7d4:	5065           	addqw #8,%a5@-
- fefd7d6:	726d           	moveq #109,%d1
- fefd7d8:	6973           	bvss 0xfefd84d
- fefd7da:	7369           	.short 0x7369
- fefd7dc:	6f6e           	bles 0xfefd84c
- fefd7de:	203d           	.short 0x203d
- fefd7e0:	2030 7825      	movel %a0@(25,%d7:l),%d0
- fefd7e4:	780a           	moveq #10,%d4
- fefd7e6:	0009           	.short 0x0009
- fefd7e8:	4e6f           	movel %usp,%sp
- fefd7ea:	2043           	moveal %d3,%a0
- fefd7ec:	6163           	bsrs 0xfefd851
- fefd7ee:	6865           	bvcs 0xfefd855
- fefd7f0:	2020           	movel %a0@-,%d0
- fefd7f2:	203d           	.short 0x203d
- fefd7f4:	2025           	movel %a5@-,%d0
- fefd7f6:	640a           	bccs 0xfefd802
- fefd7f8:	0009           	.short 0x0009
- fefd7fa:	5479 7065 2020 	addqw #2,0x70652020
- fefd800:	2020           	movel %a0@-,%d0
- fefd802:	2020           	movel %a0@-,%d0
- fefd804:	203d           	.short 0x203d
- fefd806:	2025           	movel %a5@-,%d0
- fefd808:	640a           	bccs 0xfefd814
- fefd80a:	0009           	.short 0x0009
- fefd80c:	4163           	.short 0x4163
- fefd80e:	6365           	blss 0xfefd875
- fefd810:	7373           	.short 0x7373
- fefd812:	2062           	moveal %a2@-,%a0
- fefd814:	6974           	bvss 0xfefd88a
- fefd816:	203d           	.short 0x203d
- fefd818:	2025           	movel %a5@-,%d0
- fefd81a:	640a           	bccs 0xfefd826
- fefd81c:	0009           	.short 0x0009
- fefd81e:	4d6f           	.short 0x4d6f
- fefd820:	6469           	bccs 0xfefd88b
- fefd822:	6679           	bnes 0xfefd89d
- fefd824:	2062           	moveal %a2@-,%a0
- fefd826:	6974           	bvss 0xfefd89c
- fefd828:	203d           	.short 0x203d
- fefd82a:	2025           	movel %a5@-,%d0
- fefd82c:	640a           	bccs 0xfefd838
- fefd82e:	0043 6f6d      	oriw #28525,%d3
- fefd832:	7069           	moveq #105,%d0
- fefd834:	6c65           	bges 0xfefd89b
- fefd836:	6420           	bccs 0xfefd858
- fefd838:	6f6e           	bles 0xfefd8a8
- fefd83a:	2025           	movel %a5@-,%d0
- fefd83c:	7320           	.short 0x7320
- fefd83e:	6174           	bsrs 0xfefd8b4
- fefd840:	2025           	movel %a5@-,%d0
- fefd842:	7320           	.short 0x7320
- fefd844:	696e           	bvss 0xfefd8b4
- fefd846:	2025           	movel %a5@-,%d0
- fefd848:	730a           	.short 0x730a
- fefd84a:	0053 6567      	oriw #25959,%a3@
- fefd84e:	4d61           	.short 0x4d61
- fefd850:	7020           	moveq #32,%d0
- fefd852:	2538 7800      	movel 0x7800,%a2@-
- fefd856:	5061           	addqw #8,%a1@-
- fefd858:	6765           	beqs 0xfefd8bf
- fefd85a:	4d61           	.short 0x4d61
- fefd85c:	7020           	moveq #32,%d0
- fefd85e:	2538 7820      	movel 0x7820,%a2@-
- fefd862:	5b25           	subqb #5,%a5@-
- fefd864:	3278 5d00      	moveaw 0x5d00,%a1
- fefd868:	5761           	subqw #3,%a1@-
- fefd86a:	726e           	moveq #110,%d1
- fefd86c:	696e           	bvss 0xfefd8dc
- fefd86e:	673a           	beqs 0xfefd8aa
- fefd870:	2045           	moveal %d5,%a0
- fefd872:	4550           	.short 0x4550
- fefd874:	524f           	addqw #1,%sp
- fefd876:	4d20           	chkl %a0@-,%d6
- fefd878:	636f           	blss 0xfefd8e9
- fefd87a:	6e74           	bgts 0xfefd8f0
- fefd87c:	656e           	bcss 0xfefd8ec
- fefd87e:	7473           	moveq #115,%d2
- fefd880:	2077 696c 6c20 	moveal %sp@(6c20)@(0),%a0
- fefd886:	6265           	bhis 0xfefd8ed
- fefd888:	2064           	moveal %a4@-,%a0
- fefd88a:	6573           	bcss 0xfefd8ff
- fefd88c:	7472           	moveq #114,%d2
- fefd88e:	6f79           	bles 0xfefd909
- fefd890:	6564           	bcss 0xfefd8f6
- fefd892:	2c20           	movel %a0@-,%d6
- fefd894:	6172           	bsrs 0xfefd908
- fefd896:	6520           	bcss 0xfefd8b8
- fefd898:	796f           	.short 0x796f
- fefd89a:	7520           	.short 0x7520
- fefd89c:	7375           	.short 0x7375
- fefd89e:	7265           	moveq #101,%d1
- fefd8a0:	3f00           	movew %d0,%sp@-
- fefd8a2:	0a00 4545      	eorib #69,%d0
- fefd8a6:	5052           	addqw #8,%a2@
- fefd8a8:	4f4d           	.short 0x4f4d
- fefd8aa:	2025           	movel %a5@-,%d0
- fefd8ac:	3378 0046 4325 	movew 0x46,%a1@(17189)
- fefd8b2:	7820           	moveq #32,%d4
- fefd8b4:	7370           	.short 0x7370
- fefd8b6:	6163           	bsrs 0xfefd91b
- fefd8b8:	650a           	bcss 0xfefd8c4
- fefd8ba:	0054 7261      	oriw #29281,%a4@
- fefd8be:	6369           	blss 0xfefd929
- fefd8c0:	6e67           	bgts 0xfefd929
- fefd8c2:	2e2e 2e0a      	movel %fp@(11786),%d7
- fefd8c6:	0054 7261      	oriw #29281,%a4@
- fefd8ca:	6365           	blss 0xfefd931
- fefd8cc:	204f           	moveal %sp,%a0
- fefd8ce:	6666           	bnes 0xfefd936
- fefd8d0:	0a00 2538      	eorib #56,%d0
- fefd8d4:	783a           	moveq #58,%d4
- fefd8d6:	2020           	movel %a0@-,%d0
- fefd8d8:	0020 0020      	orib #32,%a0@-
- fefd8dc:	2020           	movel %a0@-,%d0
- fefd8de:	2000           	movel %d0,%d0
- fefd8e0:	0a00 4d6f      	eorib #111,%d0
- fefd8e4:	6e69           	bgts 0xfefd94f
- fefd8e6:	746f           	moveq #111,%d2
- fefd8e8:	723a           	moveq #58,%d1
- fefd8ea:	2049           	moveal %a1,%a0
- fefd8ec:	6e76           	bgts 0xfefd964
- fefd8ee:	616c           	bsrs 0xfefd95c
- fefd8f0:	6964           	bvss 0xfefd956
- fefd8f2:	2063           	moveal %a3@-,%a0
- fefd8f4:	6f6d           	bles 0xfefd963
- fefd8f6:	6d61           	blts 0xfefd959
- fefd8f8:	6e64           	bgts 0xfefd95e
- fefd8fa:	2e0a           	movel %a2,%d7
- fefd8fc:	003a           	.short 0x003a
- fefd8fe:	2000           	movel %d0,%d0
- fefd900:	3f20           	movew %a0@-,%sp@-
- fefd902:	0020 2d3e      	orib #62,%a0@-
- fefd906:	2000           	movel %d0,%d0
- fefd908:	2538 7820      	movel 0x7820,%a2@-
- fefd90c:	6e6f           	bgts 0xfefd97d
- fefd90e:	772e           	.short 0x772e
- fefd910:	0a00 4272      	eorib #114,%d0
- fefd914:	6561           	bcss 0xfefd977
- fefd916:	6b20           	bmis 0xfefd938
- fefd918:	2578 2069 6e73 	movel 0x2069,%a2@(28275)
- fefd91e:	7461           	moveq #97,%d2
- fefd920:	6c6c           	bges 0xfefd98e
- fefd922:	6564           	bcss 0xfefd988
- fefd924:	0a00 5472      	eorib #114,%d0
- fefd928:	7920           	.short 0x7920
- fefd92a:	6167           	bsrs 0xfefd993
- fefd92c:	6169           	bsrs 0xfefd997
- fefd92e:	6e2e           	bgts 0xfefd95e
- fefd930:	0a00 0a0a      	eorib #10,%d0
- fefd934:	4578           	.short 0x4578
- fefd936:	7465           	moveq #101,%d2
- fefd938:	6e64           	bgts 0xfefd99e
- fefd93a:	6564           	bcss 0xfefd9a0
- fefd93c:	2054           	moveal %a4@,%a0
- fefd93e:	6573           	bcss 0xfefd9b3
- fefd940:	7420           	moveq #32,%d2
- fefd942:	4d65           	.short 0x4d65
- fefd944:	6e75           	bgts 0xfefd9bb
- fefd946:	3a20           	movew %a0@-,%d5
- fefd948:	2028 456e      	movel %a0@(17774),%d0
- fefd94c:	7465           	moveq #101,%d2
- fefd94e:	7220           	moveq #32,%d1
- fefd950:	2771 2720 746f 	movel %a1@(746f,%d2:w:8),%a3@(8306)
- fefd956:	2072 
- fefd958:	6574           	bcss 0xfefd9ce
- fefd95a:	7572           	.short 0x7572
- fefd95c:	6e00 2074      	bgtw 0xfeff9d2
- fefd960:	6f20           	bles 0xfefd982
- fefd962:	4d6f           	.short 0x4d6f
- fefd964:	6e69           	bgts 0xfefd9cf
- fefd966:	746f           	moveq #111,%d2
- fefd968:	7229           	moveq #41,%d1
- fefd96a:	0a0a           	.short 0x0a0a
- fefd96c:	436d           	.short 0x436d
- fefd96e:	6420           	bccs 0xfefd990
- fefd970:	2d20           	movel %a0@-,%fp@-
- fefd972:	2054           	moveal %a4@,%a0
- fefd974:	6573           	bcss 0xfefd9e9
- fefd976:	740a           	moveq #10,%d2
- fefd978:	0a00 6165      	eorib #101,%d0
- fefd97c:	0045 7468      	oriw #29800,%d5
- fefd980:	6572           	bcss 0xfefd9f4
- fefd982:	6e65           	bgts 0xfefd9e9
- fefd984:	7400           	moveq #0,%d2
- fefd986:	6b62           	bmis 0xfefd9ea
- fefd988:	004b           	.short 0x004b
- fefd98a:	6579           	bcss 0xfefda05
- fefd98c:	626f           	bhis 0xfefd9fd
- fefd98e:	6172           	bsrs 0xfefda02
- fefd990:	6420           	bccs 0xfefd9b2
- fefd992:	496e           	.short 0x496e
- fefd994:	7075           	moveq #117,%d0
- fefd996:	7400           	moveq #0,%d2
- fefd998:	6d65           	blts 0xfefd9ff
- fefd99a:	004d           	.short 0x004d
- fefd99c:	656d           	bcss 0xfefda0b
- fefd99e:	6f72           	bles 0xfefda12
- fefd9a0:	7900           	.short 0x7900
- fefd9a2:	6d6b           	blts 0xfefda0f
- fefd9a4:	004d           	.short 0x004d
- fefd9a6:	6f75           	bles 0xfefda1d
- fefd9a8:	7365           	.short 0x7365
- fefd9aa:	2f4b 6579      	movel %a3,%sp@(25977)
- fefd9ae:	626f           	bhis 0xfefda1f
- fefd9b0:	6172           	bsrs 0xfefda24
- fefd9b2:	6420           	bccs 0xfefd9d4
- fefd9b4:	506f 7274      	addqw #8,%sp@(29300)
- fefd9b8:	7300           	.short 0x7300
- fefd9ba:	7273           	moveq #115,%d1
- fefd9bc:	0053 6572      	oriw #25970,%a3@
- fefd9c0:	6961           	bvss 0xfefda23
- fefd9c2:	6c20           	bges 0xfefd9e4
- fefd9c4:	506f 7274      	addqw #8,%sp@(29300)
- fefd9c8:	7300           	.short 0x7300
- fefd9ca:	7364           	.short 0x7364
- fefd9cc:	0053 4353      	oriw #17235,%a3@
- fefd9d0:	4920           	chkl %a0@-,%d4
- fefd9d2:	4469 736b      	negw %a1@(29547)
- fefd9d6:	2042           	moveal %d2,%a0
- fefd9d8:	6f6f           	bles 0xfefda49
- fefd9da:	7470           	moveq #112,%d2
- fefd9dc:	6174           	bsrs 0xfefda52
- fefd9de:	6800 7369      	bvcw 0xff04d49
- fefd9e2:	0053 4353      	oriw #17235,%a3@
- fefd9e6:	4920           	chkl %a0@-,%d4
- fefd9e8:	496e           	.short 0x496e
- fefd9ea:	7465           	moveq #101,%d2
- fefd9ec:	7266           	moveq #102,%d1
- fefd9ee:	6163           	bsrs 0xfefda53
- fefd9f0:	6500 7374      	bcsw 0xff04d66
- fefd9f4:	0053 4353      	oriw #17235,%a3@
- fefd9f8:	4920           	chkl %a0@-,%d4
- fefd9fa:	5461           	addqw #2,%a1@-
- fefd9fc:	7065           	moveq #101,%d0
- fefd9fe:	2042           	moveal %d2,%a0
- fefda00:	6f6f           	bles 0xfefda71
- fefda02:	7470           	moveq #112,%d2
- fefda04:	6174           	bsrs 0xfefda7a
- fefda06:	6800 766d      	bvcw 0xff05075
- fefda0a:	0056 6964      	oriw #26980,%fp@
- fefda0e:	656f           	bcss 0xfefda7f
- fefda10:	2028 4d6f      	movel %a0@(19823),%d0
- fefda14:	6e6f           	bgts 0xfefda85
- fefda16:	6368           	blss 0xfefda80
- fefda18:	726f           	moveq #111,%d1
- fefda1a:	6d65           	blts 0xfefda81
- fefda1c:	2900           	movel %d0,%a4@-
- fefda1e:	7663           	moveq #99,%d3
- fefda20:	0056 6964      	oriw #26980,%fp@
- fefda24:	656f           	bcss 0xfefda95
- fefda26:	2028 436f      	movel %a0@(17263),%d0
- fefda2a:	6c6f           	bges 0xfefda9b
- fefda2c:	7229           	moveq #41,%d1
- fefda2e:	0076 6500 5669 	oriw #25856,%fp@(69,%d5:w:8)
- fefda34:	6465           	bccs 0xfefda9b
- fefda36:	6f20           	bles 0xfefda58
- fefda38:	456e           	.short 0x456e
- fefda3a:	6162           	bsrs 0xfefda9e
- fefda3c:	6c65           	bges 0xfefdaa3
- fefda3e:	2050           	moveal %a0@,%a0
- fefda40:	6c61           	bges 0xfefdaa3
- fefda42:	6e65           	bgts 0xfefdaa9
- fefda44:	0063 6d00      	oriw #27904,%a3@-
- fefda48:	436f           	.short 0x436f
- fefda4a:	6c6f           	bges 0xfefdabb
- fefda4c:	7220           	moveq #32,%d1
- fefda4e:	4d61           	.short 0x4d61
- fefda50:	7000           	moveq #0,%d0
- fefda52:	766f           	moveq #111,%d3
- fefda54:	0056 6964      	oriw #26980,%fp@
- fefda58:	656f           	bcss 0xfefdac9
- fefda5a:	204f           	moveal %sp,%a0
- fefda5c:	7665           	moveq #101,%d3
- fefda5e:	726c           	moveq #108,%d1
- fefda60:	6179           	bsrs 0xfefdadb
- fefda62:	2050           	moveal %a0@,%a0
- fefda64:	6c61           	bges 0xfefdac7
- fefda66:	6e65           	bgts 0xfefdacd
- fefda68:	0073 6428 2900 	oriw #25640,%a3@(0,%d2:l)
- fefda6e:	7374           	.short 0x7374
- fefda70:	2829 000a      	movel %a1@(10),%d4
- fefda74:	496e           	.short 0x496e
- fefda76:	7661           	moveq #97,%d3
- fefda78:	6c69           	bges 0xfefdae3
- fefda7a:	6420           	bccs 0xfefda9c
- fefda7c:	636f           	blss 0xfefdaed
- fefda7e:	6d6d           	blts 0xfefdaed
- fefda80:	616e           	bsrs 0xfefdaf0
- fefda82:	6421           	bccs 0xfefdaa5
- fefda84:	0a00 0000      	eorib #0,%d0
- fefda88:	6b61           	bmis 0xfefdaeb
- fefda8a:	6200 7361      	bhiw 0xff04ded
- fefda8e:	6200 0007      	bhiw 0xfefda97
+
+0fefc544: Video
+0fefc54a: Memory
+0fefc551: Enter Cmd [low addr > %x] [hi addr < 0x%x] [pattn]\n ++
+0fefc584: \n
+0fefc586: Cmd -  Test\n ++
+0fefc592: \n ++
+0fefc593: a - Address Test\n ++
+0fefc5a4: c - Wr/Rd/Compare Test\n ++
+0fefc5bb: s - Scan Memory Test\n ++
+0fefc5d0: w - Write Only Test
+0fefc5e4: \n ++
+0fefc5e5: %s Test from [0x%x - 0x%x].\n ++
+0fefc601: \n
+0fefc603: Video
+0fefc609: Memory
+0fefc610: -\|/
+0fefc615: %c.
+0fefc619: Data Error (%d):  Addr = 0x%x
+0fefc637: , Exp = 0x%x, Obs = 0x%x, Xor = 0x%x.\n
+0fefc65e: Halted on error => 
+0fefc672: hit any key to continue!\n
+0fefc68c: Looping on error ...\n
+0fefc6a2: -\|/
+0fefc6a7: Monochrome Video
+0fefc6b8: Enable Plane
+0fefc6c5: Color Frame Buffer
+0fefc6d8: Color Map
+0fefc6e2: Overlay Plane
+0fefc6f0: test_type %1d does not exist for memory_test()\n
+0fefc720: \n ++
+0fefc721: %s Tests:  (Enter 'q' to return to Test Menu)\n ++
+0fefc74f: \n
+0fefc751: Enter Cmd [low addr >= 0] [hi addr <= 0x%x]
+0fefc77d:  [pattn]\n ++
+0fefc786: \n
+0fefc788: Cmd - Test\n ++
+0fefc793: \n
+0fefc795:  a  - Address Test\n
+0fefc7a9:  c  - Write/Read Test\n
+0fefc7c0:  s  - Scan Memory Test\n
+0fefc7d8:  w  - Write Only Test\n
+0fefc7ef: \n ++
+0fefc7f0: Cmd=>
+0fefc7f6: Address range error: range 0 - %x.\n
+0fefc81a: \n ++
+0fefc81b: %s test from address 0x
+0fefc833:  to 0x
+0fefc83a: .\n ++
+0fefc83c: \n
+0fefc83e: Data compare error(%d):\n
+0fefc857:    addr = 0x
+0fefc864: , exp = 0x
+0fefc86f: , obs = 0x
+0fefc87a: , xor = 0x
+0fefc885: .\n
+0fefc888:    Bad SIMM Module # = %d\n
+0fefc8a3: Halted on error => 
+0fefc8b7: hit any key to continue!\n
+0fefc8d1: Looping on error ...\n
+0fefc8e7: %c.
+0fefc8eb: .
+0fefc8ed: %s test completed pass %d with %d errors.\n
+0fefc918: -\|/
+0fefc91d: %c.
+0fefc921: \n ++
+0fefc922: \n ++
+0fefc923: Memory Error at 0x%x:
+0fefc939:  Exp = 0x%x, Obs = 0x%x, Xor = 0x%x!\n
+
+ fefc95e:	0000 0000
+ fefc962:	0003 0fe2
+ fefc966:	0000 0001
+ fefc96a:	c007
+ fefc96c:	f800
+ fefc96e:	0fe4
+ fefc970:	0000 8000
+ fefc974:	2000
+ fefc976:	0000 0c0
+
+0fefc97a: EEPROM: Using RS232 A port.\n
+0fefc997: EEPROM: Using RS232 B port.\n
+0fefc9b4: No keyboard found: Using RS232 Port A as input!\n
+0fefc9e5: \n ++
+0fefc9e6: Testing %d Megabytes of Memory ... 
+0fefca0a: Completed.\n ++
+0fefca15: \n
+
+ fefca16:	0000 09c0
+ fefca1a:	0446 03c0
+ fefca1e:	05e2
+ fefca20:	0902
+ fefca22:	0b55
+ fefca24:	0c0e
+ fefca26:	0d00
+ fefca28:	0e02
+ fefca2a:	03c1
+ fefca2c:	05ea 0e03
+ fefca30:	0030 0030 0010
+ fefca36:	ffff
+ fefca38:	0010 0446
+ fefca3c:	03c0
+ fefca3e:	05e2
+ fefca40:	0902
+ fefca42:	0b55
+ fefca44:	0c7e
+ fefca46:	0d00
+ fefca48:	0e02
+ fefca4a:	03c1
+ fefca4c:	05ea 0e03
+ fefca50:	0010 0010
+ fefca54:	ffff
+
+0fefca56: \r\n ++
+0fefca58: Boot PROM Selftest\n
+0fefca6c: \r\n ++
+0fefca6e: PROM Checksum Test
+0fefca81: \r\n ++
+0fefca83: DVMA Reg Test
+0fefca91: \r\n ++
+0fefca93:  Err 1: Exp 0x%d1, Obs 0x%d0, Xor 0x%d2
+0fefcabb: \r\n ++
+0fefcabd:  Err 2: Addr 0x%a5, Exp 0x%d1, Obs 0x%d0
+0fefcae6: \r\n ++
+0fefcae8:  Err 2: Addr 0x%a5, Exp 0x%d1, Obs 0x%d0, Xor 0x%d2
+0fefcb1c: \r\n ++
+0fefcb1e:  Err 2: Addr 0x%a5, Exp 0x%d1, Obs 0x%d0, Module 0x%d2
+0fefcb55: \r\n ++
+0fefcb57: Context Reg Test
+0fefcb68: \r\n ++
+0fefcb6a: Segment Map Wr/Rd Test
+0fefcb81: \r\n ++
+0fefcb83: Segment Map Address Test
+0fefcb9c: \r\n ++
+0fefcb9e: Page Map Test
+0fefcbac: \r\n ++
+0fefcbae: Memory Path Data Test
+0fefcbc4: \r\n ++
+0fefcbc6: NXM Bus Error Test
+0fefcbd9: \r\n ++
+0fefcbdb:  Err 3: No NXM Bus Error!
+0fefcbf5: \r\n ++
+0fefcbf7: Interrupt Test
+0fefcc06: \r\n ++
+0fefcc08:  Err 4: No Level 1 interrupt!
+0fefcc26: \r\n ++
+0fefcc28: TOD Clock Interrupt Test
+0fefcc41: \r\n ++
+0fefcc43:  Err 21: TOD failed to interrupt!
+0fefcc65: \r\n ++
+0fefcc67: MMU Access Bit Test
+0fefcc7b: \r\n ++
+0fefcc7d: MMU Access/Modify Bit Test
+0fefcc98: \r\n ++
+0fefcc9a: MMU Invalid Page Test
+0fefccb0: \r\n ++
+0fefccb2: MMU Protected Page Test
+0fefccca: \r\n ++
+0fefcccc:  Err 5: Page Map status, Exp 0x%d1, Obs 0x%d0, Xor 0x%d5
+0fefcd05: \r\n ++
+0fefcd07:  Err 6: No bus error for invalid page!
+0fefcd2e: \r\n ++
+0fefcd30:  Err 7: Bus error reg  Exp 0x%d1, Obs 0x%d0, Xor 0x%d2
+0fefcd67: \r\n ++
+0fefcd69:  Err 8: No bus error for protected page!
+0fefcd92: \r\n ++
+0fefcd94:  Err 9: Bad parity should cause nmi
+0fefcdb8: \r\n ++
+0fefcdba:  Err 10: Parity error at Addr 0x%a5, Data 0x%d3,\r\n ++
+0fefcdec:  Status Exp 0x%d1, Obs 0x%d0
+0fefce09: \r\n ++
+0fefce0b: Memory Size 
+0fefce18: = 0x%d3 Megabytes
+0fefce2a: \r\n ++
+0fefce2c: Parity Test
+0fefce38: \r\n ++
+0fefce3a:  Err 11: Parity Error at address 0x%a5\r\n ++
+0fefce62:  Exp 0x%d1, Obs 0x%d0, Module 0x%d2
+0fefce86: \r\n ++
+0fefce88:  Err 15: Unexp'd parity ERROR Trap, pc 0x%d0, mem_err 0x%d5
+0fefcec4: \r\n ++
+0fefcec6:  Continuing test beyond 0x%a5
+0fefcee4: \r\n ++
+0fefcee6: Continuing
+0fefcef1: \r\n ++
+0fefcef3: Memory Test (Testing 0x%d3 MBytes)  
+0fefcf18: \r\n ++
+0fefcf1a:  Err 12: NMI int with bad status, obs 0x%d0
+0fefcf46: \r\n ++
+0fefcf48:  Err 13: Unexp'd trap/vector, pc 0x%d0
+0fefcf6f:  vector offset 0x%d0
+0fefcf84: \r\n ++
+0fefcf86:  Err 14: Unexp'd bus err, pc 0x%d0
+0fefcfa9:  access addr 0x%d0
+0fefcfbc:  bus err reg 0x%d0
+0fefcfcf: \r\n ++
+0fefcfd1: \n ++
+0fefcfd2: Selftest passed.\r\n
+0fefcfe5: \r\n ++
+0fefcfe7: \n ++
+0fefcfe8: Selftest failed.\r\n
+0fefcffb: \r\n ++
+0fefcffd:  Err 16: Checksum error: Exp 0x%d0, Obs 0x%d1
+0fefd02b:  (e for echo mode) 
+0fefd03f: \r\n ++
+0fefd041: Echo mode: Output will echo to Video!\r\n
+0fefd069:  Testing
+0fefd072: .
+0fefd074: \r\n ++
+0fefd076: WARNING...SelfTest Aborted By User\r\n
+0fefd09b: \r\n ++
+0fefd09d: Burn_in flag set.....Doing Burn_in Test\r\n
+0fefd0c8: 1.9
+0fefd0cc: \n ++
+0fefd0cd: Selftest Completed.\n ++
+0fefd0e1: \n
+0fefd0e3: %c
+0fefd0e6: Sun Workstation, Model Sun-3/60%s.
+0fefd109: M
+0fefd10b: C/G
+0fefd10f: %s
+0fefd112: \n ++
+0fefd113: %cEEPROM defined Type-%d Keyboard.
+0fefd136: \n ++
+0fefd137: %cWarning: EEPROM not initialized, 
+0fefd15b: defaulted to EPROM key tables.
+0fefd17a: \n ++
+0fefd17b: %cType-%d Keyboard.
+0fefd18f: \n ++
+0fefd190: %cROM Rev %s, %dMB memory installed
+0fefd1b4: \n ++
+0fefd1b5: %cID PROM invalid.\n ++
+0fefd1c8: .
+0fefd1ca: , Serial #%d.\n
+0fefd1d9: %cEthernet address %x:%x:%x:%x:%x:%x.\n
+0fefd200: \n
+0fefd202: .
+0fefd204: Boot PROM Monitor Commands\n ++
+0fefd21f: \n
+0fefd221: a [digit]
+0fefd22b: Open CPU Addr Reg (0-7)
+0fefd243: b [dev([cntrl],[unit],[part])]
+0fefd262: Boot a file
+0fefd26e: c [addr]
+0fefd277: Continue program at Addr
+0fefd290: d [digit]
+0fefd29a: Open CPU Data Reg (0-7)
+0fefd2b2: e [addr]
+0fefd2bb: Open Addr as 16 bit word
+0fefd2d4: f beg_addr end_addr pattn [size]
+0fefd2f5: Fill Memory
+0fefd301: g [addr]
+0fefd30a: Go to Addr
+0fefd315: h
+0fefd317: Help Menu
+0fefd321: k [number]
+0fefd32c: Reset (0)CPU, (1)MMU, (2)System
+0fefd34c: l [addr]
+0fefd355: Open Addr as 32 bit long
+0fefd36e: m [addr]
+0fefd377: Open Segment Map
+0fefd388: o [addr]
+0fefd391: Open Addr as 8 bit byte
+0fefd3a9: p [addr]
+0fefd3b2: Open Page Map
+0fefd3c0: q [addr]
+0fefd3c9: Open EEPROM
+0fefd3d5: r
+0fefd3d7: Open CPU Regs (i.e. PC)
+0fefd3ef: s [digit]
+0fefd3f9: Set/Query Function Code (0-7)
+0fefd417: t [y/n/c]
+0fefd421: Trace: Yes/No/Continue
+0fefd438: u [arg]
+0fefd440: Select Console Device
+0fefd456: v beg_addr end_addr [size]
+0fefd471: Display Memory
+0fefd480: w [addr] [string]
+0fefd492: Vector
+0fefd499: x
+0fefd49b: Extended Diag Tests
+0fefd4af: z [addr]
+0fefd4b8: Set Breakpoint
+0fefd4c7: \n
+0fefd4c9: \n
+0fefd4cb: %s
+0fefd4ce: | %s\n
+0fefd4d4: \nType a character within 10 seconds to enter Menu Tests...
+0fefd510: 12/01/87
+0fefd51a: /usr/src/sun/fwrelease/sun3f/mon/SUN3F
+0fefd542: showtime
+0fefd54c: D0
+0fefd54f: D1
+0fefd552: D2
+0fefd555: D3
+0fefd558: D4
+0fefd55b: D5
+0fefd55e: D6
+0fefd561: D7
+0fefd564: A0
+0fefd567: A1
+0fefd56a: A2
+0fefd56d: A3
+0fefd570: A4
+0fefd573: A5
+0fefd576: A6
+0fefd579: IS
+0fefd57c: MS
+0fefd57f: US
+0fefd582: SF
+0fefd585: DF
+0fefd588: VB
+0fefd58b: CA
+0fefd58e: CC
+0fefd591: CX
+0fefd594: SR
+0fefd597: PC
+0fefd59a: .
+0fefd5a0: \n ++
+0fefd5a1: Watchdog reset!\n
+0fefd5b2: Auto-boot in progress...\n
+0fefd5cc: \n ++
+0fefd5cd: Abort
+0fefd5d3: \n ++
+0fefd5d4: MEMORY ERROR!  Status %x, DVMA-BIT %x, Context %x,
+0fefd607: \n ++
+0fefd608:   Vaddr: %x, Paddr: %8x, Type %d at %8x
+0fefd630: , Instr=%8x\n
+0fefd63d: \n
+0fefd63f: \n ++
+0fefd640: Break %4x
+0fefd64a: Trace 
+0fefd651: Invalid Page 
+0fefd65f: Protection 
+0fefd66b: Timeout 
+0fefd674: VMEbus 
+0fefd67c: FPA Response 
+0fefd68a: FPA Enable 
+0fefd696: Bus 
+0fefd69b: Address 
+0fefd6a4: Error
+0fefd6aa: , long
+0fefd6b1: :\n ++
+0fefd6b3:   Vaddr: %8x, Paddr: %8x, Type %d, %s, FC %d, Size %d
+0fefd6e9: Read
+0fefd6ee: Write
+0fefd6f4: , PC fetch
+0fefd6ff:  at %8x
+0fefd707: , Instr=%8x
+0fefd713: %s
+0fefd716: \n ++
+0fefd717: Exception 0x%x
+0fefd726:  format 0x%x
+0fefd733: %s\n
+0fefd737: Virtual Addr 0x%x is mapped to Physical Addr 0x%x.\n
+0fefd76b: Context = 0x%x,  Seg Map = 0x%x,  Page Map = 0x%x.\n
+0fefd79f: Page 0x%x has these attributes:\n ++
+0fefd7bf: \n
+0fefd7c1: .Valid bit  = %d\n
+0fefd7d3: .Permission = 0x%x\n
+0fefd7e7: .No Cache   = %d\n
+0fefd7f9: .Type       = %d\n
+0fefd80b: .Access bit = %d\n
+0fefd81d: .Modify bit = %d\n
+0fefd82f: Compiled on %s at %s in %s\n
+0fefd84b: SegMap %8x
+0fefd856: PageMap %8x [%2x]
+0fefd868: Warning: EEPROM contents will be destroyed, are you sure?
+0fefd8a2: \n
+0fefd8a4: EEPROM %3x
+0fefd8af: FC%x space\n
+0fefd8bb: Tracing...\n
+0fefd8c7: Trace Off\n
+0fefd8d2: %8x:  
+
+0fefd8d9:  		; single space
+0fefd8db:     	; four spaces
+
+0fefd8e0: \n
+0fefd8e2: Monitor: Invalid command.\n
+0fefd8fd: : 
+0fefd900: ? 
+0fefd903:  -> 
+0fefd908: %8x now.\n
+0fefd912: Break %x installed\n
+0fefd926: Try again.\n
+0fefd932: \n ++
+0fefd933: \n ++
+0fefd934: Extended Test Menu:  (Enter 'q' to return
+0fefd95e:  to Monitor)\n ++
+0fefd96b: \n ++
+0fefd96c: Cmd -  Test\n ++
+0fefd978: \n
+0fefd97a: ae
+0fefd97d: Ethernet
+0fefd986: kb
+0fefd989: Keyboard Input
+0fefd998: me
+0fefd99b: Memory
+0fefd9a2: mk
+0fefd9a5: Mouse/Keyboard Ports
+0fefd9ba: rs
+0fefd9bd: Serial Ports
+0fefd9ca: sd
+0fefd9cd: SCSI Disk Bootpath
+0fefd9e0: si
+0fefd9e3: SCSI Interface
+0fefd9f2: st
+0fefd9f5: SCSI Tape Bootpath
+0fefda08: vm
+0fefda0b: Video (Monochrome)
+0fefda1e: vc
+0fefda21: Video (Color)
+0fefda2f: ve
+0fefda32: Video Enable Plane
+0fefda45: cm
+0fefda48: Color Map
+0fefda52: vo
+0fefda55: Video Overlay Plane
+0fefda69: sd()
+0fefda6e: st()
+0fefda73: \n ++
+0fefda74: Invalid command!\n
+0fefda88: kab
+0fefda8c: sab
+
+ fefda90:	0007
  fefda92:	6800 0000      	bvcw 0xfefda94
  fefda96:	0000 0003      	orib #3,%d0
  fefda9a:	8400           	orb %d0,%d2
@@ -17127,89 +15365,28 @@ fef8fba:	4879 0fef ea5f 	pea 0xfefea5f
  fefdb28:	021e 03c1      	andib #-63,%fp@+
  fefdb2c:	0568 0e03      	bchg %d2,%a0@(3587)
  fefdb30:	0010 0010      	orib #16,%a0@
- fefdb34:	7525           	.short 0x7525
- fefdb36:	6369           	blss 0xfefdba1
- fefdb38:	2c20           	movel %a0@-,%d6
- fefdb3a:	7525           	.short 0x7525
- fefdb3c:	636f           	blss 0xfefdbad
- fefdb3e:	2c20           	movel %a0@-,%d6
- fefdb40:	7561           	.short 0x7561
- fefdb42:	2578 2c20 7562 	movel 0x2c20,%a2@(30050)
- fefdb48:	2578 2c20 7575 	movel 0x2c20,%a2@(30069)
- fefdb4e:	2578 2c20 7500 	movel 0x2c20,%a2@(29952)
- fefdb54:	650a           	bcss 0xfefdb60
- fefdb56:	0049           	.short 0x0049
- fefdb58:	6e76           	bgts 0xfefdbd0
- fefdb5a:	616c           	bsrs 0xfefdbc8
- fefdb5c:	6964           	bvss 0xfefdbc2
- fefdb5e:	2073 656c 6563 	moveal %a3@(6563)@(0),%a0
- fefdb64:	7469           	moveq #105,%d2
- fefdb66:	6f6e           	bles 0xfefdbd6
- fefdb68:	0a00 4578      	eorib #120,%d0
- fefdb6c:	7472           	moveq #114,%d2
- fefdb6e:	6120           	bsrs 0xfefdb90
- fefdb70:	6368           	blss 0xfefdbda
- fefdb72:	6172           	bsrs 0xfefdbe6
- fefdb74:	7320           	.short 0x7320
- fefdb76:	696e           	bvss 0xfefdbe6
- fefdb78:	2063           	moveal %a3@-,%a0
- fefdb7a:	6f6d           	bles 0xfefdbe9
- fefdb7c:	6d61           	blts 0xfefdbdf
- fefdb7e:	6e64           	bgts 0xfefdbe4
- fefdb80:	0a00 0000      	eorib #0,%d0
- fefdb84:	0820 0800      	btst #0,%a0@-
 
-; data - list of ascii (and hex) digits.
- fefdb88:	3031 3233
- fefdb8c:	3435 3637
- fefdb90:	3839 4142 4344
- fefdb96:	4546
- fefdb98:	0000 0000
+0fefdb34: u%ci, u%co, ua%x, ub%x, uu%x, u
+0fefdb54: e\n
+0fefdb57: Invalid selection\n
+0fefdb6a: Extra chars in command\n
 
-; data, same as above
- fefdb9c:	3031 3233
- fefdba0:	3435 3637
- fefdba4:	3839 4142 4344
- fefdbaa:	4546
- fefdbac:	0000 0000
- fefdbb0:	0a2a 2a2a 204d 	eorib #42,%a2@(8269)
- fefdbb6:	6573           	bcss 0xfefdc2b
- fefdbb8:	7361           	.short 0x7361
- fefdbba:	6765           	beqs 0xfefdc21
- fefdbbc:	2066           	moveal %fp@-,%a0
- fefdbbe:	726f           	moveq #111,%d1
- fefdbc0:	6d20           	blts 0xfefdbe2
- fefdbc2:	2573 3a20 2000 	movel %a3@(20,%d3:l:2),%a2@(8192)
- fefdbc8:	4b65           	.short 0x4b65
- fefdbca:	7962           	.short 0x7962
- fefdbcc:	6f61           	bles 0xfefdc2f
- fefdbce:	7264           	moveq #100,%d1
- fefdbd0:	0053 4343      	oriw #17219,%a3@
- fefdbd4:	000a           	.short 0x000a
- fefdbd6:	2a2a 2a20      	movel %a2@(10784),%d5
- fefdbda:	456e           	.short 0x456e
- fefdbdc:	6420           	bccs 0xfefdbfe
- fefdbde:	6f66           	bles 0xfefdc46
- fefdbe0:	204d           	moveal %a5,%a0
- fefdbe2:	6573           	bcss 0xfefdc57
- fefdbe4:	7361           	.short 0x7361
- fefdbe6:	6765           	beqs 0xfefdc4d
- fefdbe8:	202a 2a2a      	movel %a2@(10794),%d0
- fefdbec:	0a00 2563      	eorib #99,%d0
- fefdbf0:	0000 0000      	orib #0,%d0
- fefdbf4:	4b65           	.short 0x4b65
- fefdbf6:	7962           	.short 0x7962
- fefdbf8:	6f61           	bles 0xfefdc5b
- fefdbfa:	7264           	moveq #100,%d1
- fefdbfc:	2065           	moveal %a5@-,%a0
- fefdbfe:	7272           	moveq #114,%d1
- fefdc00:	6f72           	bles 0xfefdc74
- fefdc02:	2064           	moveal %a4@-,%a0
- fefdc04:	6574           	bcss 0xfefdc7a
- fefdc06:	6563           	bcss 0xfefdc6b
- fefdc08:	7465           	moveq #101,%d2
- fefdc0a:	640a           	bccs 0xfefdc16
- fefdc0c:	0000 0000      	orib #0,%d0
+ fefdb82:	0000
+ fefdb84:	0820 0800		; BS\nBS
+
+0fefdb88: 0123456789ABCDEF
+0fefdb9c: 0123456789ABCDEF
+0fefdbb0: \n ++
+0fefdbb1: *** Message from %s:  
+0fefdbc8: Keyboard
+0fefdbd1: SCC
+0fefdbd5: \n ++
+0fefdbd6: *** End of Message ***\n
+0fefdbee: %c
+0fefdbf4: Keyboard error detected\n
+
+ fefdc0c:	0000 0000
+
  fefdc10:	a291           	.short 0xa291
  fefdc12:	a1a1           	.short 0xa1a1
  fefdc14:	a2a1           	.short 0xa2a1
@@ -17225,9 +15402,11 @@ fef8fba:	4879 0fef ea5f 	pea 0xfefea5f
  fefdc28:	a2a1           	.short 0xa2a1
  fefdc2a:	a1a1           	.short 0xa1a1
  fefdc2c:	a21b           	.short 0xa21b
+
  fefdc2e:	3132 3334 3536 	movew %a2@(35363738)@(0,%d3:w:2),%a0@-
  fefdc34:	3738 
  fefdc36:	3930 2d3d 6008 	movew %a0@(6008a2a1)@(0,%d2:l:4),%a4@-
+
  fefdc3c:	a2a1 
  fefdc3e:	a1a1           	.short 0xa1a1
  fefdc40:	a2a1           	.short 0xa2a1
@@ -18529,7 +16708,7 @@ fef8fba:	4879 0fef ea5f 	pea 0xfefea5f
 0feff270: Requesting Ethernet address for 
 0feff291: Requesting Internet address for 
 
-; note the invisible 0x08
+; note the invisible 0x08 (backspace)
  feff2b2:	2563 0800
 0feff2b2: %c.
 
