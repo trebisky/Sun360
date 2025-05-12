@@ -18,9 +18,9 @@
 0fef000c:  0fef00e4
 0fef0010:  ffffe172
 0fef0014:  0fef576e
-0fef0018:  0fef5680
+0fef0018:  0fef5680		; putchar
 0fef001c:  0fef5798
-0fef0020:  0fef56ae
+0fef0020:  0fef56ae		; putchar2
 0fef0024:  ffffe01a
 0fef0028:  ffffe015
 0fef002c:  ffffe016
@@ -6219,25 +6219,38 @@
  fef5674:	4cee 00c0 fff8 	moveml %fp@(-8),%d6-%d7
  fef567a:	4e5e           	unlk %fp
  fef567c:	4e75           	rts
+
+; -----------------------------
+; Subroutine -- putchar
+; Mis
  fef567e:	0000 4e56      	orib #86,%d0
  fef5682:	fffc           	.short 0xfffc
  fef5684:	2e87           	movel %d7,%sp@
+
  fef5686:	1e2e 000b      	moveb %fp@(11),%d7
- fef568a:	0c07 000a      	cmpib #10,%d7
+ fef568a:	0c07 000a      	cmpib #10,%d7			; '\n' ?
  fef568e:	6608           	bnes 0xfef5698
- fef5690:	4878 000d      	pea 0xd
- fef5694:	61ea           	bsrs 0xfef5680
+ fef5690:	4878 000d      	pea 0xd					; '\r'
+ fef5694:	61ea           	bsrs 0xfef5680			; recursion
  fef5696:	584f           	addqw #4,%sp
+
  fef5698:	7000           	moveq #0,%d0
  fef569a:	1007           	moveb %d7,%d0
  fef569c:	2f00           	movel %d0,%sp@-
+
  fef569e:	610e           	bsrs 0xfef56ae
  fef56a0:	584f           	addqw #4,%sp
+
  fef56a2:	4a80           	tstl %d0
- fef56a4:	66f2           	bnes 0xfef5698
+ fef56a4:	66f2           	bnes 0xfef5698			; loop back
+
  fef56a6:	2e2e fffc      	movel %fp@(-4),%d7
  fef56aa:	4e5e           	unlk %fp
  fef56ac:	4e75           	rts
+
+; -----------------------------
+; subroutine -- "putchar2"
+
  fef56ae:	4e56 fffc      	linkw %fp,#-4
  fef56b2:	2e87           	movel %d7,%sp@
  fef56b4:	0c38 0012 e000 	cmpib #18,0xffffe000
@@ -6300,6 +6313,7 @@
  fef5766:	2e2e fffc      	movel %fp@(-4),%d7
  fef576a:	4e5e           	unlk %fp
  fef576c:	4e75           	rts
+
  fef576e:	4e56 fffc      	linkw %fp,#-4
  fef5772:	2e87           	movel %d7,%sp@
  fef5774:	6122           	bsrs 0xfef5798
@@ -6317,6 +6331,7 @@
  fef5790:	2e2e fffc      	movel %fp@(-4),%d7
  fef5794:	4e5e           	unlk %fp
  fef5796:	4e75           	rts
+
  fef5798:	4e56 fff8      	linkw %fp,#-8
  fef579c:	48d7 00c0      	moveml %d6-%d7,%sp@
  fef57a0:	0c38 0012 e000 	cmpib #18,0xffffe000

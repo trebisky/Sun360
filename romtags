@@ -1,0 +1,40 @@
+#!/bin/python
+
+import re
+
+outfile = "tags"
+infile = "rom.dis"
+
+pattern = r"^fef.....:"
+num = 1
+
+of = open ( outfile, "w")
+
+# Use pattern
+def process ( line, num, prefix ) :
+    tag = re.sub ( r":.*", "", line )
+    xtag = prefix + tag
+    srch = "/^" + tag + "/"
+    cmd = [ xtag, infile, srch ]
+    of.write ( "\t".join(cmd) + "\n" )
+
+# spit out tags with 0x prefix.
+# vim likes these first so tags are "sorted"
+# Note that "strip()" removes any leading space.
+with open ( infile ) as f:
+    for raw in f:
+        line = raw.strip()
+        if re.search(pattern, line):
+            process ( line, num, "0x" )
+        num += 1
+
+# spit out tags without 0x prefix.
+# Not as common as the above, but handy also
+with open ( infile ) as f:
+    for raw in f:
+        line = raw.strip()
+        if re.search(pattern, line):
+            process ( line, num, "" )
+        num += 1
+
+# THE END
