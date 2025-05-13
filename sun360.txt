@@ -21,10 +21,14 @@
 
 ; The rest of these are a "jump table" into various
 ;  places in the ROM
-; I wonder what it means when the word begins
-;    with ffff ?  Comparing to the Sun3-80 rom,
-;    I see the same entries there begin with fef7
-;    which is clearly not in the ROM space.
+;
+; Note the entries that begin with ffffxxxx.
+; These are actually locations in RAM, not
+; addresses to jump to.
+; In the Sun3-80 these were fef7xxxx
+;  clearly not in ROM space.
+; These are data structures that are intended
+;  to be publicly visible and accessed.
 
 0fef0008:  0fef2d34
 0fef000c:  0fef00e4
@@ -608,7 +612,7 @@
  fef0788:	e2a8           	lsrl %d1,%d0
  fef078a:	0480 3000 0002 	subil #805306370,%d0
  fef0790:	2f00           	movel %d0,%sp@-
- fef0792:	4878 e000      	pea 0xffffe000		; XX-e
+ fef0792:	4878 e000      	pea 0xffffe000		; XX-0-A
  fef0796:	6100 152e      	bsrw 0xfef1cc6
  fef079a:	504f           	addqw #8,%sp
  fef079c:	2007           	movel %d7,%d0
@@ -2027,7 +2031,7 @@ fef1acc:	4879 0fef c97a 	pea 0xfefc97a
  fef1ad6:	584f           	addqw #4,%sp
  fef1ad8:	11fc 0001 e015 	moveb #1,0xffffe015
  fef1ade:	11f8 e015 e016 	moveb 0xffffe015,0xffffe016
- fef1ae4:	11fc 0001 e001 	moveb #1,0xffffe001			; XX-0
+ fef1ae4:	11fc 0001 e001 	moveb #1,0xffffe001			; XX-0-B
  fef1aea:	6100 00a8      	bsrw 0xfef1b94
  fef1aee:	6070           	bras 0xfef1b60
  fef1af0:	0c39 0011 0fe0 	cmpib #17,0xfe0401f
@@ -2040,7 +2044,7 @@ fef1afe:	4879 0fef c997 	pea 0xfefc997
  fef1b08:	584f           	addqw #4,%sp
  fef1b0a:	11fc 0002 e015 	moveb #2,0xffffe015
  fef1b10:	11f8 e015 e016 	moveb 0xffffe015,0xffffe016
- fef1b16:	11fc 0002 e001 	moveb #2,0xffffe001			; XX-0
+ fef1b16:	11fc 0002 e001 	moveb #2,0xffffe001			; XX-0-B
  fef1b1c:	6176           	bsrs 0xfef1b94
  fef1b1e:	6040           	bras 0xfef1b60
  fef1b20:	0c38 00de e012 	cmpib #-34,0xffffe012
@@ -2059,8 +2063,8 @@ fef1b30:	4879 0fef c9b4 	pea 0xfefc9b4
  fef1b4c:	6606           	bnes 0xfef1b54
  fef1b4e:	4238 e015      	clrb 0xffffe015
  fef1b52:	600c           	bras 0xfef1b60
- fef1b54:	11f8 e001 e015 	moveb 0xffffe001,0xffffe015			; XX-0
- fef1b5a:	11f8 e001 e016 	moveb 0xffffe001,0xffffe016			; XX-0
+ fef1b54:	11f8 e001 e015 	moveb 0xffffe001,0xffffe015			; XX-0-B
+ fef1b5a:	11f8 e001 e016 	moveb 0xffffe001,0xffffe016			; XX-0-B
  fef1b60:	302e 0070      	movew %fp@(112),%d0
  fef1b64:	0240 0fff      	andiw #4095,%d0
  fef1b68:	0c40 0003      	cmpiw #3,%d0
@@ -2164,39 +2168,44 @@ fef1c5a:	4879 0fef ca0a 	pea 0xfefca0a
  fef1cbc:	0e10 0000      	movesb %a0@,%d0
  fef1cc0:	4e7b 1000      	movec %d1,%sfc
  fef1cc4:	4e75           	rts
+
+; Subroutine
+; many calls
  fef1cc6:	202f 0004      	movel %sp@(4),%d0
  fef1cca:	0280 0fff e000 	andil #268427264,%d0
- fef1cd0:	0680 1000 0000 	addil #268435456,%d0
+ fef1cd0:	0680 1000 0000 	addil #268435456,%d0	; IDPROM
  fef1cd6:	2040           	moveal %d0,%a0
  fef1cd8:	43f8 0003      	lea 0x3,%a1
- fef1cdc:	4e7a 0000      	movec %sfc,%d0
+ fef1cdc:	4e7a 0000      	movec %sfc,%d0		; save
  fef1ce0:	4e7b 9000      	movec %a1,%sfc
- fef1ce4:	d1fc 1000 0000 	addal #268435456,%a0
+ fef1ce4:	d1fc 1000 0000 	addal #268435456,%a0	; IDPROM
  fef1cea:	0e10 1000      	movesb %a0@,%d1
- fef1cee:	91fc 1000 0000 	subal #268435456,%a0
- fef1cf4:	4e7b 0000      	movec %d0,%sfc
+ fef1cee:	91fc 1000 0000 	subal #268435456,%a0	; IDPROM
+ fef1cf4:	4e7b 0000      	movec %d0,%sfc		; restore
  fef1cf8:	202f 0008      	movel %sp@(8),%d0
  fef1cfc:	0c01 00ff      	cmpib #-1,%d1
  fef1d00:	660a           	bnes 0xfef1d0c
- fef1d02:	0c80 2000 0000 	cmpil #536870912,%d0
+ fef1d02:	0c80 2000 0000 	cmpil #536870912,%d0	; PGMAP
  fef1d08:	6702           	beqs 0xfef1d0c
- fef1d0a:	60fd           	bras 0xfef1d09
- fef1d0c:	4e7a 1001      	movec %dfc,%d1
+ fef1d0a:	60fd           	bras 0xfef1d09		; odd address ???
+ fef1d0c:	4e7a 1001      	movec %dfc,%d1		; save
  fef1d10:	4e7b 9001      	movec %a1,%dfc
  fef1d14:	0e90 0800      	movesl %d0,%a0@
- fef1d18:	4e7b 1001      	movec %d1,%dfc
+ fef1d18:	4e7b 1001      	movec %d1,%dfc		; restore
  fef1d1c:	4e75           	rts
+
  fef1d1e:	202f 0004      	movel %sp@(4),%d0
  fef1d22:	0280 0fff e000 	andil #268427264,%d0
  fef1d28:	0680 2000 0000 	addil #536870912,%d0
  fef1d2e:	2040           	moveal %d0,%a0
  fef1d30:	202f 0008      	movel %sp@(8),%d0
- fef1d34:	4e7a 1001      	movec %dfc,%d1
+ fef1d34:	4e7a 1001      	movec %dfc,%d1		; save
  fef1d38:	43f8 0003      	lea 0x3,%a1
  fef1d3c:	4e7b 9001      	movec %a1,%dfc
  fef1d40:	0e10 0800      	movesb %d0,%a0@
- fef1d44:	4e7b 1001      	movec %d1,%dfc
+ fef1d44:	4e7b 1001      	movec %d1,%dfc		; restore
  fef1d48:	4e75           	rts
+
  fef1d4a:	4e7a 1000      	movec %sfc,%d1
  fef1d4e:	43f8 0003      	lea 0x3,%a1
  fef1d52:	4e7b 9000      	movec %a1,%sfc
@@ -2206,6 +2215,7 @@ fef1c5a:	4879 0fef ca0a 	pea 0xfefca0a
  fef1d60:	0200 0007      	andib #7,%d0
  fef1d64:	4e7b 1000      	movec %d1,%sfc
  fef1d68:	4e75           	rts
+
  fef1d6a:	102f 0007      	moveb %sp@(7),%d0
  fef1d6e:	4e7a 1001      	movec %dfc,%d1
  fef1d72:	43f8 0003      	lea 0x3,%a1
@@ -2214,6 +2224,7 @@ fef1c5a:	4879 0fef ca0a 	pea 0xfefca0a
  fef1d80:	0000 
  fef1d82:	4e7b 1001      	movec %d1,%dfc
  fef1d86:	4e75           	rts
+
  fef1d88:	1039 0fe0 a000 	moveb 0xfe0a000,%d0
  fef1d8e:	2f00           	movel %d0,%sp@-
  fef1d90:	0200 fffe      	andib #-2,%d0
@@ -2226,6 +2237,7 @@ fef1c5a:	4879 0fef ca0a 	pea 0xfefca0a
  fef1dac:	201f           	movel %sp@+,%d0
  fef1dae:	13c0 0fe0 a000 	moveb %d0,0xfe0a000
  fef1db4:	4e75           	rts
+
  fef1db6:	2f02           	movel %d2,%sp@-
  fef1db8:	2f03           	movel %d3,%sp@-
  fef1dba:	202f 0010      	movel %sp@(16),%d0
@@ -3160,13 +3172,18 @@ fef2b60:	49f9 0fef d03f 	lea 0xfefd03f,%a4
  fef2bae:	0e39 0800 7000 	movesb %d0,0x70000000		; DIAG
  fef2bb4:	0000 
 
- fef2bb6:	11fc 0001 e001 	moveb #1,0xffffe001			; XX-0
+; set 1 to use RS232-A
+ fef2bb6:	11fc 0001 e001 	moveb #1,0xffffe001			; XX-0-B
  fef2bbc:	0807 0009      	btst #9,%d7
  fef2bc0:	6700 0008      	beqw 0xfef2bca
- fef2bc4:	11fc 0012 e000 	moveb #18,0xffffe000		; XX-0
+ fef2bc4:	11fc 0012 e000 	moveb #18,0xffffe000		; XX-0-A
  fef2bca:	0803 001f      	btst #31,%d3
+
  fef2bce:	6700 0008      	beqw 0xfef2bd8
- fef2bd2:	11fc 0002 e001 	moveb #2,0xffffe001			; XX-0
+
+; set 2 to use RS232-B
+ fef2bd2:	11fc 0002 e001 	moveb #2,0xffffe001			; XX-0-B
+
  fef2bd8:	33c3 0fe6 0bfa 	movew %d3,0xfe60bfa
  fef2bde:	2c4d           	moveal %a5,%fp
  fef2be0:	6000 d5a8      	braw 0xfef018a
@@ -6635,14 +6652,29 @@ fef53c2:	4879 0fef db84 	pea 0xfefdb84
 ; -----------------------------
 ; subroutine -- "putchar2"
 ; only called from the above.
+;
+; Remember that the normal thing with a sun3/60 was for
+;  printf to be working with the framebuffer and keyboard.
+;  Using RS232 certainly worked, but you had to select that
+;  as a non-default.
+;
+; Locations ffffe000 and ffffe001 are interesting:
+;
+;    ffffe000 XX-0-A
+;		only a byte
+;		it may get set to 0x12 (18)
+;    ffffe001 XX-0-B
+;		only a byte
+;		1 says to use RS232-A
+;		2 says to use RS232-B
 
  fef56ae:	4e56 fffc      	linkw %fp,#-4
  fef56b2:	2e87           	movel %d7,%sp@
 
- fef56b4:	0c38 0012 e000 	cmpib #18,0xffffe000			; XX-0
+ fef56b4:	0c38 0012 e000 	cmpib #18,0xffffe000			; XX-0-A
  fef56ba:	6650           	bnes 0xfef570c
 
- fef56bc:	1038 e001      	moveb 0xffffe001,%d0			; XX-0
+ fef56bc:	1038 e001      	moveb 0xffffe001,%d0			; XX-0-B
  fef56c0:	49c0           	extbl %d0
  fef56c2:	7202           	moveq #2,%d1
  fef56c4:	9280           	subl %d0,%d1
@@ -6653,15 +6685,16 @@ fef53c2:	4879 0fef db84 	pea 0xfefdb84
  fef56d4:	2e3c 0000 00a0 	movel #160,%d7				; Delay
  fef56da:	2239 0fef c960 	movel 0xfefc960,%d1			; 3
  fef56e0:	e2a7           	asrl %d1,%d7
- fef56e2:	5387           	subql #1,%d7		; delay
+ fef56e2:	5387           	subql #1,%d7
  fef56e4:	6efc           	bgts 0xfef56e2
 
- fef56e6:	1038 e001      	moveb 0xffffe001,%d0			; XX-0
+ fef56e6:	1038 e001      	moveb 0xffffe001,%d0			; XX-0-B
  fef56ea:	49c0           	extbl %d0
  fef56ec:	7202           	moveq #2,%d1
  fef56ee:	9280           	subl %d0,%d1
  fef56f0:	2078 e2be      	moveal 0xffffe2be,%a0
  fef56f4:	11ae 000b 1c02 	moveb %fp@(11),%a0@(2,%d1:l:4)
+
  fef56fa:	7000           	moveq #0,%d0
  fef56fc:	102e 000b      	moveb %fp@(11),%d0
  fef5700:	2f00           	movel %d0,%sp@-
@@ -6730,7 +6763,7 @@ fef53c2:	4879 0fef db84 	pea 0xfefdb84
 
  fef5798:	4e56 fff8      	linkw %fp,#-8
  fef579c:	48d7 00c0      	moveml %d6-%d7,%sp@
- fef57a0:	0c38 0012 e000 	cmpib #18,0xffffe000			; XX-0
+ fef57a0:	0c38 0012 e000 	cmpib #18,0xffffe000			; XX-0-A
  fef57a6:	6600 0086      	bnew 0xfef582e
  fef57aa:	6100 02bc      	bsrw 0xfef5a68
  fef57ae:	2e00           	movel %d0,%d7
@@ -6749,7 +6782,7 @@ fef53c2:	4879 0fef db84 	pea 0xfefdb84
  fef57cc:	7eff           	moveq #-1,%d7
  fef57ce:	2007           	movel %d7,%d0
  fef57d0:	6000 00aa      	braw 0xfef587c
- fef57d4:	1038 e001      	moveb 0xffffe001,%d0			; XX-0
+ fef57d4:	1038 e001      	moveb 0xffffe001,%d0			; XX-0-B
  fef57d8:	49c0           	extbl %d0
  fef57da:	7202           	moveq #2,%d1
  fef57dc:	9280           	subl %d0,%d1
@@ -6763,7 +6796,7 @@ fef53c2:	4879 0fef db84 	pea 0xfefdb84
  fef57f8:	5386           	subql #1,%d6
  fef57fa:	6efc           	bgts 0xfef57f8
 
- fef57fc:	1038 e001      	moveb 0xffffe001,%d0			; XX-0
+ fef57fc:	1038 e001      	moveb 0xffffe001,%d0			; XX-0-B
  fef5800:	49c0           	extbl %d0
  fef5802:	7202           	moveq #2,%d1
  fef5804:	9280           	subl %d0,%d1
@@ -6835,14 +6868,14 @@ fef58a4:	4879 0fef dbb0 	pea 0xfefdbb0
  fef58c2:	5385           	subql #1,%d5
  fef58c4:	6efc           	bgts 0xfef58c2
 
- fef58c6:	1038 e001      	moveb 0xffffe001,%d0			; XX-0
+ fef58c6:	1038 e001      	moveb 0xffffe001,%d0			; XX-0-B
  fef58ca:	49c0           	extbl %d0
  fef58cc:	7202           	moveq #2,%d1
  fef58ce:	9280           	subl %d0,%d1
  fef58d0:	2078 e2ba      	moveal 0xffffe2ba,%a0
  fef58d4:	0830 0000 1c00 	btst #0,%a0@(0,%d1:l:4)
  fef58da:	67d4           	beqs 0xfef58b0
- fef58dc:	1038 e001      	moveb 0xffffe001,%d0			; XX-0
+ fef58dc:	1038 e001      	moveb 0xffffe001,%d0			; XX-0-B
  fef58e0:	49c0           	extbl %d0
  fef58e2:	7202           	moveq #2,%d1
  fef58e4:	9280           	subl %d0,%d1
