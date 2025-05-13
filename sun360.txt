@@ -44,10 +44,10 @@
 0fef0044:  ffffe0ca
 0fef0048:  ffffe252
 0fef004c:  0fefd0c8
-0fef0050:  0fef6d3c
+0fef0050:  0fef6d3c		; putcharX
 0fef0054:  ffffe2c6
 0fef0058:  ffffe08a
-0fef005c:  0fef6d50
+0fef005c:  0fef6d50		; putcharY
 0fef0060:  0fef49f8
 0fef0064:  ffffe028
 0fef0068:  ffffe020
@@ -57,16 +57,16 @@
 0fef0078:  0fef542e
 0fef007c:  ffffe01b
 0fef0080:  0fef5452
-0fef0084:  0fef54e4
+0fef0084:  0fef54e4			; printf
 0fef0088:  0fef5636
-0fef008c:  ffffe00e
+0fef008c:  ffffe00e		; XX-e
 0fef0090:  0fef051a
 0fef0094:  0fef03a2
 0fef0098:  0fef04ac
 0fef009c:  ffffe0b2
 0fef00a0:  ffffe0f6
 0fef00a4:  00000002
-0fef00a8:  ffffe000
+0fef00a8:  ffffe000		; XX-0
 0fef00ac:  ffffe24e
 0fef00b0:  ffffe0ba
 0fef00b4:  ffffe013
@@ -178,9 +178,13 @@
  fef0216:	0eb9 0800 1000 	movesl %d0,0x10000000	; PGMAP
  fef021c:	0000 
  fef021e:	4ff8 0800      	lea 0x800,%sp
+
+; This will turn on some LED via pattern 0x0D = 0000_1101
+
  fef0222:	700d           	moveq #13,%d0
  fef0224:	0e39 0800 7000 	movesb %d0,0x70000000		; DIAG
  fef022a:	0000 
+
  fef022c:	2f06           	movel %d6,%sp@-
  fef022e:	6100 03ec      	bsrw 0xfef061c
  fef0232:	588f           	addql #4,%sp
@@ -300,15 +304,22 @@
  fef03ec:	b340           	eorw %d1,%d0
  fef03ee:	0800 0009      	btst #9,%d0
  fef03f2:	6722           	beqs 0xfef0416
- fef03f4:	4e7a 1001      	movec %dfc,%d1
+
+ fef03f4:	4e7a 1001      	movec %dfc,%d1		; save dfc
  fef03f8:	7003           	moveq #3,%d0
  fef03fa:	4e7b 0001      	movec %d0,%dfc
- fef03fe:	1038 e00e      	moveb 0xffffe00e,%d0
+
+; flip bit 0x20 in XX-e
+; Also copy to DIAG
+ fef03fe:	1038 e00e      	moveb 0xffffe00e,%d0		; XX-e
  fef0402:	0a00 0020      	eorib #32,%d0
- fef0406:	11c0 e00e      	moveb %d0,0xffffe00e
+ fef0406:	11c0 e00e      	moveb %d0,0xffffe00e		; XX-e
+
  fef040a:	0e39 0800 7000 	movesb %d0,0x70000000		; DIAG
  fef0410:	0000 
- fef0412:	4e7b 1001      	movec %d1,%dfc
+
+ fef0412:	4e7b 1001      	movec %d1,%dfc		; restore dtc
+
  fef0416:	2208           	movel %a0,%d1
  fef0418:	2078 e24e      	moveal 0xffffe24e,%a0
  fef041c:	4a28 0000      	tstb %a0@(0)
@@ -394,11 +405,17 @@
  fef0518:	4e75           	rts
 
 ; Subroutine - write the DIAG register
+; -- the DIAG register is 8 bits and controls the 8 LED,
+; -- so this is an output only register.
+; -- for no reason that I can see, the value is
+; -- also placed into the XXX-e location (ffffe00e)
+; -- only one call
+
  fef051a:	4e7a 8001      	movec %dfc,%a0
  fef051e:	7203           	moveq #3,%d1
  fef0520:	4e7b 1001      	movec %d1,%dfc			; select control space
  fef0524:	102f 0007      	moveb %sp@(7),%d0
- fef0528:	11c0 e00e      	moveb %d0,0xffffe00e
+ fef0528:	11c0 e00e      	moveb %d0,0xffffe00e		; XX-e
  fef052c:	0e39 0800 7000 	movesb %d0,0x70000000		; DIAG
  fef0532:	0000 
  fef0534:	4e7b 8001      	movec %a0,%dfc
@@ -591,7 +608,7 @@
  fef0788:	e2a8           	lsrl %d1,%d0
  fef078a:	0480 3000 0002 	subil #805306370,%d0
  fef0790:	2f00           	movel %d0,%sp@-
- fef0792:	4878 e000      	pea 0xffffe000
+ fef0792:	4878 e000      	pea 0xffffe000		; XX-e
  fef0796:	6100 152e      	bsrw 0xfef1cc6
  fef079a:	504f           	addqw #8,%sp
  fef079c:	2007           	movel %d7,%d0
@@ -644,7 +661,7 @@
  fef0842:	6700 00ae      	beqw 0xfef08f2
  fef0846:	61ff 0000 9324 	bsrl 0xfef9b6c
  fef084c:	42ae ffe4      	clrl %fp@(-28)
- fef0850:	4a38 e003      	tstb 0xffffe003
+ fef0850:	4a38 e003      	tstb 0xffffe003			; XX-0
  fef0854:	6724           	beqs 0xfef087a
  fef0856:	2d7c 0fe2 0000 	movel #266469376,%fp@(-4)
  fef085c:	fffc 
@@ -670,10 +687,10 @@ fef0894:	4879 0fef c54a 	pea 0xfefc54a
  fef08a8:	2f2e fff8      	movel %fp@(-8),%sp@-
  fef08ac:	2f2e ffe8      	movel %fp@(-24),%sp@-
  fef08b0:	4879 0fef c551 	pea 0xfefc551
- fef08b6:	61ff 0000 4c2c 	bsrl 0xfef54e4
+ fef08b6:	61ff 0000 4c2c 	bsrl 0xfef54e4			; printf
  fef08bc:	4fef 000c      	lea %sp@(12),%sp
  fef08c0:	4879 0fef c586 	pea 0xfefc586
- fef08c6:	61ff 0000 4c1c 	bsrl 0xfef54e4
+ fef08c6:	61ff 0000 4c1c 	bsrl 0xfef54e4			; printf
  fef08cc:	584f           	addqw #4,%sp
  fef08ce:	61ff 0000 9252 	bsrl 0xfef9b22
  fef08d4:	1d40 ffe3      	moveb %d0,%fp@(-29)
@@ -701,36 +718,36 @@ fef0894:	4879 0fef c54a 	pea 0xfefc54a
  fef0932:	61ff 0000 4b1e 	bsrl 0xfef5452
  fef0938:	2d40 fff4      	movel %d0,%fp@(-12)
  fef093c:	61ff 0000 9132 	bsrl 0xfef9a70
- fef0942:	0c38 0051 e002 	cmpib #81,0xffffe002
+ fef0942:	0c38 0051 e002 	cmpib #81,0xffffe002			; XX-0
  fef0948:	660a           	bnes 0xfef0954
  fef094a:	4238 e019      	clrb 0xffffe019
  fef094e:	7051           	moveq #81,%d0
  fef0950:	6000 013c      	braw 0xfef0a8e
  fef0954:	2f2e fff8      	movel %fp@(-8),%sp@-
  fef0958:	2f2e fffc      	movel %fp@(-4),%sp@-
- fef095c:	0c38 0001 e003 	cmpib #1,0xffffe003
+ fef095c:	0c38 0001 e003 	cmpib #1,0xffffe003			; XX-0
  fef0962:	6608           	bnes 0xfef096c
  fef0964:	203c 0fef c603 	movel #267372035,%d0
  fef096a:	6006           	bras 0xfef0972
  fef096c:	203c 0fef c609 	movel #267372041,%d0
  fef0972:	2f00           	movel %d0,%sp@-
  fef0974:	4879 0fef c5e4 	pea 0xfefc5e4
- fef097a:	61ff 0000 4b68 	bsrl 0xfef54e4
+ fef097a:	61ff 0000 4b68 	bsrl 0xfef54e4			; printf
  fef0980:	4fef 0010      	lea %sp@(16),%sp
  fef0984:	72fc           	moveq #-4,%d1
  fef0986:	c3ae fff8      	andl %d1,%fp@(-8)
- fef098a:	0c38 0046 e002 	cmpib #70,0xffffe002
+ fef098a:	0c38 0046 e002 	cmpib #70,0xffffe002			; XX-0
  fef0990:	6710           	beqs 0xfef09a2
- fef0992:	0c38 004c e002 	cmpib #76,0xffffe002
+ fef0992:	0c38 004c e002 	cmpib #76,0xffffe002			; XX-0
  fef0998:	6708           	beqs 0xfef09a2
- fef099a:	0c38 004e e002 	cmpib #78,0xffffe002
+ fef099a:	0c38 004e e002 	cmpib #78,0xffffe002			; XX-0
  fef09a0:	6606           	bnes 0xfef09a8
  fef09a2:	11fc 0001 e019 	moveb #1,0xffffe019
  fef09a8:	42b8 e0a2      	clrl 0xffffe0a2
  fef09ac:	202e fffc      	movel %fp@(-4),%d0
  fef09b0:	0280 ff80 0000 	andil #-8388608,%d0
  fef09b6:	2d40 ffdc      	movel %d0,%fp@(-36)
- fef09ba:	4a38 e003      	tstb 0xffffe003
+ fef09ba:	4a38 e003      	tstb 0xffffe003			; XX-0
  fef09be:	6620           	bnes 0xfef09e0
  fef09c0:	6014           	bras 0xfef09d6
  fef09c2:	202e ffdc      	movel %fp@(-36),%d0
@@ -884,7 +901,7 @@ fef0894:	4879 0fef c54a 	pea 0xfefc54a
  fef0b94:	4fef 000c      	lea %sp@(12),%sp
  fef0b98:	4a80           	tstl %d0
  fef0b9a:	670a           	beqs 0xfef0ba6
- fef0b9c:	0c38 004c e002 	cmpib #76,0xffffe002
+ fef0b9c:	0c38 004c e002 	cmpib #76,0xffffe002			; XX-0
  fef0ba2:	6602           	bnes 0xfef0ba6
  fef0ba4:	5984           	subql #4,%d4
  fef0ba6:	2004           	movel %d4,%d0
@@ -930,7 +947,7 @@ fef0894:	4879 0fef c54a 	pea 0xfefc54a
  fef0c1c:	4fef 000c      	lea %sp@(12),%sp
  fef0c20:	4a80           	tstl %d0
  fef0c22:	670a           	beqs 0xfef0c2e
- fef0c24:	0c38 004c e002 	cmpib #76,0xffffe002
+ fef0c24:	0c38 004c e002 	cmpib #76,0xffffe002			; XX-0
  fef0c2a:	6602           	bnes 0xfef0c2e
  fef0c2c:	5982           	subql #4,%d2
  fef0c2e:	2002           	movel %d2,%d0
@@ -971,7 +988,7 @@ fef0894:	4879 0fef c54a 	pea 0xfefc54a
  fef0c94:	4fef 000c      	lea %sp@(12),%sp
  fef0c98:	4a80           	tstl %d0
  fef0c9a:	670a           	beqs 0xfef0ca6
- fef0c9c:	0c38 004c e002 	cmpib #76,0xffffe002
+ fef0c9c:	0c38 004c e002 	cmpib #76,0xffffe002			; XX-0
  fef0ca2:	6602           	bnes 0xfef0ca6
  fef0ca4:	5982           	subql #4,%d2
  fef0ca6:	2002           	movel %d2,%d0
@@ -1023,9 +1040,9 @@ fef0894:	4879 0fef c54a 	pea 0xfefc54a
  fef0d2c:	4e56 fffc      	linkw %fp,#-4
  fef0d30:	2e8d           	movel %a5,%sp@
  fef0d32:	2a7c 0fef c610 	moveal #267372048,%a5
- fef0d38:	4a38 e003      	tstb 0xffffe003
+ fef0d38:	4a38 e003      	tstb 0xffffe003			; XX-0
  fef0d3c:	6636           	bnes 0xfef0d74
- fef0d3e:	0c38 004e e002 	cmpib #78,0xffffe002
+ fef0d3e:	0c38 004e e002 	cmpib #78,0xffffe002			; XX-0
  fef0d44:	672e           	beqs 0xfef0d74
  fef0d46:	2038 e0aa      	movel 0xffffe0aa,%d0
  fef0d4a:	52b8 e0aa      	addql #1,0xffffe0aa
@@ -1041,7 +1058,7 @@ fef0894:	4879 0fef c54a 	pea 0xfefc54a
  fef0d62:	49c0           	extbl %d0
  fef0d64:	2f00           	movel %d0,%sp@-
  fef0d66:	4879 0fef c615 	pea 0xfefc615
- fef0d6c:	61ff 0000 4776 	bsrl 0xfef54e4
+ fef0d6c:	61ff 0000 4776 	bsrl 0xfef54e4			; printf
  fef0d72:	504f           	addqw #8,%sp
  fef0d74:	2a6e fffc      	moveal %fp@(-4),%a5
  fef0d78:	4e5e           	unlk %fp
@@ -1051,9 +1068,9 @@ fef0894:	4879 0fef c54a 	pea 0xfefc54a
  fef0d84:	2e2e 0008      	movel %fp@(8),%d7
  fef0d88:	2c2e 000c      	movel %fp@(12),%d6
  fef0d8c:	2a2e 0010      	movel %fp@(16),%d5
- fef0d90:	4a38 e003      	tstb 0xffffe003
+ fef0d90:	4a38 e003      	tstb 0xffffe003			; XX-0
  fef0d94:	6600 0094      	bnew 0xfef0e2a
- fef0d98:	0c38 004e e002 	cmpib #78,0xffffe002
+ fef0d98:	0c38 004e e002 	cmpib #78,0xffffe002			; XX-0
  fef0d9e:	6700 008a      	beqw 0xfef0e2a
  fef0da2:	0c87 0010 0000 	cmpil #1048576,%d7
  fef0da8:	6d08           	blts 0xfef0db2
@@ -1070,7 +1087,7 @@ fef0894:	4879 0fef c54a 	pea 0xfefc54a
  fef0dca:	52b8 e0a2      	addql #1,0xffffe0a2
  fef0dce:	2f38 e0a2      	movel 0xffffe0a2,%sp@-
  fef0dd2:	4879 0fef c619 	pea 0xfefc619
- fef0dd8:	61ff 0000 470a 	bsrl 0xfef54e4
+ fef0dd8:	61ff 0000 470a 	bsrl 0xfef54e4			; printf
  fef0dde:	4fef 000c      	lea %sp@(12),%sp
  fef0de2:	2006           	movel %d6,%d0
  fef0de4:	bb80           	eorl %d5,%d0
@@ -1078,24 +1095,24 @@ fef0894:	4879 0fef c54a 	pea 0xfefc54a
  fef0de8:	2f05           	movel %d5,%sp@-
  fef0dea:	2f06           	movel %d6,%sp@-
  fef0dec:	4879 0fef c637 	pea 0xfefc637
- fef0df2:	61ff 0000 46f0 	bsrl 0xfef54e4
+ fef0df2:	61ff 0000 46f0 	bsrl 0xfef54e4			; printf
  fef0df8:	4fef 0010      	lea %sp@(16),%sp
  fef0dfc:	52b8 e0a6      	addql #1,0xffffe0a6
- fef0e00:	0c38 0048 e002 	cmpib #72,0xffffe002
+ fef0e00:	0c38 0048 e002 	cmpib #72,0xffffe002			; XX-0
  fef0e06:	6622           	bnes 0xfef0e2a
  fef0e08:	4879 0fef c65e 	pea 0xfefc65e
- fef0e0e:	61ff 0000 46d4 	bsrl 0xfef54e4
+ fef0e0e:	61ff 0000 46d4 	bsrl 0xfef54e4			; printf
  fef0e14:	584f           	addqw #4,%sp
  fef0e16:	4879 0fef c672 	pea 0xfefc672
- fef0e1c:	61ff 0000 46c6 	bsrl 0xfef54e4
+ fef0e1c:	61ff 0000 46c6 	bsrl 0xfef54e4			; printf
  fef0e22:	584f           	addqw #4,%sp
  fef0e24:	61ff 0000 4948 	bsrl 0xfef576e
  fef0e2a:	4ab8 e0a2      	tstl 0xffffe0a2
  fef0e2e:	6718           	beqs 0xfef0e48
- fef0e30:	0c38 004c e002 	cmpib #76,0xffffe002
+ fef0e30:	0c38 004c e002 	cmpib #76,0xffffe002			; XX-0
  fef0e36:	6610           	bnes 0xfef0e48
  fef0e38:	4879 0fef c68c 	pea 0xfefc68c
- fef0e3e:	61ff 0000 46a4 	bsrl 0xfef54e4
+ fef0e3e:	61ff 0000 46a4 	bsrl 0xfef54e4			; printf
  fef0e44:	584f           	addqw #4,%sp
  fef0e46:	7001           	moveq #1,%d0
  fef0e48:	4cee 00e0 fff4 	moveml %fp@(-12),%d5-%d7
@@ -1112,7 +1129,7 @@ fef0894:	4879 0fef c54a 	pea 0xfefc54a
  fef0e70:	6000 0286      	braw 0xfef10f8
  fef0e74:	2f2e fff0      	movel %fp@(-16),%sp@-
  fef0e78:	4879 0fef c7f6 	pea 0xfefc7f6
- fef0e7e:	61ff 0000 4664 	bsrl 0xfef54e4
+ fef0e7e:	61ff 0000 4664 	bsrl 0xfef54e4			; printf
  fef0e84:	504f           	addqw #8,%sp
  fef0e86:	42ae ffe0      	clrl %fp@(-32)
  fef0e8a:	7e01           	moveq #1,%d7
@@ -1185,7 +1202,7 @@ fef0894:	4879 0fef c54a 	pea 0xfefc54a
  fef0f84:	ffcc 
  fef0f86:	6014           	bras 0xfef0f9c
  fef0f88:	4879 0fef c6f0 	pea 0xfefc6f0
- fef0f8e:	61ff 0000 4554 	bsrl 0xfef54e4
+ fef0f8e:	61ff 0000 4554 	bsrl 0xfef54e4			; printf
  fef0f94:	584f           	addqw #4,%sp
  fef0f96:	7051           	moveq #81,%d0
  fef0f98:	6000 0492      	braw 0xfef142c
@@ -1195,32 +1212,32 @@ fef0894:	4879 0fef c54a 	pea 0xfefc54a
  fef0faa:	2d40 fff0      	movel %d0,%fp@(-16)
  fef0fae:	2f2e ffcc      	movel %fp@(-52),%sp@-
  fef0fb2:	4879 0fef c720 	pea 0xfefc720
- fef0fb8:	61ff 0000 452a 	bsrl 0xfef54e4
+ fef0fb8:	61ff 0000 452a 	bsrl 0xfef54e4			; printf
  fef0fbe:	504f           	addqw #8,%sp
  fef0fc0:	2f2e fff0      	movel %fp@(-16),%sp@-
  fef0fc4:	4879 0fef c751 	pea 0xfefc751
- fef0fca:	61ff 0000 4518 	bsrl 0xfef54e4
+ fef0fca:	61ff 0000 4518 	bsrl 0xfef54e4			; printf
  fef0fd0:	504f           	addqw #8,%sp
  fef0fd2:	4879 0fef c77d 	pea 0xfefc77d
- fef0fd8:	61ff 0000 450a 	bsrl 0xfef54e4
+ fef0fd8:	61ff 0000 450a 	bsrl 0xfef54e4			; printf
  fef0fde:	584f           	addqw #4,%sp
  fef0fe0:	4879 0fef c788 	pea 0xfefc788
- fef0fe6:	61ff 0000 44fc 	bsrl 0xfef54e4
+ fef0fe6:	61ff 0000 44fc 	bsrl 0xfef54e4			; printf
  fef0fec:	584f           	addqw #4,%sp
  fef0fee:	4879 0fef c795 	pea 0xfefc795
- fef0ff4:	61ff 0000 44ee 	bsrl 0xfef54e4
+ fef0ff4:	61ff 0000 44ee 	bsrl 0xfef54e4			; printf
  fef0ffa:	584f           	addqw #4,%sp
  fef0ffc:	4879 0fef c7a9 	pea 0xfefc7a9
- fef1002:	61ff 0000 44e0 	bsrl 0xfef54e4
+ fef1002:	61ff 0000 44e0 	bsrl 0xfef54e4			; printf
  fef1008:	584f           	addqw #4,%sp
  fef100a:	4879 0fef c7c0 	pea 0xfefc7c0
- fef1010:	61ff 0000 44d2 	bsrl 0xfef54e4
+ fef1010:	61ff 0000 44d2 	bsrl 0xfef54e4			; printf
  fef1016:	584f           	addqw #4,%sp
  fef1018:	4879 0fef c7d8 	pea 0xfefc7d8
- fef101e:	61ff 0000 44c4 	bsrl 0xfef54e4
+ fef101e:	61ff 0000 44c4 	bsrl 0xfef54e4			; printf
  fef1024:	584f           	addqw #4,%sp
  fef1026:	4879 0fef c7ef 	pea 0xfefc7ef
- fef102c:	61ff 0000 44b6 	bsrl 0xfef54e4
+ fef102c:	61ff 0000 44b6 	bsrl 0xfef54e4			; printf
  fef1032:	584f           	addqw #4,%sp
  fef1034:	4878 0001      	pea 0x1
  fef1038:	61ff 0000 4332 	bsrl 0xfef536c
@@ -1272,25 +1289,25 @@ fef0894:	4879 0fef c54a 	pea 0xfefc54a
  fef10f8:	4aae ffe0      	tstl %fp@(-32)
  fef10fc:	6700 fd8c      	beqw 0xfef0e8a
  fef1100:	61ff 0000 896e 	bsrl 0xfef9a70
- fef1106:	0c38 0051 e002 	cmpib #81,0xffffe002
+ fef1106:	0c38 0051 e002 	cmpib #81,0xffffe002			; XX-0
  fef110c:	6700 fe88      	beqw 0xfef0f96
  fef1110:	2f2e ffcc      	movel %fp@(-52),%sp@-
  fef1114:	4879 0fef c81a 	pea 0xfefc81a
- fef111a:	61ff 0000 43c8 	bsrl 0xfef54e4
+ fef111a:	61ff 0000 43c8 	bsrl 0xfef54e4			; printf
  fef1120:	504f           	addqw #8,%sp
  fef1122:	4878 0008      	pea 0x8
  fef1126:	2f2e fffc      	movel %fp@(-4),%sp@-
  fef112a:	61ff 0000 450a 	bsrl 0xfef5636
  fef1130:	504f           	addqw #8,%sp
  fef1132:	4879 0fef c833 	pea 0xfefc833
- fef1138:	61ff 0000 43aa 	bsrl 0xfef54e4
+ fef1138:	61ff 0000 43aa 	bsrl 0xfef54e4			; printf
  fef113e:	584f           	addqw #4,%sp
  fef1140:	4878 0008      	pea 0x8
  fef1144:	2f2e fff8      	movel %fp@(-8),%sp@-
  fef1148:	61ff 0000 44ec 	bsrl 0xfef5636
  fef114e:	504f           	addqw #8,%sp
  fef1150:	4879 0fef c83a 	pea 0xfefc83a
- fef1156:	61ff 0000 438c 	bsrl 0xfef54e4
+ fef1156:	61ff 0000 438c 	bsrl 0xfef54e4			; printf
  fef115c:	584f           	addqw #4,%sp
  fef115e:	202e fff8      	movel %fp@(-8),%d0
  fef1162:	7efc           	moveq #-4,%d7
@@ -1300,11 +1317,11 @@ fef0894:	4879 0fef c54a 	pea 0xfefc54a
  fef116e:	42b8 e0a6      	clrl 0xffffe0a6
  fef1172:	42ae ffdc      	clrl %fp@(-36)
  fef1176:	42ae ffd8      	clrl %fp@(-40)
- fef117a:	0c38 0046 e002 	cmpib #70,0xffffe002
+ fef117a:	0c38 0046 e002 	cmpib #70,0xffffe002			; XX-0
  fef1180:	6710           	beqs 0xfef1192
- fef1182:	0c38 004c e002 	cmpib #76,0xffffe002
+ fef1182:	0c38 004c e002 	cmpib #76,0xffffe002			; XX-0
  fef1188:	6708           	beqs 0xfef1192
- fef118a:	0c38 004e e002 	cmpib #78,0xffffe002
+ fef118a:	0c38 004e e002 	cmpib #78,0xffffe002			; XX-0
  fef1190:	6606           	bnes 0xfef1198
  fef1192:	11fc 0001 e019 	moveb #1,0xffffe019
  fef1198:	0c2e 0052 ffd7 	cmpib #82,%fp@(-41)
@@ -1340,15 +1357,15 @@ fef0894:	4879 0fef c54a 	pea 0xfefc54a
  fef120a:	6700 011e      	beqw 0xfef132a
  fef120e:	0c2e 0053 ffd7 	cmpib #83,%fp@(-41)
  fef1214:	6700 0114      	beqw 0xfef132a
- fef1218:	0c38 004e e002 	cmpib #78,0xffffe002
+ fef1218:	0c38 004e e002 	cmpib #78,0xffffe002			; XX-0
  fef121e:	6700 010a      	beqw 0xfef132a
  fef1222:	52b8 e0a6      	addql #1,0xffffe0a6
  fef1226:	2f38 e0a6      	movel 0xffffe0a6,%sp@-
  fef122a:	4879 0fef c83e 	pea 0xfefc83e
- fef1230:	61ff 0000 42b2 	bsrl 0xfef54e4
+ fef1230:	61ff 0000 42b2 	bsrl 0xfef54e4			; printf
  fef1236:	504f           	addqw #8,%sp
  fef1238:	4879 0fef c857 	pea 0xfefc857
- fef123e:	61ff 0000 42a4 	bsrl 0xfef54e4
+ fef123e:	61ff 0000 42a4 	bsrl 0xfef54e4			; printf
  fef1244:	584f           	addqw #4,%sp
  fef1246:	4878 0008      	pea 0x8
  fef124a:	2007           	movel %d7,%d0
@@ -1358,7 +1375,7 @@ fef0894:	4879 0fef c54a 	pea 0xfefc54a
  fef1258:	504f           	addqw #8,%sp
 fef125a:	4879 0fef c864 	pea 0xfefc864
 ; 0xfefc864 , exp = 0x
- fef1260:	61ff 0000 4282 	bsrl 0xfef54e4
+ fef1260:	61ff 0000 4282 	bsrl 0xfef54e4			; printf
  fef1266:	584f           	addqw #4,%sp
  fef1268:	4878 0008      	pea 0x8
  fef126c:	2f2e ffec      	movel %fp@(-20),%sp@-
@@ -1366,7 +1383,7 @@ fef125a:	4879 0fef c864 	pea 0xfefc864
  fef1276:	504f           	addqw #8,%sp
 fef1278:	4879 0fef c86f 	pea 0xfefc86f
 ; 0xfefc86f , obs = 0x
- fef127e:	61ff 0000 4264 	bsrl 0xfef54e4
+ fef127e:	61ff 0000 4264 	bsrl 0xfef54e4			; printf
  fef1284:	584f           	addqw #4,%sp
  fef1286:	4878 0008      	pea 0x8
  fef128a:	2f2e ffe8      	movel %fp@(-24),%sp@-
@@ -1374,7 +1391,7 @@ fef1278:	4879 0fef c86f 	pea 0xfefc86f
  fef1294:	504f           	addqw #8,%sp
 fef1296:	4879 0fef c87a 	pea 0xfefc87a
 ; 0xfefc87a , xor = 0x
- fef129c:	61ff 0000 4246 	bsrl 0xfef54e4
+ fef129c:	61ff 0000 4246 	bsrl 0xfef54e4			; printf
  fef12a2:	584f           	addqw #4,%sp
  fef12a4:	4878 0008      	pea 0x8
  fef12a8:	202e ffec      	movel %fp@(-20),%d0
@@ -1385,7 +1402,7 @@ fef1296:	4879 0fef c87a 	pea 0xfefc87a
  fef12ba:	504f           	addqw #8,%sp
 fef12bc:	4879 0fef c885 	pea 0xfefc885
 ; 0xfefc885 .\n
- fef12c2:	61ff 0000 4220 	bsrl 0xfef54e4
+ fef12c2:	61ff 0000 4220 	bsrl 0xfef54e4			; printf
  fef12c8:	584f           	addqw #4,%sp
  fef12ca:	4aae 000c      	tstl %fp@(12)
  fef12ce:	662a           	bnes 0xfef12fa
@@ -1399,28 +1416,28 @@ fef12bc:	4879 0fef c885 	pea 0xfefc885
  fef12ea:	2f00           	movel %d0,%sp@-
 fef12ec:	4879 0fef c888 	pea 0xfefc888
 ; 0xfefc888    Bad SIMM Module # = %d\n
- fef12f2:	61ff 0000 41f0 	bsrl 0xfef54e4
+ fef12f2:	61ff 0000 41f0 	bsrl 0xfef54e4			; printf
  fef12f8:	504f           	addqw #8,%sp
- fef12fa:	0c38 0048 e002 	cmpib #72,0xffffe002
+ fef12fa:	0c38 0048 e002 	cmpib #72,0xffffe002			; XX-0
  fef1300:	6622           	bnes 0xfef1324
 fef1302:	4879 0fef c8a3 	pea 0xfefc8a3
 ; 0xfefc8a3 Halted on error => 
- fef1308:	61ff 0000 41da 	bsrl 0xfef54e4
+ fef1308:	61ff 0000 41da 	bsrl 0xfef54e4			; printf
  fef130e:	584f           	addqw #4,%sp
 fef1310:	4879 0fef c8b7 	pea 0xfefc8b7
 ; 0xfefc8b7 hit any key to continue!\n
- fef1316:	61ff 0000 41cc 	bsrl 0xfef54e4
+ fef1316:	61ff 0000 41cc 	bsrl 0xfef54e4			; printf
  fef131c:	584f           	addqw #4,%sp
  fef131e:	61ff 0000 444e 	bsrl 0xfef576e
  fef1324:	7201           	moveq #1,%d1
  fef1326:	21c1 e0a2      	movel %d1,0xffffe0a2
  fef132a:	4ab8 e0a2      	tstl 0xffffe0a2
  fef132e:	6718           	beqs 0xfef1348
- fef1330:	0c38 004c e002 	cmpib #76,0xffffe002
+ fef1330:	0c38 004c e002 	cmpib #76,0xffffe002			; XX-0
  fef1336:	6610           	bnes 0xfef1348
 fef1338:	4879 0fef c8d1 	pea 0xfefc8d1
 ; 0xfefc8d1 Looping on error ...\n
- fef133e:	61ff 0000 41a4 	bsrl 0xfef54e4
+ fef133e:	61ff 0000 41a4 	bsrl 0xfef54e4			; printf
  fef1344:	584f           	addqw #4,%sp
  fef1346:	5987           	subql #4,%d7
  fef1348:	4aae 000c      	tstl %fp@(12)
@@ -1435,7 +1452,7 @@ fef1338:	4879 0fef c8d1 	pea 0xfefc8d1
  fef1360:	4480           	negl %d0
  fef1362:	4a80           	tstl %d0
  fef1364:	663a           	bnes 0xfef13a0
- fef1366:	0c38 004e e002 	cmpib #78,0xffffe002
+ fef1366:	0c38 004e e002 	cmpib #78,0xffffe002			; XX-0
  fef136c:	6732           	beqs 0xfef13a0
  fef136e:	202e ffd8      	movel %fp@(-40),%d0
  fef1372:	52ae ffd8      	addql #1,%fp@(-40)
@@ -1453,12 +1470,12 @@ fef1338:	4879 0fef c8d1 	pea 0xfefc8d1
  fef1390:	2f00           	movel %d0,%sp@-
 fef1392:	4879 0fef c8e7 	pea 0xfefc8e7
 ; 0xfefc8e7 %c~
- fef1398:	61ff 0000 414a 	bsrl 0xfef54e4
+ fef1398:	61ff 0000 414a 	bsrl 0xfef54e4			; printf
  fef139e:	504f           	addqw #8,%sp
  fef13a0:	5887           	addql #4,%d7
  fef13a2:	beae fff4      	cmpl %fp@(-12),%d7
  fef13a6:	6f00 fe40      	blew 0xfef11e8
- fef13aa:	0c38 004e e002 	cmpib #78,0xffffe002
+ fef13aa:	0c38 004e e002 	cmpib #78,0xffffe002			; XX-0
  fef13b0:	6760           	beqs 0xfef1412
  fef13b2:	0cae 0000 0001 	cmpil #1,%fp@(12)
  fef13b8:	000c 
@@ -1476,7 +1493,7 @@ fef1392:	4879 0fef c8e7 	pea 0xfefc8e7
  fef13e0:	4878 0001      	pea 0x1
 fef13e4:	4879 0fef c8eb 	pea 0xfefc8eb
 ; 0xfefc8eb ~
- fef13ea:	61ff 0000 5964 	bsrl 0xfef6d50
+ fef13ea:	61ff 0000 5964 	bsrl 0xfef6d50		; putcharY
  fef13f0:	504f           	addqw #8,%sp
  fef13f2:	2f38 e0a6      	movel 0xffffe0a6,%sp@-
  fef13f6:	52ae ffdc      	addql #1,%fp@(-36)
@@ -1484,7 +1501,7 @@ fef13e4:	4879 0fef c8eb 	pea 0xfefc8eb
  fef13fe:	2f2e ffcc      	movel %fp@(-52),%sp@-
 fef1402:	4879 0fef c8ed 	pea 0xfefc8ed
 ; 0xfefc8ed %s test completed pass %d with %d errors.\n
- fef1408:	61ff 0000 40da 	bsrl 0xfef54e4
+ fef1408:	61ff 0000 40da 	bsrl 0xfef54e4			; printf
  fef140e:	4fef 0010      	lea %sp@(16),%sp
  fef1412:	2f2e ffdc      	movel %fp@(-36),%sp@-
  fef1416:	61ff 0000 8768 	bsrl 0xfef9b80
@@ -1534,7 +1551,7 @@ fef1402:	4879 0fef c8ed 	pea 0xfefc8ed
  fef14a8:	2f00           	movel %d0,%sp@-
 fef14aa:	4879 0fef c91d 	pea 0xfefc91d
 ; 0xfefc91d %c~
- fef14b0:	61ff 0000 4032 	bsrl 0xfef54e4
+ fef14b0:	61ff 0000 4032 	bsrl 0xfef54e4			; printf
  fef14b6:	504f           	addqw #8,%sp
  fef14b8:	202e ffec      	movel %fp@(-20),%d0
  fef14bc:	0680 0010 0000 	addil #1048576,%d0
@@ -1568,7 +1585,7 @@ fef14aa:	4879 0fef c91d 	pea 0xfefc91d
  fef1516:	2f38 e156      	movel 0xffffe156,%sp@-
 fef151a:	4879 0fef c921 	pea 0xfefc921
 ; 0xfefc921 \n\nMemory Error at 0x%x:
- fef1520:	61ff 0000 3fc2 	bsrl 0xfef54e4
+ fef1520:	61ff 0000 3fc2 	bsrl 0xfef54e4			; printf
  fef1526:	504f           	addqw #8,%sp
  fef1528:	2038 e15a      	movel 0xffffe15a,%d0
  fef152c:	2238 e15e      	movel 0xffffe15e,%d1
@@ -1578,7 +1595,7 @@ fef151a:	4879 0fef c921 	pea 0xfefc921
  fef1538:	2f38 e15a      	movel 0xffffe15a,%sp@-
 fef153c:	4879 0fef c939 	pea 0xfefc939
 ; 0xfefc939  Exp = 0x%x, Obs = 0x%x, Xor = 0x%x!\n
- fef1542:	61ff 0000 3fa0 	bsrl 0xfef54e4
+ fef1542:	61ff 0000 3fa0 	bsrl 0xfef54e4			; printf
  fef1548:	4fef 0010      	lea %sp@(16),%sp
  fef154c:	61ff ffff ecfa 	bsrl 0xfef0248
  fef1552:	06ae 0010 0000 	addil #1048576,%fp@(-20)
@@ -1991,7 +2008,7 @@ fef19fa:	4879 0fef 03a2 	pea 0xfef03a2
  fef1a92:	4878 0001      	pea 0x1
 fef1a96:	4879 0fef c978 	pea 0xfefc978
 ; 0xfefc978 ~
- fef1a9c:	6100 52b2      	bsrw 0xfef6d50
+ fef1a9c:	6100 52b2      	bsrw 0xfef6d50		; putcharY
  fef1aa0:	504f           	addqw #8,%sp
  fef1aa2:	6006           	bras 0xfef1aaa
  fef1aa4:	11fc 0001 e016 	moveb #1,0xffffe016
@@ -2006,11 +2023,11 @@ fef1a96:	4879 0fef c978 	pea 0xfefc978
  fef1ac8:	6100 163a      	bsrw 0xfef3104
 fef1acc:	4879 0fef c97a 	pea 0xfefc97a
 ; 0xfefc97a EEPROM: Using RS232 A port.\n
- fef1ad2:	6100 3a10      	bsrw 0xfef54e4
+ fef1ad2:	6100 3a10      	bsrw 0xfef54e4			; printf
  fef1ad6:	584f           	addqw #4,%sp
  fef1ad8:	11fc 0001 e015 	moveb #1,0xffffe015
  fef1ade:	11f8 e015 e016 	moveb 0xffffe015,0xffffe016
- fef1ae4:	11fc 0001 e001 	moveb #1,0xffffe001
+ fef1ae4:	11fc 0001 e001 	moveb #1,0xffffe001			; XX-0
  fef1aea:	6100 00a8      	bsrw 0xfef1b94
  fef1aee:	6070           	bras 0xfef1b60
  fef1af0:	0c39 0011 0fe0 	cmpib #17,0xfe0401f
@@ -2019,11 +2036,11 @@ fef1acc:	4879 0fef c97a 	pea 0xfefc97a
  fef1afa:	6100 1608      	bsrw 0xfef3104
 fef1afe:	4879 0fef c997 	pea 0xfefc997
 ; 0xfefc997 EEPROM: Using RS232 B port.\n
- fef1b04:	6100 39de      	bsrw 0xfef54e4
+ fef1b04:	6100 39de      	bsrw 0xfef54e4			; printf
  fef1b08:	584f           	addqw #4,%sp
  fef1b0a:	11fc 0002 e015 	moveb #2,0xffffe015
  fef1b10:	11f8 e015 e016 	moveb 0xffffe015,0xffffe016
- fef1b16:	11fc 0002 e001 	moveb #2,0xffffe001
+ fef1b16:	11fc 0002 e001 	moveb #2,0xffffe001			; XX-0
  fef1b1c:	6176           	bsrs 0xfef1b94
  fef1b1e:	6040           	bras 0xfef1b60
  fef1b20:	0c38 00de e012 	cmpib #-34,0xffffe012
@@ -2032,18 +2049,18 @@ fef1afe:	4879 0fef c997 	pea 0xfefc997
  fef1b2e:	6164           	bsrs 0xfef1b94
 fef1b30:	4879 0fef c9b4 	pea 0xfefc9b4
 ; 0xfefc9b4 No keyboard found: Using RS232 Port A as input!\n
- fef1b36:	6100 39ac      	bsrw 0xfef54e4
+ fef1b36:	6100 39ac      	bsrw 0xfef54e4			; printf
  fef1b3a:	584f           	addqw #4,%sp
  fef1b3c:	6022           	bras 0xfef1b60
  fef1b3e:	4238 e015      	clrb 0xffffe015
  fef1b42:	6150           	bsrs 0xfef1b94
  fef1b44:	601a           	bras 0xfef1b60
- fef1b46:	0c38 0012 e004 	cmpib #18,0xffffe004
+ fef1b46:	0c38 0012 e004 	cmpib #18,0xffffe004			; XX-0
  fef1b4c:	6606           	bnes 0xfef1b54
  fef1b4e:	4238 e015      	clrb 0xffffe015
  fef1b52:	600c           	bras 0xfef1b60
- fef1b54:	11f8 e001 e015 	moveb 0xffffe001,0xffffe015
- fef1b5a:	11f8 e001 e016 	moveb 0xffffe001,0xffffe016
+ fef1b54:	11f8 e001 e015 	moveb 0xffffe001,0xffffe015			; XX-0
+ fef1b5a:	11f8 e001 e016 	moveb 0xffffe001,0xffffe016			; XX-0
  fef1b60:	302e 0070      	movew %fp@(112),%d0
  fef1b64:	0240 0fff      	andiw #4095,%d0
  fef1b68:	0c40 0003      	cmpiw #3,%d0
@@ -2087,7 +2104,7 @@ fef1b30:	4879 0fef c9b4 	pea 0xfefc9b4
  fef1bec:	2f00           	movel %d0,%sp@-
 fef1bee:	4879 0fef c9e5 	pea 0xfefc9e5
 ; 0xfefc9e5 \nTesting %d Megabytes of Memory ... 
- fef1bf4:	6100 38ee      	bsrw 0xfef54e4
+ fef1bf4:	6100 38ee      	bsrw 0xfef54e4			; printf
  fef1bf8:	504f           	addqw #8,%sp
  fef1bfa:	42ae fffc      	clrl %fp@(-4)
  fef1bfe:	6050           	bras 0xfef1c50
@@ -2118,7 +2135,7 @@ fef1bee:	4879 0fef c9e5 	pea 0xfefc9e5
  fef1c58:	6da6           	blts 0xfef1c00
 fef1c5a:	4879 0fef ca0a 	pea 0xfefca0a
 ; 0xfefca0a Completed.\n\n
- fef1c60:	6100 3882      	bsrw 0xfef54e4
+ fef1c60:	6100 3882      	bsrw 0xfef54e4			; printf
  fef1c64:	584f           	addqw #4,%sp
  fef1c66:	6100 f98c      	bsrw 0xfef15f4
  fef1c6a:	4e5e           	unlk %fp
@@ -2250,13 +2267,17 @@ fef1c5a:	4879 0fef ca0a 	pea 0xfefca0a
  fef1e2e:	9fcf           	subal %sp,%sp
  fef1e30:	4e7b f801      	movec %sp,%vbr
  fef1e34:	7003           	moveq #3,%d0
+
+; select control space
  fef1e36:	4e7b 0000      	movec %d0,%sfc
  fef1e3a:	4e7b 0001      	movec %d0,%dfc
  fef1e3e:	303c 7fff      	movew #32767,%d0
  fef1e42:	0e39 0800 7000 	movesb %d0,0x70000000		; DIAG
  fef1e48:	0000 
- fef1e4a:	223c 0000 c350 	movel #50000,%d1
+
+ fef1e4a:	223c 0000 c350 	movel #50000,%d1		; delay
  fef1e50:	51c9 fffe      	dbf %d1,0xfef1e50
+
  fef1e54:	e358           	rolw #1,%d0
  fef1e56:	0c00 00ff      	cmpib #-1,%d0
  fef1e5a:	6b00 ffe6      	bmiw 0xfef1e42
@@ -2312,7 +2333,7 @@ fef1c5a:	4879 0fef ca0a 	pea 0xfefca0a
 fef1f22:	49f9 0fef ca56 	lea 0xfefca56,%a4
 ; 0xfefca56 \r\nBoot PROM Selftest\n
  fef1f28:	4dfa 0006      	lea %pc@(0xfef1f30),%fp
- fef1f2c:	6000 0fea      	braw 0xfef2f18				; Xcall - Nancy
+ fef1f2c:	6000 0fea      	braw 0xfef2f18				; Xprintf
  fef1f30:	1e3c fffe      	moveb #-2,%d7
  fef1f34:	49f9 0fef ca6c 	lea 0xfefca6c,%a4
  fef1f3a:	4dfa 0006      	lea %pc@(0xfef1f42),%fp
@@ -2898,7 +2919,7 @@ fef1f22:	49f9 0fef ca56 	lea 0xfefca56,%a4
 fef2856:	49f9 0fef ce09 	lea 0xfefce09,%a4
 ; 0xfefce09 \r\nMemory Size 
  fef285c:	4dfa 0006      	lea %pc@(0xfef2864),%fp
- fef2860:	6000 06b6      	braw 0xfef2f18				; Xcall - Nancy
+ fef2860:	6000 06b6      	braw 0xfef2f18				; Xprintf
  fef2864:	41fa 001e      	lea %pc@(0xfef2884),%a0
  fef2868:	21c8 0008      	movel %a0,0x8
  fef286c:	2a7c 0020 0000 	moveal #2097152,%a5
@@ -2920,7 +2941,7 @@ fef2856:	49f9 0fef ce09 	lea 0xfefce09,%a4
 fef28ac:	49f9 0fef ce18 	lea 0xfefce18,%a4
 ; 0xfefce18 = 0x%d3 Megabytes
  fef28b2:	4dfa 0006      	lea %pc@(0xfef28ba),%fp
- fef28b6:	6000 0660      	braw 0xfef2f18				; Xcall - Nancy
+ fef28b6:	6000 0660      	braw 0xfef2f18				; Xprintf
  fef28ba:	7014           	moveq #20,%d0
  fef28bc:	41fa 03a0      	lea %pc@(0xfef2c5e),%a0
  fef28c0:	21c8 0008      	movel %a0,0x8
@@ -2952,7 +2973,7 @@ fef28ac:	49f9 0fef ce18 	lea 0xfefce18,%a4
 fef2928:	49f9 0fef d069 	lea 0xfefd069,%a4
 ; 0xfefd069  Testing
  fef292e:	4dfa 0006      	lea %pc@(0xfef2936),%fp
- fef2932:	6000 05e4      	braw 0xfef2f18				; Xcall - Nancy
+ fef2932:	6000 05e4      	braw 0xfef2f18				; Xprintf
  fef2936:	207c 5a97 2c5a 	moveal #1519856730,%a0
  fef293c:	21c8 081c      	movel %a0,0x81c
  fef2940:	4dfa 0006      	lea %pc@(0xfef2948),%fp
@@ -2973,7 +2994,7 @@ fef2928:	49f9 0fef d069 	lea 0xfefd069,%a4
 fef296a:	49f9 0fef d072 	lea 0xfefd072,%a4
 ; 0xfefd072 .
  fef2970:	4dfa 0006      	lea %pc@(0xfef2978),%fp
- fef2974:	6000 05a2      	braw 0xfef2f18				; Xcall - Nancy
+ fef2974:	6000 05a2      	braw 0xfef2f18				; Xprintf
  fef2978:	4bf8 1000      	lea 0x1000,%a5
  fef297c:	2238 081c      	movel 0x81c,%d1
  fef2980:	7602           	moveq #2,%d3
@@ -3014,7 +3035,7 @@ fef296a:	49f9 0fef d072 	lea 0xfefd072,%a4
 fef2a0a:	49f9 0fef cec4 	lea 0xfefcec4,%a4
 ; 0xfefcec4 \r\n Continuing test beyond 0x%a5
  fef2a10:	4dfa 0006      	lea %pc@(0xfef2a18),%fp
- fef2a14:	6000 0502      	braw 0xfef2f18				; Xcall - Nancy
+ fef2a14:	6000 0502      	braw 0xfef2f18				; Xprintf
  fef2a18:	08c7 000c      	bset #12,%d7
  fef2a1c:	08c7 0007      	bset #7,%d7
  fef2a20:	dbfc 0000 0004 	addal #4,%a5
@@ -3040,12 +3061,12 @@ fef2a0a:	49f9 0fef cec4 	lea 0xfefcec4,%a4
 fef2a64:	49f9 0fef cfe5 	lea 0xfefcfe5,%a4
 ; 0xfefcfe5 \r\n\nSelftest failed.\r\n
  fef2a6a:	4dfa 0014      	lea %pc@(0xfef2a80),%fp
- fef2a6e:	6000 04a8      	braw 0xfef2f18				; Xcall - Nancy
+ fef2a6e:	6000 04a8      	braw 0xfef2f18				; Xprintf
 
 fef2a72:	49f9 0fef cfcf 	lea 0xfefcfcf,%a4
 ; 0xfefcfcf \r\n\nSelftest passed.\r\n
  fef2a78:	4dfa 0006      	lea %pc@(0xfef2a80),%fp
- fef2a7c:	6000 049a      	braw 0xfef2f18				; Xcall - Nancy
+ fef2a7c:	6000 049a      	braw 0xfef2f18				; Xprintf
 
  fef2a80:	0807 000b      	btst #11,%d7
  fef2a84:	6600 0006      	bnew 0xfef2a8c
@@ -3077,13 +3098,13 @@ fef2a72:	49f9 0fef cfcf 	lea 0xfefcfcf,%a4
  fef2ae0:	49f9 0fef d4d4 	lea 0xfefd4d4,%a4			; 10 seconds
 ; 0fefd4d4: \nType a character within 10 seconds to enter Menu Tests...
 fef2ae6:	4dfa 0006      	lea %pc@(0xfef2aee),%fp
- fef2aea:	6000 042c      	braw 0xfef2f18				; Xcall - Nancy
+ fef2aea:	6000 042c      	braw 0xfef2f18				; Xprintf
 
 ; note that this Xcall does not fall through
 fef2aee:	49f9 0fef d02b 	lea 0xfefd02b,%a4
 ; 0xfefd02b  (e for echo mode) 
  fef2af4:	4dfa 0006      	lea %pc@(0xfef2afc),%fp
- fef2af8:	6000 041e      	braw 0xfef2f18				; Xcall - Nancy
+ fef2af8:	6000 041e      	braw 0xfef2f18				; Xprintf
 
  fef2afc:	203c 000f ffff 	movel #1048575,%d0
  fef2b02:	0883 001f      	bclr #31,%d3
@@ -3113,34 +3134,39 @@ fef2aee:	49f9 0fef d02b 	lea 0xfefd02b,%a4
 fef2b60:	49f9 0fef d03f 	lea 0xfefd03f,%a4
 ; 0xfefd03f \r\nEcho mode: Output will echo to Video!\r\n
  fef2b66:	4dfa 0006      	lea %pc@(0xfef2b6e),%fp
- fef2b6a:	6000 03ac      	braw 0xfef2f18				; Xcall - Nancy
+ fef2b6a:	6000 03ac      	braw 0xfef2f18				; Xprintf
  fef2b6e:	4dfa 0006      	lea %pc@(0xfef2b76),%fp
  fef2b72:	6000 0508      	braw 0xfef307c				; Xcall
  fef2b76:	363c 0005      	movew #5,%d3
  fef2b7a:	2c42           	moveal %d2,%fp				; <<<<<
  fef2b7c:	48e7 ffff      	moveml %d0-%sp,%sp@-
+
  fef2b80:	700d           	moveq #13,%d0
  fef2b82:	0e39 0800 7000 	movesb %d0,0x70000000		; DIAG
  fef2b88:	0000 
+
  fef2b8a:	4856           	pea %fp@
  fef2b8c:	6100 da8e      	bsrw 0xfef061c
  fef2b90:	588f           	addql #4,%sp
+
  fef2b92:	21ce e17a      	movel %fp,0xffffe17a
  fef2b96:	21c0 e176      	movel %d0,0xffffe176
  fef2b9a:	4cdf ffff      	moveml %sp@+,%d0-%sp
  fef2b9e:	21ce e172      	movel %fp,0xffffe172
  fef2ba2:	21fc 0000 0000 	movel #0,0xffffe01c
  fef2ba8:	e01c 
+
  fef2baa:	103c fff2      	moveb #-14,%d0
  fef2bae:	0e39 0800 7000 	movesb %d0,0x70000000		; DIAG
  fef2bb4:	0000 
- fef2bb6:	11fc 0001 e001 	moveb #1,0xffffe001
+
+ fef2bb6:	11fc 0001 e001 	moveb #1,0xffffe001			; XX-0
  fef2bbc:	0807 0009      	btst #9,%d7
  fef2bc0:	6700 0008      	beqw 0xfef2bca
- fef2bc4:	11fc 0012 e000 	moveb #18,0xffffe000
+ fef2bc4:	11fc 0012 e000 	moveb #18,0xffffe000		; XX-0
  fef2bca:	0803 001f      	btst #31,%d3
  fef2bce:	6700 0008      	beqw 0xfef2bd8
- fef2bd2:	11fc 0002 e001 	moveb #2,0xffffe001
+ fef2bd2:	11fc 0002 e001 	moveb #2,0xffffe001			; XX-0
  fef2bd8:	33c3 0fe6 0bfa 	movew %d3,0xfe60bfa
  fef2bde:	2c4d           	moveal %a5,%fp
  fef2be0:	6000 d5a8      	braw 0xfef018a
@@ -3160,6 +3186,7 @@ fef2b60:	49f9 0fef d03f 	lea 0xfefd03f,%a4
  fef2c08:	b3c8           	cmpal %a0,%a1
  fef2c0a:	6600 ffe4      	bnew 0xfef2bf0
  fef2c0e:	4e75           	rts
+
  fef2c10:	206f 0004      	moveal %sp@(4),%a0
  fef2c14:	226f 0008      	moveal %sp@(8),%a1
  fef2c18:	282f 000c      	movel %sp@(12),%d4
@@ -3171,6 +3198,7 @@ fef2b60:	49f9 0fef d03f 	lea 0xfefd03f,%a4
  fef2c2e:	4bfa ffec      	lea %pc@(0xfef2c1c),%a5
  fef2c32:	6000 0004      	braw 0xfef2c38
  fef2c36:	4e75           	rts
+
  fef2c38:	2018           	movel %a0@+,%d0
  fef2c3a:	b280           	cmpl %d0,%d1
  fef2c3c:	6600 000e      	bnew 0xfef2c4c
@@ -3185,27 +3213,29 @@ fef2b60:	49f9 0fef d03f 	lea 0xfefd03f,%a4
  fef2c56:	21c0 e15e      	movel %d0,0xffffe15e
  fef2c5a:	4280           	clrl %d0
  fef2c5c:	60d8           	bras 0xfef2c36
+
  fef2c5e:	0887 0007      	bclr #7,%d7
  fef2c62:	0887 0006      	bclr #6,%d7
  fef2c66:	0e39 7800 7000 	movesb %d7,0x70000000		; DIAG
  fef2c6c:	0000 
+
 fef2c6e:	49f9 0fef cf84 	lea 0xfefcf84,%a4
 ; 0xfefcf84 \r\n Err 14: Unexp'd bus err, pc 0x%d0
  fef2c74:	4dfa 000a      	lea %pc@(0xfef2c80),%fp
  fef2c78:	202f 0002      	movel %sp@(2),%d0
- fef2c7c:	6000 029a      	braw 0xfef2f18				; Xcall - Nancy
+ fef2c7c:	6000 029a      	braw 0xfef2f18				; Xprintf
  fef2c80:	202f 0010      	movel %sp@(16),%d0
 fef2c84:	49f9 0fef cfa9 	lea 0xfefcfa9,%a4
 ; 0xfefcfa9  access addr 0x%d0
  fef2c8a:	4dfa 0006      	lea %pc@(0xfef2c92),%fp
- fef2c8e:	6000 0288      	braw 0xfef2f18				; Xcall - Nancy
+ fef2c8e:	6000 0288      	braw 0xfef2f18				; Xprintf
  fef2c92:	4280           	clrl %d0
  fef2c94:	0e39 0000 6000 	movesb 0x60000000,%d0
  fef2c9a:	0000 
 fef2c9c:	49f9 0fef cfbc 	lea 0xfefcfbc,%a4
 ; 0xfefcfbc  bus err reg 0x%d0
  fef2ca2:	4dfa 0006      	lea %pc@(0xfef2caa),%fp
- fef2ca6:	6000 0270      	braw 0xfef2f18				; Xcall - Nancy
+ fef2ca6:	6000 0270      	braw 0xfef2f18				; Xprintf
  fef2caa:	2e7c 0000 0800 	moveal #2048,%sp
  fef2cb0:	46fc 3700      	movew #14080,%sr
  fef2cb4:	204f           	moveal %sp,%a0
@@ -3220,25 +3250,27 @@ fef2cc8:	49f9 0fef ce86 	lea 0xfefce86,%a4
  fef2cd2:	202f 0002      	movel %sp@(2),%d0
  fef2cd6:	4285           	clrl %d5
  fef2cd8:	1a39 0fff 4000 	moveb 0xfff4000,%d5
- fef2cde:	6000 0238      	braw 0xfef2f18				; Xcall - Nancy
+ fef2cde:	6000 0238      	braw 0xfef2f18				; Xprintf
  fef2ce2:	13fc 0000 0fff 	moveb #0,0xfff4004
  fef2ce8:	4004 
  fef2cea:	4e75           	rts
+
  fef2cec:	0887 0007      	bclr #7,%d7
  fef2cf0:	0e39 7800 7000 	movesb %d7,0x70000000		; DIAG
  fef2cf6:	0000 
+
 fef2cf8:	49f9 0fef cf46 	lea 0xfefcf46,%a4
 ; 0xfefcf46 \r\n Err 13: Unexp'd trap/vector, pc 0x%d0
  fef2cfe:	4dfa 000a      	lea %pc@(0xfef2d0a),%fp
  fef2d02:	202f 0002      	movel %sp@(2),%d0
- fef2d06:	6000 0210      	braw 0xfef2f18				; Xcall - Nancy
+ fef2d06:	6000 0210      	braw 0xfef2f18				; Xprintf
 fef2d0a:	49f9 0fef cf6f 	lea 0xfefcf6f,%a4
 ; 0xfefcf6f  vector offset 0x%d0
  fef2d10:	4280           	clrl %d0
  fef2d12:	302f 0006      	movew %sp@(6),%d0
  fef2d16:	0240 0fff      	andiw #4095,%d0
  fef2d1a:	4dfa 0006      	lea %pc@(0xfef2d22),%fp
- fef2d1e:	6000 01f8      	braw 0xfef2f18				; Xcall - Nancy
+ fef2d1e:	6000 01f8      	braw 0xfef2f18				; Xprintf
  fef2d22:	2e7c 0000 0800 	moveal #2048,%sp
  fef2d28:	46fc 3700      	movew #14080,%sr
  fef2d2c:	204f           	moveal %sp,%a0
@@ -3261,7 +3293,7 @@ fef2d0a:	49f9 0fef cf6f 	lea 0xfefcf6f,%a4
  fef2d5e:	5380           	subql #1,%d0
  fef2d60:	6e00 fffc      	bgtw 0xfef2d5e
 
- fef2d64:	6000 01b2      	braw 0xfef2f18			; tail call to Nancy
+ fef2d64:	6000 01b2      	braw 0xfef2f18			; tail call to Xprintf
 
 ; Xsubroutine
  fef2d68:	46fc 3700      	movew #14080,%sr
@@ -3283,7 +3315,7 @@ fef2d0a:	49f9 0fef cf6f 	lea 0xfefcf6f,%a4
  fef2d98:	0e39 7800 7000 	movesb %d7,0x70000000		; DIAG
  fef2d9e:	0000 
  fef2da0:	200b           	movel %a3,%d0
- fef2da2:	6000 0174      	braw 0xfef2f18			; Nancy
+ fef2da2:	6000 0174      	braw 0xfef2f18			; Xprintf
  fef2da6:	4ed6           	jmp %fp@
 
 ; Xsubroutine (BIG)
@@ -3331,7 +3363,7 @@ fef2d0a:	49f9 0fef cf6f 	lea 0xfefcf6f,%a4
 fef2e6e:	49f9 0fef d074 	lea 0xfefd074,%a4
 ; 0xfefd074 \r\nWARNING...SelfTest Aborted By User\r\n
  fef2e74:	4dfa 0006      	lea %pc@(0xfef2e7c),%fp
- fef2e78:	6000 009e      	braw 0xfef2f18				; Xcall - Nancy
+ fef2e78:	6000 009e      	braw 0xfef2f18				; Xprintf
  fef2e7c:	42b8 0838      	clrl 0x838
  fef2e80:	11fc 001b 0838 	moveb #27,0x838
  fef2e86:	6000 f9dc      	braw 0xfef2864
@@ -3376,8 +3408,8 @@ fef2e6e:	49f9 0fef d074 	lea 0xfefd074,%a4
 ; Xsubroutine (BIG)
 ; This is branched at the tail of some routines
 ;  as well as being independently Xcalled
-; "Nancy"
 ; It gets a string to print in a4
+; Subroutine Xprintf
 
  fef2f18:	2040           	moveal %d0,%a0
  fef2f1a:	2241           	moveal %d1,%a1
@@ -3545,7 +3577,7 @@ fef2e6e:	49f9 0fef d074 	lea 0xfefd074,%a4
  fef314c:	ffdc 
 fef314e:	4879 0fef d0cc 	pea 0xfefd0cc
 ; 0xfefd0cc \nSelftest Completed.\n\n
- fef3154:	6100 238e      	bsrw 0xfef54e4
+ fef3154:	6100 238e      	bsrw 0xfef54e4			; printf
  fef3158:	584f           	addqw #4,%sp
 
  fef315a:	0c39 0012 0fe0 	cmpib #18,0xfe04020
@@ -3556,7 +3588,7 @@ fef314e:	4879 0fef d0cc 	pea 0xfefd0cc
  fef316a:	2f00           	movel %d0,%sp@-
 fef316c:	4879 0fef d0e3 	pea 0xfefd0e3
 ; 0xfefd0e3 %c
- fef3172:	6100 2370      	bsrw 0xfef54e4
+ fef3172:	6100 2370      	bsrw 0xfef54e4			; printf
  fef3176:	504f           	addqw #8,%sp
  fef3178:	0cb8 0000 0002 	cmpil #2,0xffffe0f6
  fef317e:	e0f6 
@@ -3571,7 +3603,7 @@ fef3192:	4879 0fef d0e6 	pea 0xfefd0e6
  fef319a:	4879 0fe0 4068 	pea 0xfe04068
 fef31a0:	4879 0fef d10f 	pea 0xfefd10f
 ; 0xfefd10f %s
- fef31a6:	6100 233c      	bsrw 0xfef54e4
+ fef31a6:	6100 233c      	bsrw 0xfef54e4			; printf
  fef31aa:	504f           	addqw #8,%sp
  fef31ac:	0c38 00de e012 	cmpib #-34,0xffffe012
  fef31b2:	6776           	beqs 0xfef322a
@@ -3597,11 +3629,11 @@ fef31e2:	4879 0fef d112 	pea 0xfefd112
  fef31f0:	2f00           	movel %d0,%sp@-
 fef31f2:	4879 0fef d136 	pea 0xfefd136
 ; 0xfefd136 \n%cWarning: EEPROM not initialized, 
- fef31f8:	6100 22ea      	bsrw 0xfef54e4
+ fef31f8:	6100 22ea      	bsrw 0xfef54e4			; printf
  fef31fc:	504f           	addqw #8,%sp
 fef31fe:	4879 0fef d15b 	pea 0xfefd15b
 ; 0xfefd15b defaulted to EPROM key tables.
- fef3204:	6100 22de      	bsrw 0xfef54e4
+ fef3204:	6100 22de      	bsrw 0xfef54e4			; printf
  fef3208:	584f           	addqw #4,%sp
  fef320a:	601e           	bras 0xfef322a
  fef320c:	7000           	moveq #0,%d0
@@ -3612,7 +3644,7 @@ fef31fe:	4879 0fef d15b 	pea 0xfefd15b
  fef321a:	2f00           	movel %d0,%sp@-
 fef321c:	4879 0fef d17a 	pea 0xfefd17a
 ; 0xfefd17a \n%cType-%d Keyboard.
- fef3222:	6100 22c0      	bsrw 0xfef54e4
+ fef3222:	6100 22c0      	bsrw 0xfef54e4			; printf
  fef3226:	4fef 000c      	lea %sp@(12),%sp
  fef322a:	2038 e172      	movel 0xffffe172,%d0
  fef322e:	7214           	moveq #20,%d1
@@ -3626,7 +3658,7 @@ fef3238:	4879 0fef d0c8 	pea 0xfefd0c8
  fef3244:	2f00           	movel %d0,%sp@-
 fef3246:	4879 0fef d18f 	pea 0xfefd18f
 ; 0xfefd18f \n%cROM Rev %s, %dMB memory installed
- fef324c:	6100 2296      	bsrw 0xfef54e4
+ fef324c:	6100 2296      	bsrw 0xfef54e4			; printf
  fef3250:	4fef 0010      	lea %sp@(16),%sp
  fef3254:	486e ffe0      	pea %fp@(-32)
  fef3258:	4878 0001      	pea 0x1
@@ -3645,14 +3677,14 @@ fef3246:	4879 0fef d18f 	pea 0xfefd18f
  fef327e:	2f00           	movel %d0,%sp@-
 fef3280:	4879 0fef d1b4 	pea 0xfefd1b4
 ; 0xfefd1b4 \n%cID PROM invalid.\n~
- fef3286:	6100 225c      	bsrw 0xfef54e4
+ fef3286:	6100 225c      	bsrw 0xfef54e4			; printf
  fef328a:	504f           	addqw #8,%sp
  fef328c:	605a           	bras 0xfef32e8
  fef328e:	e9ee 0018 ffec 	bfextu %fp@(-20),0,24,%d0
  fef3294:	2f00           	movel %d0,%sp@-
 fef3296:	4879 0fef d1ca 	pea 0xfefd1ca
 ; 0xfefd1ca , Serial #%d.\n
- fef329c:	6100 2246      	bsrw 0xfef54e4
+ fef329c:	6100 2246      	bsrw 0xfef54e4			; printf
  fef32a0:	504f           	addqw #8,%sp
  fef32a2:	7000           	moveq #0,%d0
  fef32a4:	102e ffe7      	moveb %fp@(-25),%d0
@@ -3677,7 +3709,7 @@ fef3296:	4879 0fef d1ca 	pea 0xfefd1ca
  fef32d8:	2f00           	movel %d0,%sp@-
 fef32da:	4879 0fef d1d9 	pea 0xfefd1d9
 ; 0xfefd1d9 %cEthernet address %x:%x:%x:%x:%x:%x.\n
- fef32e0:	6100 2202      	bsrw 0xfef54e4
+ fef32e0:	6100 2202      	bsrw 0xfef54e4			; printf
  fef32e4:	4fef 0020      	lea %sp@(32),%sp
  fef32e8:	4a38 e016      	tstb 0xffffe016
  fef32ec:	6630           	bnes 0xfef331e
@@ -3698,19 +3730,20 @@ fef32da:	4879 0fef d1d9 	pea 0xfefd1d9
  fef331c:	504f           	addqw #8,%sp
 fef331e:	4879 0fef d200 	pea 0xfefd200
 ; 0xfefd200 \n
- fef3324:	6100 21be      	bsrw 0xfef54e4
+ fef3324:	6100 21be      	bsrw 0xfef54e4			; printf
  fef3328:	584f           	addqw #4,%sp
  fef332a:	4e5e           	unlk %fp
  fef332c:	4e75           	rts
+
  fef332e:	4e56 0000      	linkw %fp,#0
  fef3332:	4878 0001      	pea 0x1
 fef3336:	4879 0fef d202 	pea 0xfefd202
 ; 0xfefd202 ~
- fef333c:	6100 3a12      	bsrw 0xfef6d50
+ fef333c:	6100 3a12      	bsrw 0xfef6d50		; putcharY
  fef3340:	504f           	addqw #8,%sp
 fef3342:	4879 0fef d204 	pea 0xfefd204
 ; 0xfefd204 Boot PROM Monitor Commands\n\n
- fef3348:	6100 219a      	bsrw 0xfef54e4
+ fef3348:	6100 219a      	bsrw 0xfef54e4			; printf
  fef334c:	584f           	addqw #4,%sp
  fef334e:	6100 021e      	bsrw 0xfef356e
 fef3352:	4879 0fef d22b 	pea 0xfefd22b
@@ -3870,7 +3903,7 @@ fef3550:	4879 0fef d4af 	pea 0xfefd4af
  fef355c:	6110           	bsrs 0xfef356e
 fef355e:	4879 0fef d4c7 	pea 0xfefd4c7
 ; 0xfefd4c7 \n
- fef3564:	6100 1f7e      	bsrw 0xfef54e4
+ fef3564:	6100 1f7e      	bsrw 0xfef54e4			; printf
  fef3568:	584f           	addqw #4,%sp
  fef356a:	4e5e           	unlk %fp
  fef356c:	4e75           	rts
@@ -3886,7 +3919,7 @@ fef355e:	4879 0fef d4c7 	pea 0xfefd4c7
  fef3586:	6dee           	blts 0xfef3576
 fef3588:	4879 0fef d4c9 	pea 0xfefd4c9
 ; 0xfefd4c9 \n
- fef358e:	6100 1f54      	bsrw 0xfef54e4
+ fef358e:	6100 1f54      	bsrw 0xfef54e4			; printf
  fef3592:	584f           	addqw #4,%sp
  fef3594:	2e2e fffc      	movel %fp@(-4),%d7
  fef3598:	4e5e           	unlk %fp
@@ -3897,7 +3930,7 @@ fef3588:	4879 0fef d4c9 	pea 0xfefd4c9
  fef35a8:	2f2e 0008      	movel %fp@(8),%sp@-
 fef35ac:	4879 0fef d4cb 	pea 0xfefd4cb
 ; 0xfefd4cb %s
- fef35b2:	6100 1f30      	bsrw 0xfef54e4
+ fef35b2:	6100 1f30      	bsrw 0xfef54e4			; printf
  fef35b6:	504f           	addqw #8,%sp
  fef35b8:	7c00           	moveq #0,%d6
  fef35ba:	600c           	bras 0xfef35c8
@@ -3910,13 +3943,15 @@ fef35ac:	4879 0fef d4cb 	pea 0xfefd4cb
  fef35cc:	2f2e 0010      	movel %fp@(16),%sp@-
 fef35d0:	4879 0fef d4ce 	pea 0xfefd4ce
 ; 0xfefd4ce | %s\n
- fef35d6:	6100 1f0c      	bsrw 0xfef54e4
+ fef35d6:	6100 1f0c      	bsrw 0xfef54e4			; printf
  fef35da:	504f           	addqw #8,%sp
  fef35dc:	4cee 00c0 fff8 	moveml %fp@(-8),%d6-%d7
  fef35e2:	4e5e           	unlk %fp
  fef35e4:	4e75           	rts
- fef35e6:	0000 4e56      	orib #86,%d0
- fef35ea:	ff28           	.short 0xff28
+ fef35e6:	0000
+
+; Subroutine
+ fef35e8:	4e56 ff28      	linkw %fp,#-216
  fef35ec:	48d7 10e8      	moveml %d3/%d5-%d7/%a4,%sp@
  fef35f0:	7e01           	moveq #1,%d7
  fef35f2:	2d47 ff7c      	movel %d7,%fp@(-132)
@@ -3946,9 +3981,14 @@ fef35d0:	4879 0fef d4ce 	pea 0xfefd4ce
  fef3646:	4878 000b      	pea 0xb
  fef364a:	6100 ce6a      	bsrw 0xfef04b6
  fef364e:	584f           	addqw #4,%sp
+
+; The manual says that the LED are all off when the machine powers up.
+; This is only an 8 bit register, but this will make it all ones.
+
  fef3650:	4878 ffff      	pea 0xffffffff
- fef3654:	6100 cec4      	bsrw 0xfef051a
+ fef3654:	6100 cec4      	bsrw 0xfef051a		; write_DIAG
  fef3658:	584f           	addqw #4,%sp
+
  fef365a:	7000           	moveq #0,%d0
  fef365c:	302e 0070      	movew %fp@(112),%d0
  fef3660:	0240 0fff      	andiw #4095,%d0
@@ -3994,12 +4034,12 @@ fef35d0:	4879 0fef d4ce 	pea 0xfefd4ce
  fef36f4:	6100 c9f2      	bsrw 0xfef00e8
 fef36f8:	4879 0fef d5a0 	pea 0xfefd5a0
 ; 0xfefd5a0 \nWatchdog reset!\n
- fef36fe:	6100 1de4      	bsrw 0xfef54e4
+ fef36fe:	6100 1de4      	bsrw 0xfef54e4			; printf
  fef3702:	584f           	addqw #4,%sp
  fef3704:	6000 0428      	braw 0xfef3b2e
 fef3708:	4879 0fef d5b2 	pea 0xfefd5b2
 ; 0xfefd5b2 Auto-boot in progress...\n
- fef370e:	6100 1dd4      	bsrw 0xfef54e4
+ fef370e:	6100 1dd4      	bsrw 0xfef54e4			; printf
  fef3712:	584f           	addqw #4,%sp
  fef3714:	21fc ffff e028 	movel #-8152,0xffffe020
  fef371a:	e020 
@@ -4007,7 +4047,7 @@ fef3708:	4879 0fef d5b2 	pea 0xfefd5b2
  fef3720:	60ac           	bras 0xfef36ce
 fef3722:	4879 0fef d5cc 	pea 0xfefd5cc
 ; 0xfefd5cc \nAbort
- fef3728:	6100 1dba      	bsrw 0xfef54e4
+ fef3728:	6100 1dba      	bsrw 0xfef54e4			; printf
  fef372c:	584f           	addqw #4,%sp
  fef372e:	422e ff94      	clrb %fp@(-108)
  fef3732:	6000 02da      	braw 0xfef3a0e
@@ -4022,7 +4062,7 @@ fef3722:	4879 0fef d5cc 	pea 0xfefd5cc
  fef3752:	2f00           	movel %d0,%sp@-
 fef3754:	4879 0fef d5d3 	pea 0xfefd5d3
 ; 0xfefd5d3 \nMEMORY ERROR!  Status %x, DVMA-BIT %x, Context %x,
- fef375a:	6100 1d88      	bsrw 0xfef54e4
+ fef375a:	6100 1d88      	bsrw 0xfef54e4			; printf
  fef375e:	4fef 0010      	lea %sp@(16),%sp
  fef3762:	2039 0fe0 8004 	movel 0xfe08004,%d0
  fef3768:	0280 0fff ffff 	andil #268435455,%d0
@@ -4047,7 +4087,7 @@ fef3754:	4879 0fef d5d3 	pea 0xfefd5d3
  fef37a0:	2f2e ff50      	movel %fp@(-176),%sp@-
 fef37a4:	4879 0fef d607 	pea 0xfefd607
 ; 0xfefd607 \n  Vaddr: %x, Paddr: %8x, Type %d at %8x
- fef37aa:	6100 1d38      	bsrw 0xfef54e4
+ fef37aa:	6100 1d38      	bsrw 0xfef54e4			; printf
  fef37ae:	4fef 0010      	lea %sp@(16),%sp
  fef37b2:	08b9 0007 0fe0 	bclr #7,0xfe08004
  fef37b8:	8004 
@@ -4070,11 +4110,11 @@ fef37a4:	4879 0fef d607 	pea 0xfefd607
  fef37f4:	2f2e 0072      	movel %fp@(114),%sp@-
 fef37f8:	4879 0fef d630 	pea 0xfefd630
 ; 0xfefd630 , Instr=%8x\n
- fef37fe:	6100 1ce4      	bsrw 0xfef54e4
+ fef37fe:	6100 1ce4      	bsrw 0xfef54e4			; printf
  fef3802:	504f           	addqw #8,%sp
 fef3804:	4879 0fef d63d 	pea 0xfefd63d
 ; 0xfefd63d \n
- fef380a:	6100 1cd8      	bsrw 0xfef54e4
+ fef380a:	6100 1cd8      	bsrw 0xfef54e4			; printf
  fef380e:	584f           	addqw #4,%sp
  fef3810:	1038 e019      	moveb 0xffffe019,%d0
  fef3814:	7e01           	moveq #1,%d7
@@ -4086,7 +4126,7 @@ fef3804:	4879 0fef d63d 	pea 0xfefd63d
  fef3826:	2f00           	movel %d0,%sp@-
 fef3828:	4879 0fef d63f 	pea 0xfefd63f
 ; 0xfefd63f \nBreak %4x
- fef382e:	6100 1cb4      	bsrw 0xfef54e4
+ fef382e:	6100 1cb4      	bsrw 0xfef54e4			; printf
  fef3832:	504f           	addqw #8,%sp
  fef3834:	1d7c 0001 ff7b 	moveb #1,%fp@(-133)
  fef383a:	6000 01d2      	braw 0xfef3a0e
@@ -4123,7 +4163,7 @@ fef3828:	4879 0fef d63f 	pea 0xfefd63f
  fef38ac:	1d7c 0001 ff7b 	moveb #1,%fp@(-133)
 fef38b2:	4879 0fef d64a 	pea 0xfefd64a
 ; 0xfefd64a Trace 
- fef38b8:	6100 1c2a      	bsrw 0xfef54e4
+ fef38b8:	6100 1c2a      	bsrw 0xfef54e4			; printf
  fef38bc:	584f           	addqw #4,%sp
  fef38be:	4878 0004      	pea 0x4
  fef38c2:	206e 006c      	moveal %fp@(108),%a0
@@ -4162,18 +4202,18 @@ fef391e:	4879 0fef d67c 	pea 0xfefd67c
  fef392c:	670c           	beqs 0xfef393a
 fef392e:	4879 0fef d68a 	pea 0xfefd68a
 ; 0xfefd68a FPA Enable 
- fef3934:	6100 1bae      	bsrw 0xfef54e4
+ fef3934:	6100 1bae      	bsrw 0xfef54e4			; printf
  fef3938:	584f           	addqw #4,%sp
 fef393a:	4879 0fef d696 	pea 0xfefd696
 ; 0xfefd696 Bus 
  fef3940:	6006           	bras 0xfef3948
 fef3942:	4879 0fef d69b 	pea 0xfefd69b
 ; 0xfefd69b Address 
- fef3948:	6100 1b9a      	bsrw 0xfef54e4
+ fef3948:	6100 1b9a      	bsrw 0xfef54e4			; printf
  fef394c:	584f           	addqw #4,%sp
 fef394e:	4879 0fef d6a4 	pea 0xfefd6a4
 ; 0xfefd6a4 Error
- fef3954:	6100 1b8e      	bsrw 0xfef54e4
+ fef3954:	6100 1b8e      	bsrw 0xfef54e4			; printf
  fef3958:	584f           	addqw #4,%sp
  fef395a:	102e 0070      	moveb %fp@(112),%d0
  fef395e:	0200 00f0      	andib #-16,%d0
@@ -4181,7 +4221,7 @@ fef394e:	4879 0fef d6a4 	pea 0xfefd6a4
  fef3966:	660c           	bnes 0xfef3974
 fef3968:	4879 0fef d6aa 	pea 0xfefd6aa
 ; 0xfefd6aa , long
- fef396e:	6100 1b74      	bsrw 0xfef54e4
+ fef396e:	6100 1b74      	bsrw 0xfef54e4			; printf
  fef3972:	584f           	addqw #4,%sp
  fef3974:	0838 0000 e338 	btst #0,0xffffe338
  fef397a:	6700 0086      	beqw 0xfef3a02
@@ -4223,17 +4263,17 @@ fef3968:	4879 0fef d6aa 	pea 0xfefd6aa
  fef39ee:	2f2e ff50      	movel %fp@(-176),%sp@-
 fef39f2:	4879 0fef d6b1 	pea 0xfefd6b1
 ; 0xfefd6b1 :\n  Vaddr: %8x, Paddr: %8x, Type %d, %s, FC %d, Size %d
- fef39f8:	6100 1aea      	bsrw 0xfef54e4
+ fef39f8:	6100 1aea      	bsrw 0xfef54e4			; printf
  fef39fc:	4fef 001c      	lea %sp@(28),%sp
  fef3a00:	600c           	bras 0xfef3a0e
 fef3a02:	4879 0fef d6f4 	pea 0xfefd6f4
 ; 0xfefd6f4 , PC fetch
- fef3a08:	6100 1ada      	bsrw 0xfef54e4
+ fef3a08:	6100 1ada      	bsrw 0xfef54e4			; printf
  fef3a0c:	584f           	addqw #4,%sp
  fef3a0e:	2f2e 006c      	movel %fp@(108),%sp@-
 fef3a12:	4879 0fef d6ff 	pea 0xfefd6ff
 ; 0xfefd6ff  at %8x
- fef3a18:	6100 1aca      	bsrw 0xfef54e4
+ fef3a18:	6100 1aca      	bsrw 0xfef54e4			; printf
  fef3a1c:	504f           	addqw #8,%sp
  fef3a1e:	102e 0070      	moveb %fp@(112),%d0
  fef3a22:	0200 00f0      	andib #-16,%d0
@@ -4242,7 +4282,7 @@ fef3a12:	4879 0fef d6ff 	pea 0xfefd6ff
  fef3a2c:	2f2e 0072      	movel %fp@(114),%sp@-
 fef3a30:	4879 0fef d707 	pea 0xfefd707
 ; 0xfefd707 , Instr=%8x
- fef3a36:	6100 1aac      	bsrw 0xfef54e4
+ fef3a36:	6100 1aac      	bsrw 0xfef54e4			; printf
  fef3a3a:	504f           	addqw #8,%sp
  fef3a3c:	4878 000a      	pea 0xa
  fef3a40:	6100 1c3e      	bsrw 0xfef5680			; putchar
@@ -4258,7 +4298,7 @@ fef3a30:	4879 0fef d707 	pea 0xfefd707
 ; 0fefd4d4: \nType a character within 10 seconds to enter Menu Tests...
 fef3a62:	4879 0fef d713 	pea 0xfefd713
 ; 0xfefd713 %s
- fef3a68:	6100 1a7a      	bsrw 0xfef54e4
+ fef3a68:	6100 1a7a      	bsrw 0xfef54e4			; printf
  fef3a6c:	504f           	addqw #8,%sp
 
  fef3a6e:	42ae ff68      	clrl %fp@(-152)
@@ -4300,7 +4340,7 @@ fef3a62:	4879 0fef d713 	pea 0xfefd713
  fef3ade:	2f00           	movel %d0,%sp@-
 fef3ae0:	4879 0fef d716 	pea 0xfefd716
 ; 0xfefd716 \nException 0x%x
- fef3ae6:	6100 19fc      	bsrw 0xfef54e4
+ fef3ae6:	6100 19fc      	bsrw 0xfef54e4			; printf
  fef3aea:	504f           	addqw #8,%sp
  fef3aec:	102e 0070      	moveb %fp@(112),%d0
  fef3af0:	0200 00f0      	andib #-16,%d0
@@ -4313,7 +4353,7 @@ fef3ae0:	4879 0fef d716 	pea 0xfefd716
  fef3b0e:	2f00           	movel %d0,%sp@-
 fef3b10:	4879 0fef d726 	pea 0xfefd726
 ; 0xfefd726  format 0x%x
- fef3b16:	6100 19cc      	bsrw 0xfef54e4
+ fef3b16:	6100 19cc      	bsrw 0xfef54e4			; printf
  fef3b1a:	504f           	addqw #8,%sp
  fef3b1c:	6000 fef0      	braw 0xfef3a0e
  fef3b20:	b884           	cmpl %d4,%d4
@@ -4408,7 +4448,7 @@ fef3b10:	4879 0fef d726 	pea 0xfefd726
  fef3c3c:	2f06           	movel %d6,%sp@-
 fef3c3e:	4879 0fef d737 	pea 0xfefd737
 ; 0xfefd737 Virtual Addr 0x%x is mapped to Physical Addr 0x%x.\n
- fef3c44:	6100 189e      	bsrw 0xfef54e4
+ fef3c44:	6100 189e      	bsrw 0xfef54e4			; printf
  fef3c48:	4fef 000c      	lea %sp@(12),%sp
  fef3c4c:	2f2e fff0      	movel %fp@(-16),%sp@-
  fef3c50:	2f06           	movel %d6,%sp@-
@@ -4420,7 +4460,7 @@ fef3c3e:	4879 0fef d737 	pea 0xfefd737
  fef3c64:	2f00           	movel %d0,%sp@-
 fef3c66:	4879 0fef d76b 	pea 0xfefd76b
 ; 0xfefd76b Context = 0x%x,  Seg Map = 0x%x,  Page Map = 0x%x.\n
- fef3c6c:	6100 1876      	bsrw 0xfef54e4
+ fef3c6c:	6100 1876      	bsrw 0xfef54e4			; printf
  fef3c70:	4fef 0010      	lea %sp@(16),%sp
  fef3c74:	206e ff48      	moveal %fp@(-184),%a0
  fef3c78:	2010           	movel %a0@,%d0
@@ -4428,21 +4468,21 @@ fef3c66:	4879 0fef d76b 	pea 0xfefd76b
  fef3c80:	2f00           	movel %d0,%sp@-
 fef3c82:	4879 0fef d79f 	pea 0xfefd79f
 ; 0xfefd79f Page 0x%x has these attributes:\n\n
- fef3c88:	6100 185a      	bsrw 0xfef54e4
+ fef3c88:	6100 185a      	bsrw 0xfef54e4			; printf
  fef3c8c:	504f           	addqw #8,%sp
  fef3c8e:	206e ff48      	moveal %fp@(-184),%a0
  fef3c92:	e9d0 0001      	bfextu %a0@,0,1,%d0
  fef3c96:	2f00           	movel %d0,%sp@-
 fef3c98:	4879 0fef d7c1 	pea 0xfefd7c1
 ; 0xfefd7c1 ~Valid bit  = %d\n
- fef3c9e:	6100 1844      	bsrw 0xfef54e4
+ fef3c9e:	6100 1844      	bsrw 0xfef54e4			; printf
  fef3ca2:	504f           	addqw #8,%sp
  fef3ca4:	206e ff48      	moveal %fp@(-184),%a0
  fef3ca8:	e9d0 0042      	bfextu %a0@,1,2,%d0
  fef3cac:	2f00           	movel %d0,%sp@-
 fef3cae:	4879 0fef d7d3 	pea 0xfefd7d3
 ; 0xfefd7d3 ~Permission = 0x%x\n
- fef3cb4:	6100 182e      	bsrw 0xfef54e4
+ fef3cb4:	6100 182e      	bsrw 0xfef54e4			; printf
  fef3cb8:	504f           	addqw #8,%sp
  fef3cba:	206e ff48      	moveal %fp@(-184),%a0
  fef3cbe:	e9d0 00c3      	bfextu %a0@,3,3,%d0
@@ -4450,7 +4490,7 @@ fef3cae:	4879 0fef d7d3 	pea 0xfefd7d3
  fef3cc4:	2f00           	movel %d0,%sp@-
 fef3cc6:	4879 0fef d7e7 	pea 0xfefd7e7
 ; 0xfefd7e7 ~No Cache   = %d\n
- fef3ccc:	6100 1816      	bsrw 0xfef54e4
+ fef3ccc:	6100 1816      	bsrw 0xfef54e4			; printf
  fef3cd0:	504f           	addqw #8,%sp
  fef3cd2:	206e ff48      	moveal %fp@(-184),%a0
  fef3cd6:	e9d0 00c3      	bfextu %a0@,3,3,%d0
@@ -4459,14 +4499,14 @@ fef3cc6:	4879 0fef d7e7 	pea 0xfefd7e7
  fef3cde:	2f00           	movel %d0,%sp@-
 fef3ce0:	4879 0fef d7f9 	pea 0xfefd7f9
 ; 0xfefd7f9 ~Type       = %d\n
- fef3ce6:	6100 17fc      	bsrw 0xfef54e4
+ fef3ce6:	6100 17fc      	bsrw 0xfef54e4			; printf
  fef3cea:	504f           	addqw #8,%sp
  fef3cec:	206e ff48      	moveal %fp@(-184),%a0
  fef3cf0:	e9d0 0181      	bfextu %a0@,6,1,%d0
  fef3cf4:	2f00           	movel %d0,%sp@-
 fef3cf6:	4879 0fef d80b 	pea 0xfefd80b
 ; 0xfefd80b ~Access bit = %d\n
- fef3cfc:	6100 17e6      	bsrw 0xfef54e4
+ fef3cfc:	6100 17e6      	bsrw 0xfef54e4			; printf
  fef3d00:	504f           	addqw #8,%sp
  fef3d02:	206e ff48      	moveal %fp@(-184),%a0
  fef3d06:	7000           	moveq #0,%d0
@@ -4475,7 +4515,7 @@ fef3cf6:	4879 0fef d80b 	pea 0xfefd80b
  fef3d0e:	2f00           	movel %d0,%sp@-
 fef3d10:	4879 0fef d81d 	pea 0xfefd81d
 ; 0xfefd81d ~Modify bit = %d\n
- fef3d16:	6100 17cc      	bsrw 0xfef54e4
+ fef3d16:	6100 17cc      	bsrw 0xfef54e4			; printf
  fef3d1a:	504f           	addqw #8,%sp
  fef3d1c:	6000 0876      	braw 0xfef4594
  fef3d20:	6100 171c      	bsrw 0xfef543e
@@ -4523,7 +4563,7 @@ fef3da2:	4879 0fef d542 	pea 0xfefd542
 ; 0xfefd542 showtime
 fef3da8:	4879 0fef d82f 	pea 0xfefd82f
 ; 0xfefd82f Compiled on %s at %s in %s\n
- fef3dae:	6100 1734      	bsrw 0xfef54e4
+ fef3dae:	6100 1734      	bsrw 0xfef54e4			; printf
  fef3db2:	4fef 0010      	lea %sp@(16),%sp
  fef3db6:	6000 07dc      	braw 0xfef4594
  fef3dba:	486e 0028      	pea %fp@(40)
@@ -4778,7 +4818,7 @@ fef3e66:	4879 0fef 0258 	pea 0xfef0258
  fef4114:	2f06           	movel %d6,%sp@-
 fef4116:	4879 0fef d84b 	pea 0xfefd84b
 ; 0xfefd84b SegMap %8x
- fef411c:	6100 13c6      	bsrw 0xfef54e4
+ fef411c:	6100 13c6      	bsrw 0xfef54e4			; printf
  fef4120:	504f           	addqw #8,%sp
  fef4122:	4878 0003      	pea 0x3
  fef4126:	4878 0002      	pea 0x2
@@ -4830,7 +4870,7 @@ fef4116:	4879 0fef d84b 	pea 0xfefd84b
  fef41c6:	2f06           	movel %d6,%sp@-
 fef41c8:	4879 0fef d856 	pea 0xfefd856
 ; 0xfefd856 PageMap %8x [%2x]
- fef41ce:	6100 1314      	bsrw 0xfef54e4
+ fef41ce:	6100 1314      	bsrw 0xfef54e4			; printf
  fef41d2:	4fef 000c      	lea %sp@(12),%sp
  fef41d6:	4878 0003      	pea 0x3
  fef41da:	4878 0008      	pea 0x8
@@ -4854,13 +4894,13 @@ fef41c8:	4879 0fef d856 	pea 0xfefd856
  fef421a:	6674           	bnes 0xfef4290
 fef421c:	4879 0fef d868 	pea 0xfefd868
 ; 0xfefd868 Warning: EEPROM contents will be destroyed, are you sure?
- fef4222:	6100 12c0      	bsrw 0xfef54e4
+ fef4222:	6100 12c0      	bsrw 0xfef54e4			; printf
  fef4226:	584f           	addqw #4,%sp
  fef4228:	6100 1544      	bsrw 0xfef576e
  fef422c:	1e00           	moveb %d0,%d7
 fef422e:	4879 0fef d8a2 	pea 0xfefd8a2
 ; 0xfefd8a2 \n
- fef4234:	6100 12ae      	bsrw 0xfef54e4
+ fef4234:	6100 12ae      	bsrw 0xfef54e4			; printf
  fef4238:	584f           	addqw #4,%sp
  fef423a:	49c7           	extbl %d7
  fef423c:	7c5f           	moveq #95,%d6
@@ -4904,7 +4944,7 @@ fef422e:	4879 0fef d8a2 	pea 0xfefd8a2
  fef42bc:	2f00           	movel %d0,%sp@-
 fef42be:	4879 0fef d8a4 	pea 0xfefd8a4
 ; 0xfefd8a4 EEPROM %3x
- fef42c4:	6100 121e      	bsrw 0xfef54e4
+ fef42c4:	6100 121e      	bsrw 0xfef54e4			; printf
  fef42c8:	504f           	addqw #8,%sp
  fef42ca:	2f2e ff74      	movel %fp@(-140),%sp@-
  fef42ce:	4878 0002      	pea 0x2
@@ -4946,7 +4986,7 @@ fef42be:	4879 0fef d8a4 	pea 0xfefd8a4
  fef4340:	2f2e ff74      	movel %fp@(-140),%sp@-
 fef4344:	4879 0fef d8af 	pea 0xfefd8af
 ; 0xfefd8af FC%x space\n
- fef434a:	6100 1198      	bsrw 0xfef54e4
+ fef434a:	6100 1198      	bsrw 0xfef54e4			; printf
  fef434e:	504f           	addqw #8,%sp
  fef4350:	6000 0242      	braw 0xfef4594
  fef4354:	6100 10b2      	bsrw 0xfef5408
@@ -4966,7 +5006,7 @@ fef4344:	4879 0fef d8af 	pea 0xfefd8af
  fef4380:	504f           	addqw #8,%sp
 fef4382:	4879 0fef d8c7 	pea 0xfefd8c7
 ; 0xfefd8c7 Trace Off\n
- fef4388:	6100 115a      	bsrw 0xfef54e4
+ fef4388:	6100 115a      	bsrw 0xfef54e4			; printf
  fef438c:	6000 0204      	braw 0xfef4592
  fef4390:	2878 e020      	moveal 0xffffe020,%a4
  fef4394:	21cc e024      	movel %a4,0xffffe024
@@ -4979,7 +5019,7 @@ fef4382:	4879 0fef d8c7 	pea 0xfefd8c7
  fef43a8:	42b8 e024      	clrl 0xffffe024
 fef43ac:	4879 0fef d8bb 	pea 0xfefd8bb
 ; 0xfefd8bb Tracing...\n
- fef43b2:	6100 1130      	bsrw 0xfef54e4
+ fef43b2:	6100 1130      	bsrw 0xfef54e4			; printf
  fef43b6:	584f           	addqw #4,%sp
  fef43b8:	006e 8000 006a 	oriw #-32768,%fp@(106)
 fef43be:	4879 0fef 0258 	pea 0xfef0258
@@ -5027,7 +5067,7 @@ fef43be:	4879 0fef 0258 	pea 0xfef0258
  fef4440:	2f00           	movel %d0,%sp@-
 fef4442:	4879 0fef d8d2 	pea 0xfefd8d2
 ; 0xfefd8d2 %8x:  
- fef4448:	6100 109a      	bsrw 0xfef54e4
+ fef4448:	6100 109a      	bsrw 0xfef54e4			; printf
  fef444c:	504f           	addqw #8,%sp
  fef444e:	2a2e ff5c      	movel %fp@(-164),%d5
  fef4452:	6066           	bras 0xfef44ba
@@ -5060,7 +5100,7 @@ fef4442:	4879 0fef d8d2 	pea 0xfefd8d2
  fef449c:	6100 1198      	bsrw 0xfef5636
  fef44a0:	504f           	addqw #8,%sp
  fef44a2:	4879 0fef d8d9 	pea 0xfefd8d9
- fef44a8:	6100 103a      	bsrw 0xfef54e4
+ fef44a8:	6100 103a      	bsrw 0xfef54e4			; printf
  fef44ac:	584f           	addqw #4,%sp
  fef44ae:	202e ff6c      	movel %fp@(-148),%d0
  fef44b2:	6c02           	bges 0xfef44b6
@@ -5073,7 +5113,7 @@ fef4442:	4879 0fef d8d2 	pea 0xfefd8d2
  fef44c2:	ba80           	cmpl %d0,%d5
  fef44c4:	6d9c           	blts 0xfef4462
  fef44c6:	4879 0fef d8db 	pea 0xfefd8db
- fef44cc:	6100 1016      	bsrw 0xfef54e4
+ fef44cc:	6100 1016      	bsrw 0xfef54e4			; printf
  fef44d0:	584f           	addqw #4,%sp
  fef44d2:	2a2e ff5c      	movel %fp@(-164),%d5
  fef44d6:	6030           	bras 0xfef4508
@@ -5102,7 +5142,7 @@ fef4442:	4879 0fef d8d2 	pea 0xfefd8d2
  fef4512:	6dc4           	blts 0xfef44d8
 fef4514:	4879 0fef d8e0 	pea 0xfefd8e0
 ; 0xfefd8e0 \n
- fef451a:	6100 0fc8      	bsrw 0xfef54e4
+ fef451a:	6100 0fc8      	bsrw 0xfef54e4			; printf
  fef451e:	584f           	addqw #4,%sp
  fef4520:	6100 1276      	bsrw 0xfef5798
  fef4524:	2d40 ff60      	movel %d0,%fp@(-160)
@@ -5132,7 +5172,7 @@ fef4514:	4879 0fef d8e0 	pea 0xfefd8e0
  fef4578:	601a           	bras 0xfef4594
  fef457a:	4a38 e015      	tstb 0xffffe015
  fef457e:	6606           	bnes 0xfef4586
- fef4580:	11fc 0012 e004 	moveb #18,0xffffe004
+ fef4580:	11fc 0012 e004 	moveb #18,0xffffe004			; XX-0
  fef4586:	6100 bc44      	bsrw 0xfef01cc
  fef458a:	2f2e ff74      	movel %fp@(-140),%sp@-
  fef458e:	6100 03a2      	bsrw 0xfef4932
@@ -5187,7 +5227,7 @@ fef4514:	4879 0fef d8e0 	pea 0xfefd8e0
  fef4638:	486e ff94      	pea %fp@(-108)
 fef463c:	4879 0fef d733 	pea 0xfefd733
 ; 0xfefd733 %s\n
- fef4642:	6100 0ea0      	bsrw 0xfef54e4
+ fef4642:	6100 0ea0      	bsrw 0xfef54e4			; printf
  fef4646:	504f           	addqw #8,%sp
  fef4648:	6100 0dbe      	bsrw 0xfef5408
  fef464c:	1e00           	moveb %d0,%d7
@@ -5236,11 +5276,12 @@ fef463c:	4879 0fef d733 	pea 0xfefd733
  fef46c6:	6300 f4d8      	blsw 0xfef3ba0
 fef46ca:	4879 0fef d8e2 	pea 0xfefd8e2
 ; 0xfefd8e2 Monitor: Invalid command.\n
- fef46d0:	6100 0e12      	bsrw 0xfef54e4
+ fef46d0:	6100 0e12      	bsrw 0xfef54e4			; printf
  fef46d4:	6000 febc      	braw 0xfef4592
  fef46d8:	4cee 10e8 ff28 	moveml %fp@(-216),%d3/%d5-%d7/%a4
  fef46de:	4e5e           	unlk %fp
  fef46e0:	4e75           	rts
+
  fef46e2:	4e56 fff4      	linkw %fp,#-12
  fef46e6:	6004           	bras 0xfef46ec
  fef46e8:	6100 0d1e      	bsrw 0xfef5408
@@ -5257,7 +5298,7 @@ fef46ca:	4879 0fef d8e2 	pea 0xfefd8e2
  fef470a:	6c00 0126      	bgew 0xfef4832
 fef470e:	4879 0fef d8fd 	pea 0xfefd8fd
 ; 0xfefd8fd : 
- fef4714:	6100 0dce      	bsrw 0xfef54e4
+ fef4714:	6100 0dce      	bsrw 0xfef54e4			; printf
  fef4718:	584f           	addqw #4,%sp
  fef471a:	202e 000c      	movel %fp@(12),%d0
  fef471e:	7204           	moveq #4,%d1
@@ -5306,7 +5347,7 @@ fef470e:	4879 0fef d8fd 	pea 0xfefd8fd
  fef47a6:	6000 0120      	braw 0xfef48c8
 fef47aa:	4879 0fef d900 	pea 0xfefd900
 ; 0xfefd900 ? 
- fef47b0:	6100 0d32      	bsrw 0xfef54e4
+ fef47b0:	6100 0d32      	bsrw 0xfef54e4			; printf
  fef47b4:	584f           	addqw #4,%sp
  fef47b6:	4878 0001      	pea 0x1
  fef47ba:	6100 0bb0      	bsrw 0xfef536c
@@ -5354,7 +5395,7 @@ fef47aa:	4879 0fef d900 	pea 0xfefd900
  fef4836:	2d40 fff8      	movel %d0,%fp@(-8)
 fef483a:	4879 0fef d903 	pea 0xfefd903
 ; 0xfefd903  -> 
- fef4840:	6100 0ca2      	bsrw 0xfef54e4
+ fef4840:	6100 0ca2      	bsrw 0xfef54e4			; printf
  fef4844:	584f           	addqw #4,%sp
  fef4846:	2f2e 000c      	movel %fp@(12),%sp@-
  fef484a:	2f2e fff8      	movel %fp@(-8),%sp@-
@@ -5417,7 +5458,7 @@ fef483a:	4879 0fef d903 	pea 0xfefd903
  fef48fa:	2640           	moveal %d0,%a3
  fef48fc:	6022           	bras 0xfef4920
  fef48fe:	4853           	pea %a3@
- fef4900:	6100 0be2      	bsrw 0xfef54e4
+ fef4900:	6100 0be2      	bsrw 0xfef54e4			; printf
  fef4904:	584f           	addqw #4,%sp
  fef4906:	4878 0005      	pea 0x5
  fef490a:	4878 0008      	pea 0x8
@@ -5452,7 +5493,7 @@ fef483a:	4879 0fef d903 	pea 0xfefd903
  fef4964:	4854           	pea %a4@
 fef4966:	4879 0fef d908 	pea 0xfefd908
 ; 0xfefd908 %8x now.\n
- fef496c:	6100 0b76      	bsrw 0xfef54e4
+ fef496c:	6100 0b76      	bsrw 0xfef54e4			; printf
  fef4970:	504f           	addqw #8,%sp
  fef4972:	607a           	bras 0xfef49ee
  fef4974:	6100 0adc      	bsrw 0xfef5452
@@ -5493,7 +5534,7 @@ fef49c2:	4879 0fef 0258 	pea 0xfef0258
  fef49dc:	2f00           	movel %d0,%sp@-
 fef49de:	4879 0fef d912 	pea 0xfefd912
 ; 0xfefd912 Break %x installed\n
- fef49e4:	6100 0afe      	bsrw 0xfef54e4
+ fef49e4:	6100 0afe      	bsrw 0xfef54e4			; printf
  fef49e8:	504f           	addqw #8,%sp
  fef49ea:	21cd e086      	movel %a5,0xffffe086
  fef49ee:	4cee 3080 fff4 	moveml %fp@(-12),%d7/%a4-%a5
@@ -5519,12 +5560,12 @@ fef49de:	4879 0fef d912 	pea 0xfefd912
  fef4a34:	660e           	bnes 0xfef4a44
  fef4a36:	2f2e 0008      	movel %fp@(8),%sp@-
  fef4a3a:	2f08           	movel %a0,%sp@-
- fef4a3c:	6100 0aa6      	bsrw 0xfef54e4
+ fef4a3c:	6100 0aa6      	bsrw 0xfef54e4			; printf
  fef4a40:	504f           	addqw #8,%sp
  fef4a42:	600c           	bras 0xfef4a50
 fef4a44:	4879 0fef d926 	pea 0xfefd926
 ; 0xfefd926 Try again.\n
- fef4a4a:	6100 0a98      	bsrw 0xfef54e4
+ fef4a4a:	6100 0a98      	bsrw 0xfef54e4			; printf
  fef4a4e:	584f           	addqw #4,%sp
  fef4a50:	4e5e           	unlk %fp
  fef4a52:	4e75           	rts
@@ -5739,7 +5780,7 @@ fef4a44:	4879 0fef d926 	pea 0xfefd926
  fef4d1a:	6100 4218      	bsrw 0xfef8f34
  fef4d1e:	584f           	addqw #4,%sp
  fef4d20:	6000 00be      	braw 0xfef4de0
- fef4d24:	4238 e003      	clrb 0xffffe003
+ fef4d24:	4238 e003      	clrb 0xffffe003			; XX-0
  fef4d28:	2f2e 0008      	movel %fp@(8),%sp@-
  fef4d2c:	6100 baee      	bsrw 0xfef081c
  fef4d30:	584f           	addqw #4,%sp
@@ -5787,7 +5828,7 @@ fef4d5a:	4879 0fef da6e 	pea 0xfefda6e
  fef4db6:	6028           	bras 0xfef4de0
 fef4db8:	4879 0fef da73 	pea 0xfefda73
 ; 0xfefda73 \nInvalid command!\n
- fef4dbe:	6100 0724      	bsrw 0xfef54e4
+ fef4dbe:	6100 0724      	bsrw 0xfef54e4			; printf
  fef4dc2:	584f           	addqw #4,%sp
  fef4dc4:	601a           	bras 0xfef4de0
  fef4dc6:	564f           	addqw #3,%sp
@@ -5807,11 +5848,11 @@ fef4db8:	4879 0fef da73 	pea 0xfefda73
  fef4de4:	42b8 e0a2      	clrl 0xffffe0a2
 fef4de8:	4879 0fef d932 	pea 0xfefd932
 ; 0xfefd932 \n\nExtended Test Menu:  (Enter 'q' to return
- fef4dee:	6100 06f4      	bsrw 0xfef54e4
+ fef4dee:	6100 06f4      	bsrw 0xfef54e4			; printf
  fef4df2:	584f           	addqw #4,%sp
 fef4df4:	4879 0fef d95e 	pea 0xfefd95e
 ; 0xfefd95e  to Monitor)\n\nCmd -  Test\n\n
- fef4dfa:	6100 06e8      	bsrw 0xfef54e4
+ fef4dfa:	6100 06e8      	bsrw 0xfef54e4			; printf
  fef4dfe:	584f           	addqw #4,%sp
 fef4e00:	4879 0fef d97d 	pea 0xfefd97d
 ; 0xfefd97d Ethernet
@@ -6112,7 +6153,7 @@ fef4ede:	4879 0fef da52 	pea 0xfefda52
  fef517a:	49c0           	extbl %d0
  fef517c:	2f00           	movel %d0,%sp@-
  fef517e:	4879 0fef db34 	pea 0xfefdb34
- fef5184:	6100 035e      	bsrw 0xfef54e4
+ fef5184:	6100 035e      	bsrw 0xfef54e4			; printf
  fef5188:	4fef 0018      	lea %sp@(24),%sp
  fef518c:	4a38 e01a      	tstb 0xffffe01a
  fef5190:	660a           	bnes 0xfef519c
@@ -6121,7 +6162,7 @@ fef4ede:	4879 0fef da52 	pea 0xfefda52
  fef519a:	584f           	addqw #4,%sp
 fef519c:	4879 0fef db54 	pea 0xfefdb54
 ; 0xfefdb54 e\n
- fef51a2:	6100 0340      	bsrw 0xfef54e4
+ fef51a2:	6100 0340      	bsrw 0xfef54e4			; printf
  fef51a6:	584f           	addqw #4,%sp
  fef51a8:	6000 012c      	braw 0xfef52d6
  fef51ac:	4a04           	tstb %d4
@@ -6224,7 +6265,7 @@ fef52ce:	4879 0fef db57 	pea 0xfefdb57
  fef52dc:	670c           	beqs 0xfef52ea
 fef52de:	4879 0fef db6a 	pea 0xfefdb6a
 ; 0xfefdb6a Extra chars in command\n
- fef52e4:	6100 01fe      	bsrw 0xfef54e4
+ fef52e4:	6100 01fe      	bsrw 0xfef54e4			; printf
  fef52e8:	584f           	addqw #4,%sp
  fef52ea:	4cee 20f8 ffe8 	moveml %fp@(-24),%d3-%d7/%a5
  fef52f0:	4e5e           	unlk %fp
@@ -6302,7 +6343,7 @@ fef52de:	4879 0fef db6a 	pea 0xfefdb6a
  fef53c0:	5386           	subql #1,%d6
 fef53c2:	4879 0fef db84 	pea 0xfefdb84
 ; 0xfefdb84 ~ ~
- fef53c8:	6100 011a      	bsrw 0xfef54e4
+ fef53c8:	6100 011a      	bsrw 0xfef54e4			; printf
  fef53cc:	584f           	addqw #4,%sp
  fef53ce:	60e2           	bras 0xfef53b2
  fef53d0:	0c15 0015      	cmpib #21,%a5@
@@ -6405,8 +6446,9 @@ fef53c2:	4879 0fef db84 	pea 0xfefdb84
  fef54de:	4e5e           	unlk %fp
  fef54e0:	4e75           	rts
 
-; Subroutine "printf" ? many calls
- fef54e4:	4e56 ffe8      	linkw %fp,#-24
+; Let's just call this printf for now.
+; Subroutine printf
+ fef54e4:	4e56 ffe8      	linkw %fp,#-24			; printf
  fef54e8:	48d7 38c0      	moveml %d6-%d7/%a3-%a5,%sp@
  fef54ec:	2a6e 0008      	moveal %fp@(8),%a5
  fef54f0:	49ee 000c      	lea %fp@(12),%a4
@@ -6597,10 +6639,10 @@ fef53c2:	4879 0fef db84 	pea 0xfefdb84
  fef56ae:	4e56 fffc      	linkw %fp,#-4
  fef56b2:	2e87           	movel %d7,%sp@
 
- fef56b4:	0c38 0012 e000 	cmpib #18,0xffffe000
+ fef56b4:	0c38 0012 e000 	cmpib #18,0xffffe000			; XX-0
  fef56ba:	6650           	bnes 0xfef570c
 
- fef56bc:	1038 e001      	moveb 0xffffe001,%d0
+ fef56bc:	1038 e001      	moveb 0xffffe001,%d0			; XX-0
  fef56c0:	49c0           	extbl %d0
  fef56c2:	7202           	moveq #2,%d1
  fef56c4:	9280           	subl %d0,%d1
@@ -6614,7 +6656,7 @@ fef53c2:	4879 0fef db84 	pea 0xfefdb84
  fef56e2:	5387           	subql #1,%d7		; delay
  fef56e4:	6efc           	bgts 0xfef56e2
 
- fef56e6:	1038 e001      	moveb 0xffffe001,%d0
+ fef56e6:	1038 e001      	moveb 0xffffe001,%d0			; XX-0
  fef56ea:	49c0           	extbl %d0
  fef56ec:	7202           	moveq #2,%d1
  fef56ee:	9280           	subl %d0,%d1
@@ -6623,7 +6665,7 @@ fef53c2:	4879 0fef db84 	pea 0xfefdb84
  fef56fa:	7000           	moveq #0,%d0
  fef56fc:	102e 000b      	moveb %fp@(11),%d0
  fef5700:	2f00           	movel %d0,%sp@-
- fef5702:	6100 1638      	bsrw 0xfef6d3c
+ fef5702:	6100 1638      	bsrw 0xfef6d3c		; putcharX
  fef5706:	584f           	addqw #4,%sp
  fef5708:	7000           	moveq #0,%d0
  fef570a:	605a           	bras 0xfef5766		; return 0
@@ -6633,7 +6675,7 @@ fef53c2:	4879 0fef db84 	pea 0xfefdb84
  fef5712:	7000           	moveq #0,%d0
  fef5714:	102e 000b      	moveb %fp@(11),%d0
  fef5718:	2f00           	movel %d0,%sp@-
- fef571a:	6100 1620      	bsrw 0xfef6d3c
+ fef571a:	6100 1620      	bsrw 0xfef6d3c		; putcharX
  fef571e:	584f           	addqw #4,%sp
  fef5720:	7000           	moveq #0,%d0
  fef5722:	6042           	bras 0xfef5766		; return 0
@@ -6688,7 +6730,7 @@ fef53c2:	4879 0fef db84 	pea 0xfefdb84
 
  fef5798:	4e56 fff8      	linkw %fp,#-8
  fef579c:	48d7 00c0      	moveml %d6-%d7,%sp@
- fef57a0:	0c38 0012 e000 	cmpib #18,0xffffe000
+ fef57a0:	0c38 0012 e000 	cmpib #18,0xffffe000			; XX-0
  fef57a6:	6600 0086      	bnew 0xfef582e
  fef57aa:	6100 02bc      	bsrw 0xfef5a68
  fef57ae:	2e00           	movel %d0,%d7
@@ -6707,7 +6749,7 @@ fef53c2:	4879 0fef db84 	pea 0xfefdb84
  fef57cc:	7eff           	moveq #-1,%d7
  fef57ce:	2007           	movel %d7,%d0
  fef57d0:	6000 00aa      	braw 0xfef587c
- fef57d4:	1038 e001      	moveb 0xffffe001,%d0
+ fef57d4:	1038 e001      	moveb 0xffffe001,%d0			; XX-0
  fef57d8:	49c0           	extbl %d0
  fef57da:	7202           	moveq #2,%d1
  fef57dc:	9280           	subl %d0,%d1
@@ -6721,7 +6763,7 @@ fef53c2:	4879 0fef db84 	pea 0xfefdb84
  fef57f8:	5386           	subql #1,%d6
  fef57fa:	6efc           	bgts 0xfef57f8
 
- fef57fc:	1038 e001      	moveb 0xffffe001,%d0
+ fef57fc:	1038 e001      	moveb 0xffffe001,%d0			; XX-0
  fef5800:	49c0           	extbl %d0
  fef5802:	7202           	moveq #2,%d1
  fef5804:	9280           	subl %d0,%d1
@@ -6782,7 +6824,7 @@ fef53c2:	4879 0fef db84 	pea 0xfefdb84
  fef58a2:	2f00           	movel %d0,%sp@-
 fef58a4:	4879 0fef dbb0 	pea 0xfefdbb0
 ; 0xfefdbb0 \n*** Message from %s:  
- fef58aa:	6100 fc38      	bsrw 0xfef54e4
+ fef58aa:	6100 fc38      	bsrw 0xfef54e4			; printf
  fef58ae:	504f           	addqw #8,%sp
  fef58b0:	4a87           	tstl %d7
  fef58b2:	6752           	beqs 0xfef5906
@@ -6793,14 +6835,14 @@ fef58a4:	4879 0fef dbb0 	pea 0xfefdbb0
  fef58c2:	5385           	subql #1,%d5
  fef58c4:	6efc           	bgts 0xfef58c2
 
- fef58c6:	1038 e001      	moveb 0xffffe001,%d0
+ fef58c6:	1038 e001      	moveb 0xffffe001,%d0			; XX-0
  fef58ca:	49c0           	extbl %d0
  fef58cc:	7202           	moveq #2,%d1
  fef58ce:	9280           	subl %d0,%d1
  fef58d0:	2078 e2ba      	moveal 0xffffe2ba,%a0
  fef58d4:	0830 0000 1c00 	btst #0,%a0@(0,%d1:l:4)
  fef58da:	67d4           	beqs 0xfef58b0
- fef58dc:	1038 e001      	moveb 0xffffe001,%d0
+ fef58dc:	1038 e001      	moveb 0xffffe001,%d0			; XX-0
  fef58e0:	49c0           	extbl %d0
  fef58e2:	7202           	moveq #2,%d1
  fef58e4:	9280           	subl %d0,%d1
@@ -6827,7 +6869,7 @@ fef58a4:	4879 0fef dbb0 	pea 0xfefdbb0
  fef5916:	6616           	bnes 0xfef592e
 fef5918:	4879 0fef dbd5 	pea 0xfefdbd5
 ; 0xfefdbd5 \n*** End of Message ***\n
- fef591e:	6100 fbc4      	bsrw 0xfef54e4
+ fef591e:	6100 fbc4      	bsrw 0xfef54e4			; printf
  fef5922:	584f           	addqw #4,%sp
  fef5924:	4cee 00e0 fff4 	moveml %fp@(-12),%d5-%d7
  fef592a:	4e5e           	unlk %fp
@@ -7066,7 +7108,7 @@ fef593c:	4879 0fef dbee 	pea 0xfefdbee
  fef5c34:	6000 fe3a      	braw 0xfef5a70
 fef5c38:	4879 0fef dbf4 	pea 0xfefdbf4
 ; 0xfefdbf4 Keyboard error detected\n
- fef5c3e:	6100 f8a4      	bsrw 0xfef54e4
+ fef5c3e:	6100 f8a4      	bsrw 0xfef54e4			; printf
  fef5c42:	584f           	addqw #4,%sp
  fef5c44:	60dc           	bras 0xfef5c22
  fef5c46:	6000 fe28      	braw 0xfef5a70
@@ -7144,7 +7186,7 @@ fef5c38:	4879 0fef dbf4 	pea 0xfefdbf4
  fef5d28:	6600 0386      	bnew 0xfef60b0
 fef5d2c:	4879 0fef dd60 	pea 0xfefdd60
 ; 0xfefdd60 Boot: 
- fef5d32:	6100 f7b0      	bsrw 0xfef54e4
+ fef5d32:	6100 f7b0      	bsrw 0xfef54e4			; printf
  fef5d36:	584f           	addqw #4,%sp
  fef5d38:	6000 00e0      	braw 0xfef5e1a
  fef5d3c:	6100 a7a6      	bsrw 0xfef04e4
@@ -7173,7 +7215,7 @@ fef5d2c:	4879 0fef dd60 	pea 0xfefdd60
  fef5d8c:	2140 008e      	movel %d0,%a0@(142)
 fef5d90:	4879 0fef dd67 	pea 0xfefdd67
 ; 0xfefdd67 \nDiagnostic Auto-boot in progress...
- fef5d96:	6100 f74c      	bsrw 0xfef54e4
+ fef5d96:	6100 f74c      	bsrw 0xfef54e4			; printf
  fef5d9a:	584f           	addqw #4,%sp
  fef5d9c:	607c           	bras 0xfef5e1a
  fef5d9e:	0c39 0012 0fe0 	cmpib #18,0xfe04018
@@ -7197,7 +7239,7 @@ fef5d90:	4879 0fef dd67 	pea 0xfefdd67
  fef5de6:	2140 008e      	movel %d0,%a0@(142)
 fef5dea:	4879 0fef dd8c 	pea 0xfefdd8c
 ; 0xfefdd8c \nEEPROM boot device...
- fef5df0:	6100 f6f2      	bsrw 0xfef54e4
+ fef5df0:	6100 f6f2      	bsrw 0xfef54e4			; printf
  fef5df4:	584f           	addqw #4,%sp
  fef5df6:	6022           	bras 0xfef5e1a
  fef5df8:	2a6e 0008      	moveal %fp@(8),%a5
@@ -7264,7 +7306,7 @@ fef5dea:	4879 0fef dd8c 	pea 0xfefdd8c
  fef5eb8:	2f00           	movel %d0,%sp@-
 fef5eba:	4879 0fef dda4 	pea 0xfefdda4
 ; 0xfefdda4 %c%c(%x,%x,%x)%s %s\n
- fef5ec0:	6100 f622      	bsrw 0xfef54e4
+ fef5ec0:	6100 f622      	bsrw 0xfef54e4			; printf
  fef5ec4:	4fef 0020      	lea %sp@(32),%sp
  fef5ec8:	2f38 e176      	movel 0xffffe176,%sp@-
  fef5ecc:	6100 044a      	bsrw 0xfef6318
@@ -7292,7 +7334,7 @@ fef5eba:	4879 0fef dda4 	pea 0xfefdda4
  fef5f1c:	6610           	bnes 0xfef5f2e
 fef5f1e:	4879 0fef ddb9 	pea 0xfefddb9
 ; 0xfefddb9 \nDevice not found\n
- fef5f24:	6100 f5be      	bsrw 0xfef54e4
+ fef5f24:	6100 f5be      	bsrw 0xfef54e4			; printf
  fef5f28:	584f           	addqw #4,%sp
  fef5f2a:	6000 01bc      	braw 0xfef60e8
  fef5f2e:	58ae fff8      	addql #4,%fp@(-8)
@@ -7305,7 +7347,7 @@ fef5f1e:	4879 0fef ddb9 	pea 0xfefddb9
  fef5f48:	6710           	beqs 0xfef5f5a
 fef5f4a:	4879 0fef ddcc 	pea 0xfefddcc
 ; 0xfefddcc No bootable devices found\n
- fef5f50:	6100 f592      	bsrw 0xfef54e4
+ fef5f50:	6100 f592      	bsrw 0xfef54e4			; printf
  fef5f54:	584f           	addqw #4,%sp
  fef5f56:	6000 0190      	braw 0xfef60e8
  fef5f5a:	102a 0001      	moveb %a2@(1),%d0
@@ -7316,7 +7358,7 @@ fef5f4a:	4879 0fef ddcc 	pea 0xfefddcc
  fef5f66:	2f00           	movel %d0,%sp@-
 fef5f68:	4879 0fef dde7 	pea 0xfefdde7
 ; 0xfefdde7 \nInvalid device = '%c%c'\n
- fef5f6e:	6100 f574      	bsrw 0xfef54e4
+ fef5f6e:	6100 f574      	bsrw 0xfef54e4			; printf
  fef5f72:	4fef 000c      	lea %sp@(12),%sp
  fef5f76:	4a84           	tstl %d4
  fef5f78:	6600 0136      	bnew 0xfef60b0
@@ -7337,7 +7379,7 @@ fef5f68:	4879 0fef dde7 	pea 0xfefdde7
  fef5fa8:	2f00           	movel %d0,%sp@-
 fef5faa:	4879 0fef de01 	pea 0xfefde01
 ; 0xfefde01 Boot: %c%c(%x,%x,%x)%s %s\n
- fef5fb0:	6100 f532      	bsrw 0xfef54e4
+ fef5fb0:	6100 f532      	bsrw 0xfef54e4			; printf
  fef5fb4:	4fef 0020      	lea %sp@(32),%sp
  fef5fb8:	206e fff0      	moveal %fp@(-16),%a0
  fef5fbc:	1153 0084      	moveb %a3@,%a0@(132)
@@ -7416,13 +7458,13 @@ fef5faa:	4879 0fef de01 	pea 0xfefde01
  fef609c:	660c           	bnes 0xfef60aa
 fef609e:	4879 0fef de1c 	pea 0xfefde1c
 ; 0xfefde1c Boot: load failed\n
- fef60a4:	6100 f43e      	bsrw 0xfef54e4
+ fef60a4:	6100 f43e      	bsrw 0xfef54e4			; printf
  fef60a8:	584f           	addqw #4,%sp
  fef60aa:	202e ffb4      	movel %fp@(-76),%d0
  fef60ae:	603a           	bras 0xfef60ea
 fef60b0:	4879 0fef de2f 	pea 0xfefde2f
 ; 0xfefde2f Boot syntax: b [!][dev(ctlr,unit,part)] name [options]\nPossible boot devices:\n
- fef60b6:	6100 f42c      	bsrw 0xfef54e4
+ fef60b6:	6100 f42c      	bsrw 0xfef54e4			; printf
  fef60ba:	584f           	addqw #4,%sp
  fef60bc:	2d7c 0fef dd50 	movel #267378000,%fp@(-8)
  fef60c2:	fff8 
@@ -7431,7 +7473,7 @@ fef60b0:	4879 0fef de2f 	pea 0xfefde2f
  fef60ca:	2f28 0016      	movel %a0@(22),%sp@-
 fef60ce:	4879 0fef de7e 	pea 0xfefde7e
 ; 0xfefde7e   %s\n
- fef60d4:	6100 f40e      	bsrw 0xfef54e4
+ fef60d4:	6100 f40e      	bsrw 0xfef54e4			; printf
  fef60d8:	504f           	addqw #8,%sp
  fef60da:	58ae fff8      	addql #4,%fp@(-8)
  fef60de:	206e fff8      	moveal %fp@(-8),%a0
@@ -7539,17 +7581,17 @@ fef60ce:	4879 0fef de7e 	pea 0xfefde7e
  fef61f8:	4efb 0002      	jmp %pc@(0xfef61fc,%d0:w)
  fef61fc:	001c 0008      	orib #8,%a4@+
  fef6200:	0026 0012      	orib #18,%fp@-
- fef6204:	2a78 e006      	moveal 0xffffe006,%a5
- fef6208:	dfb8 e006      	addl %d7,0xffffe006
+ fef6204:	2a78 e006      	moveal 0xffffe006,%a5			; XX-0
+ fef6208:	dfb8 e006      	addl %d7,0xffffe006			; XX-0
  fef620c:	6052           	bras 0xfef6260
- fef620e:	2a78 e00a      	moveal 0xffffe00a,%a5
- fef6212:	dfb8 e00a      	addl %d7,0xffffe00a
+ fef620e:	2a78 e00a      	moveal 0xffffe00a,%a5			; XX-0
+ fef6212:	dfb8 e00a      	addl %d7,0xffffe00a			; XX-0
  fef6216:	6048           	bras 0xfef6260
- fef6218:	2a78 e006      	moveal 0xffffe006,%a5
- fef621c:	dfb8 e006      	addl %d7,0xffffe006
+ fef6218:	2a78 e006      	moveal 0xffffe006,%a5			; XX-0
+ fef621c:	dfb8 e006      	addl %d7,0xffffe006			; XX-0
  fef6220:	600e           	bras 0xfef6230
- fef6222:	2a78 e00a      	moveal 0xffffe00a,%a5
- fef6226:	dfb8 e00a      	addl %d7,0xffffe00a
+ fef6222:	2a78 e00a      	moveal 0xffffe00a,%a5			; XX-0
+ fef6226:	dfb8 e00a      	addl %d7,0xffffe00a			; XX-0
  fef622a:	6004           	bras 0xfef6230
  fef622c:	7000           	moveq #0,%d0
  fef622e:	6032           	bras 0xfef6262
@@ -7621,9 +7663,9 @@ fef60ce:	4879 0fef de7e 	pea 0xfefde7e
  fef6314:	4e5e           	unlk %fp
  fef6316:	4e75           	rts
  fef6318:	4e56 0000      	linkw %fp,#0
- fef631c:	21fc 0fe6 4000 	movel #266747904,0xffffe006
+ fef631c:	21fc 0fe6 4000 	movel #266747904,0xffffe006			; XX-0
  fef6322:	e006 
- fef6324:	21fc 0ff0 0000 	movel #267386880,0xffffe00a
+ fef6324:	21fc 0ff0 0000 	movel #267386880,0xffffe00a			; XX-0
  fef632a:	e00a 
  fef632c:	41f9 0fef de98 	lea 0xfefde98,%a0
  fef6332:	21d0 e38a      	movel %a0@,0xffffe38a
@@ -7667,7 +7709,7 @@ fef60ce:	4879 0fef de7e 	pea 0xfefde7e
  fef63ac:	6710           	beqs 0xfef63be
 fef63ae:	4879 0fef df24 	pea 0xfefdf24
 ; 0xfefdf24 No label found - attempting boot anyway.\n
- fef63b4:	6100 f12e      	bsrw 0xfef54e4
+ fef63b4:	6100 f12e      	bsrw 0xfef54e4			; printf
  fef63b8:	584f           	addqw #4,%sp
  fef63ba:	7001           	moveq #1,%d0
  fef63bc:	6030           	bras 0xfef63ee
@@ -7685,7 +7727,7 @@ fef63ae:	4879 0fef df24 	pea 0xfefdf24
  fef63da:	6710           	beqs 0xfef63ec
 fef63dc:	4879 0fef df68 	pea 0xfefdf68
 ; 0xfefdf68 Corrupt label\n
- fef63e2:	6100 f100      	bsrw 0xfef54e4
+ fef63e2:	6100 f100      	bsrw 0xfef54e4			; printf
  fef63e6:	584f           	addqw #4,%sp
  fef63e8:	7001           	moveq #1,%d0
  fef63ea:	6002           	bras 0xfef63ee
@@ -7725,7 +7767,7 @@ fef63dc:	4879 0fef df68 	pea 0xfefdf68
  fef6446:	66f6           	bnes 0xfef643e
 fef6448:	4879 0fef dec4 	pea 0xfefdec4
 ; 0xfefdec4 \n~Waiting for disk to spin up...\n\nPlease start it, if necessary, -OR- press any key to quit.\n\n
- fef644e:	6100 f094      	bsrw 0xfef54e4
+ fef644e:	6100 f094      	bsrw 0xfef54e4			; printf
  fef6452:	584f           	addqw #4,%sp
  fef6454:	2038 e0b2      	movel 0xffffe0b2,%d0
  fef6458:	0680 0002 bf20 	addil #180000,%d0
@@ -7741,7 +7783,7 @@ fef6448:	4879 0fef dec4 	pea 0xfefdec4
  fef647a:	6f10           	bles 0xfef648c
 fef647c:	4879 0fef df77 	pea 0xfefdf77
 ; 0xfefdf77 Giving up...\n
- fef6482:	6100 f060      	bsrw 0xfef54e4
+ fef6482:	6100 f060      	bsrw 0xfef54e4			; printf
  fef6486:	584f           	addqw #4,%sp
  fef6488:	6100 9dbe      	bsrw 0xfef0248
  fef648c:	2f2e 0010      	movel %fp@(16),%sp@-
@@ -8449,20 +8491,27 @@ fef647c:	4879 0fef df77 	pea 0xfefdf77
  fef6d30:	4cee 2080 fff8 	moveml %fp@(-8),%d7/%a5
  fef6d36:	4e5e           	unlk %fp
  fef6d38:	4e75           	rts
- fef6d3a:	0000 4e56      	orib #86,%d0
- fef6d3e:	0000 4878      	orib #120,%d0
- fef6d42:	0001 486e      	orib #110,%d1
- fef6d46:	000b           	.short 0x000b
- fef6d48:	6106           	bsrs 0xfef6d50
- fef6d4a:	504f           	addqw #8,%sp
- fef6d4c:	4e5e           	unlk %fp
- fef6d4e:	4e75           	rts
+ fef6d3a:   0000
+
+; Subroutine -- called by putchar2 twice, nowhere else
+; putcharX
+ fef6d3c:	4e56 0000      	linkw %fp,#0
+ fef6d40:	4878 0001      	pea 0x1
+ fef6d44:	486e 000b      	pea %fp@(11)
+ fef6d48:   6106            bsrs 0xfef6d50		; putcharY
+ fef6d4a:   504f            addqw #8,%sp
+ fef6d4c:   4e5e            unlk %fp
+ fef6d4e:   4e75            rts
+
+; Subroutine -- called from the above.
+; putcharY -- BIG
  fef6d50:	4e56 ffe8      	linkw %fp,#-24
  fef6d54:	48d7 20c0      	moveml %d6-%d7/%a5,%sp@
  fef6d58:	2a6e 0008      	moveal %fp@(8),%a5
  fef6d5c:	3e2e 000e      	movew %fp@(14),%d7
  fef6d60:	6100 060c      	bsrw 0xfef736e
  fef6d64:	6000 0510      	braw 0xfef7276
+
  fef6d68:	6100 0620      	bsrw 0xfef738a
  fef6d6c:	6000 0504      	braw 0xfef7272
  fef6d70:	0cb8 0000 001e 	cmpil #30,0xffffe0d6
@@ -8876,6 +8925,7 @@ fef647c:	4879 0fef df77 	pea 0xfefdf77
  fef727e:	4cee 20c0 ffe8 	moveml %fp@(-24),%d6-%d7/%a5
  fef7284:	4e5e           	unlk %fp
  fef7286:	4e75           	rts
+
  fef7288:	1c1d           	moveb %a5@+,%d6
  fef728a:	2038 e096      	movel 0xffffe096,%d0
  fef728e:	0800 0007      	btst #7,%d0
@@ -8952,6 +9002,8 @@ fef647c:	4879 0fef df77 	pea 0xfefdf77
  fef7366:	21c0 e0ca      	movel %d0,0xffffe0ca
  fef736a:	4e5e           	unlk %fp
  fef736c:	4e75           	rts
+
+; Subroutine
  fef736e:	4e56 0000      	linkw %fp,#0
  fef7372:	4ab8 e0da      	tstl 0xffffe0da
  fef7376:	670e           	beqs 0xfef7386
@@ -8961,6 +9013,7 @@ fef647c:	4879 0fef df77 	pea 0xfefdf77
  fef7384:	504f           	addqw #8,%sp
  fef7386:	4e5e           	unlk %fp
  fef7388:	4e75           	rts
+
  fef738a:	4e56 0000      	linkw %fp,#0
  fef738e:	6100 03c4      	bsrw 0xfef7754
  fef7392:	2038 e0d2      	movel 0xffffe0d2,%d0
@@ -9132,6 +9185,8 @@ fef647c:	4879 0fef df77 	pea 0xfefdf77
  fef75c2:	6d00 feea      	bltw 0xfef74ae
  fef75c6:	4e5e           	unlk %fp
  fef75c8:	4e75           	rts
+
+; Subroutine
  fef75ca:	4e56 0000      	linkw %fp,#0
  fef75ce:	4a78 e07c      	tstw 0xffffe07c
  fef75d2:	6632           	bnes 0xfef7606
@@ -9179,6 +9234,7 @@ fef647c:	4879 0fef df77 	pea 0xfefdf77
  fef765a:	4fef 0018      	lea %sp@(24),%sp
  fef765e:	4e5e           	unlk %fp
  fef7660:	4e75           	rts
+
  fef7662:	4e56 fff4      	linkw %fp,#-12
  fef7666:	202e 0010      	movel %fp@(16),%d0
  fef766a:	90ae 0008      	subl %fp@(8),%d0
@@ -9839,7 +9895,7 @@ fef647c:	4879 0fef df77 	pea 0xfefdf77
  fef7e5c:	2a6e 0008      	moveal %fp@(8),%a5
  fef7e60:	7c00           	moveq #0,%d6
  fef7e62:	6100 1c0c      	bsrw 0xfef9a70
- fef7e66:	0c38 0051 e002 	cmpib #81,0xffffe002
+ fef7e66:	0c38 0051 e002 	cmpib #81,0xffffe002			; XX-0
  fef7e6c:	6604           	bnes 0xfef7e72
  fef7e6e:	7051           	moveq #81,%d0
  fef7e70:	604c           	bras 0xfef7ebe
@@ -9918,7 +9974,7 @@ fef7f5c:	4879 0fef e738 	pea 0xfefe738
  fef7f62:	6100 1b76      	bsrw 0xfef9ada		; announce_test
  fef7f66:	504f           	addqw #8,%sp
  fef7f68:	4879 0fef e745 	pea 0xfefe745
- fef7f6e:	6100 d574      	bsrw 0xfef54e4
+ fef7f6e:	6100 d574      	bsrw 0xfef54e4			; printf
  fef7f72:	584f           	addqw #4,%sp
  fef7f74:	6100 1bac      	bsrw 0xfef9b22
  fef7f78:	1e00           	moveb %d0,%d7
@@ -9935,7 +9991,7 @@ fef7f5c:	4879 0fef e738 	pea 0xfefe738
  fef7f96:	6100 d4ba      	bsrw 0xfef5452
  fef7f9a:	2a00           	movel %d0,%d5
  fef7f9c:	6100 1ad2      	bsrw 0xfef9a70
- fef7fa0:	0c38 0051 e002 	cmpib #81,0xffffe002
+ fef7fa0:	0c38 0051 e002 	cmpib #81,0xffffe002			; XX-0
  fef7fa6:	6600 ff30      	bnew 0xfef7ed8
  fef7faa:	7051           	moveq #81,%d0
  fef7fac:	4cee 00a0 fff4 	moveml %fp@(-12),%d5/%d7
@@ -9995,7 +10051,7 @@ fef7f5c:	4879 0fef e738 	pea 0xfefe738
  fef8058:	3c14           	movew %a4@,%d6
  fef805a:	0c46 0004      	cmpiw #4,%d6
  fef805e:	672a           	beqs 0xfef808a
- fef8060:	0c38 004e e002 	cmpib #78,0xffffe002
+ fef8060:	0c38 004e e002 	cmpib #78,0xffffe002			; XX-0
  fef8066:	6722           	beqs 0xfef808a
  fef8068:	7801           	moveq #1,%d4
  fef806a:	21c4 e0a2      	movel %d4,0xffffe0a2
@@ -10005,7 +10061,7 @@ fef7f5c:	4879 0fef e738 	pea 0xfefe738
  fef8076:	2f00           	movel %d0,%sp@-
  fef8078:	4878 0004      	pea 0x4
  fef807c:	4879 0fef e7a1 	pea 0xfefe7a1
- fef8082:	6100 d460      	bsrw 0xfef54e4
+ fef8082:	6100 d460      	bsrw 0xfef54e4			; printf
  fef8086:	4fef 000c      	lea %sp@(12),%sp
  fef808a:	3abc 0001      	movew #1,%a5@
  fef808e:	3887           	movew %d7,%a4@
@@ -10019,7 +10075,7 @@ fef7f5c:	4879 0fef e738 	pea 0xfefe738
  fef80a2:	3c14           	movew %a4@,%d6
  fef80a4:	bc47           	cmpw %d7,%d6
  fef80a6:	672c           	beqs 0xfef80d4
- fef80a8:	0c38 004e e002 	cmpib #78,0xffffe002
+ fef80a8:	0c38 004e e002 	cmpib #78,0xffffe002			; XX-0
  fef80ae:	6724           	beqs 0xfef80d4
  fef80b0:	7801           	moveq #1,%d4
  fef80b2:	21c4 e0a2      	movel %d4,0xffffe0a2
@@ -10031,7 +10087,7 @@ fef7f5c:	4879 0fef e738 	pea 0xfefe738
  fef80c2:	3007           	movew %d7,%d0
  fef80c4:	2f00           	movel %d0,%sp@-
  fef80c6:	4879 0fef e7c3 	pea 0xfefe7c3
- fef80cc:	6100 d416      	bsrw 0xfef54e4
+ fef80cc:	6100 d416      	bsrw 0xfef54e4			; printf
  fef80d0:	4fef 000c      	lea %sp@(12),%sp
  fef80d4:	5285           	addql #1,%d5
  fef80d6:	2f05           	movel %d5,%sp@-
@@ -10157,7 +10213,7 @@ fef7f5c:	4879 0fef e738 	pea 0xfefe738
  fef8282:	662a           	bnes 0xfef82ae
  fef8284:	7e01           	moveq #1,%d7
  fef8286:	21c7 e0a2      	movel %d7,0xffffe0a2
- fef828a:	0c38 004e e002 	cmpib #78,0xffffe002
+ fef828a:	0c38 004e e002 	cmpib #78,0xffffe002			; XX-0
  fef8290:	671c           	beqs 0xfef82ae
  fef8292:	7000           	moveq #0,%d0
  fef8294:	3006           	movew %d6,%d0
@@ -10165,7 +10221,7 @@ fef7f5c:	4879 0fef e738 	pea 0xfefe738
  fef8298:	0286 0000 0100 	andil #256,%d6
  fef829e:	2f06           	movel %d6,%sp@-
  fef82a0:	4879 0fef e7e5 	pea 0xfefe7e5
- fef82a6:	6100 d23c      	bsrw 0xfef54e4
+ fef82a6:	6100 d23c      	bsrw 0xfef54e4			; printf
  fef82aa:	4fef 000c      	lea %sp@(12),%sp
  fef82ae:	7601           	moveq #1,%d3
  fef82b0:	6100 d4e6      	bsrw 0xfef5798
@@ -10277,13 +10333,13 @@ fef7f5c:	4879 0fef e738 	pea 0xfefe738
  fef8412:	6720           	beqs 0xfef8434
  fef8414:	7e01           	moveq #1,%d7
  fef8416:	21c7 e0a2      	movel %d7,0xffffe0a2
- fef841a:	0c38 004e e002 	cmpib #78,0xffffe002
+ fef841a:	0c38 004e e002 	cmpib #78,0xffffe002			; XX-0
  fef8420:	6712           	beqs 0xfef8434
  fef8422:	7000           	moveq #0,%d0
  fef8424:	3014           	movew %a4@,%d0
  fef8426:	2f00           	movel %d0,%sp@-
  fef8428:	4879 0fef e828 	pea 0xfefe828
- fef842e:	6100 d0b4      	bsrw 0xfef54e4
+ fef842e:	6100 d0b4      	bsrw 0xfef54e4			; printf
  fef8432:	504f           	addqw #8,%sp
  fef8434:	2d7c 0000 2710 	movel #10000,%fp@(-4)
  fef843a:	fffc 
@@ -10344,13 +10400,13 @@ fef7f5c:	4879 0fef e738 	pea 0xfefe738
  fef84e6:	6720           	beqs 0xfef8508
  fef84e8:	7e01           	moveq #1,%d7
  fef84ea:	21c7 e0a2      	movel %d7,0xffffe0a2
- fef84ee:	0c38 004e e002 	cmpib #78,0xffffe002
+ fef84ee:	0c38 004e e002 	cmpib #78,0xffffe002			; XX-0
  fef84f4:	6712           	beqs 0xfef8508
  fef84f6:	7000           	moveq #0,%d0
  fef84f8:	3014           	movew %a4@,%d0
  fef84fa:	2f00           	movel %d0,%sp@-
  fef84fc:	4879 0fef e85a 	pea 0xfefe85a
- fef8502:	6100 cfe0      	bsrw 0xfef54e4
+ fef8502:	6100 cfe0      	bsrw 0xfef54e4			; printf
  fef8506:	504f           	addqw #8,%sp
  fef8508:	42ae fff8      	clrl %fp@(-8)
  fef850c:	202e fff8      	movel %fp@(-8),%d0
@@ -10367,7 +10423,7 @@ fef7f5c:	4879 0fef e738 	pea 0xfefe738
  fef852a:	21c7 e0a2      	movel %d7,0xffffe0a2
  fef852e:	4a2e fff7      	tstb %fp@(-9)
  fef8532:	662a           	bnes 0xfef855e
- fef8534:	0c38 004e e002 	cmpib #78,0xffffe002
+ fef8534:	0c38 004e e002 	cmpib #78,0xffffe002			; XX-0
  fef853a:	6722           	beqs 0xfef855e
  fef853c:	7000           	moveq #0,%d0
  fef853e:	3006           	movew %d6,%d0
@@ -10379,7 +10435,7 @@ fef7f5c:	4879 0fef e738 	pea 0xfefe738
  fef854a:	d0ae fff8      	addl %fp@(-8),%d0
  fef854e:	2f00           	movel %d0,%sp@-
  fef8550:	4879 0fef e874 	pea 0xfefe874
- fef8556:	6100 cf8c      	bsrw 0xfef54e4
+ fef8556:	6100 cf8c      	bsrw 0xfef54e4			; printf
  fef855a:	4fef 0010      	lea %sp@(16),%sp
  fef855e:	52ae fff8      	addql #1,%fp@(-8)
  fef8562:	0cae 0000 0020 	cmpil #32,%fp@(-8)
@@ -10392,7 +10448,7 @@ fef7f5c:	4879 0fef e738 	pea 0xfefe738
  fef857c:	3e2e 0012      	movew %fp@(18),%d7
  fef8580:	3c2e 0016      	movew %fp@(22),%d6
  fef8584:	3a2e 001a      	movew %fp@(26),%d5
- fef8588:	0c38 004e e002 	cmpib #78,0xffffe002
+ fef8588:	0c38 004e e002 	cmpib #78,0xffffe002			; XX-0
  fef858e:	672a           	beqs 0xfef85ba
  fef8590:	7000           	moveq #0,%d0
  fef8592:	3005           	movew %d5,%d0
@@ -10408,7 +10464,7 @@ fef7f5c:	4879 0fef e738 	pea 0xfefe738
  fef85a6:	2f00           	movel %d0,%sp@-
  fef85a8:	2f2e 0008      	movel %fp@(8),%sp@-
  fef85ac:	4879 0fef e8a2 	pea 0xfefe8a2
- fef85b2:	6100 cf30      	bsrw 0xfef54e4
+ fef85b2:	6100 cf30      	bsrw 0xfef54e4			; printf
  fef85b6:	4fef 0018      	lea %sp@(24),%sp
  fef85ba:	7001           	moveq #1,%d0
  fef85bc:	4cee 20e0 fff0 	moveml %fp@(-16),%d5-%d7/%a5
@@ -10485,7 +10541,7 @@ fef863a:	4879 0fef e8c6 	pea 0xfefe8c6
  fef86b4:	0c07 0053      	cmpib #83,%d7
  fef86b8:	6600 ff52      	bnew 0xfef860c
  fef86bc:	6100 13b2      	bsrw 0xfef9a70
- fef86c0:	0c38 0051 e002 	cmpib #81,0xffffe002
+ fef86c0:	0c38 0051 e002 	cmpib #81,0xffffe002			; XX-0
  fef86c6:	6606           	bnes 0xfef86ce
  fef86c8:	7051           	moveq #81,%d0
  fef86ca:	6000 0086      	braw 0xfef8752
@@ -10992,7 +11048,7 @@ fef863a:	4879 0fef e8c6 	pea 0xfefe8c6
  fef8c6e:	6730           	beqs 0xfef8ca0
  fef8c70:	7e01           	moveq #1,%d7
  fef8c72:	21c7 e0a2      	movel %d7,0xffffe0a2
- fef8c76:	0c38 004e e002 	cmpib #78,0xffffe002
+ fef8c76:	0c38 004e e002 	cmpib #78,0xffffe002			; XX-0
  fef8c7c:	6722           	beqs 0xfef8ca0
  fef8c7e:	5488           	addql #2,%a0
  fef8c80:	2f08           	movel %a0,%sp@-
@@ -11003,7 +11059,7 @@ fef863a:	4879 0fef e8c6 	pea 0xfefe8c6
  fef8c8c:	302e fff8      	movew %fp@(-8),%d0
  fef8c90:	2f00           	movel %d0,%sp@-
  fef8c92:	4879 0fef e943 	pea 0xfefe943
- fef8c98:	6100 c84a      	bsrw 0xfef54e4
+ fef8c98:	6100 c84a      	bsrw 0xfef54e4			; printf
  fef8c9c:	4fef 0010      	lea %sp@(16),%sp
  fef8ca0:	302e fff8      	movew %fp@(-8),%d0
  fef8ca4:	e348           	lslw #1,%d0
@@ -11049,7 +11105,7 @@ fef863a:	4879 0fef e8c6 	pea 0xfefe8c6
  fef8d2c:	302e fffa      	movew %fp@(-6),%d0
  fef8d30:	2f00           	movel %d0,%sp@-
  fef8d32:	4879 0fef e95c 	pea 0xfefe95c
- fef8d38:	6100 c7aa      	bsrw 0xfef54e4
+ fef8d38:	6100 c7aa      	bsrw 0xfef54e4			; printf
  fef8d3c:	4fef 000c      	lea %sp@(12),%sp
  fef8d40:	7e01           	moveq #1,%d7
  fef8d42:	21c7 e0a2      	movel %d7,0xffffe0a2
@@ -11090,17 +11146,17 @@ fef863a:	4879 0fef e8c6 	pea 0xfefe8c6
  fef8dbe:	6732           	beqs 0xfef8df2
  fef8dc0:	7e01           	moveq #1,%d7
  fef8dc2:	21c7 e0a2      	movel %d7,0xffffe0a2
- fef8dc6:	0c38 004e e002 	cmpib #78,0xffffe002
+ fef8dc6:	0c38 004e e002 	cmpib #78,0xffffe002			; XX-0
  fef8dcc:	6724           	beqs 0xfef8df2
  fef8dce:	2f2e ffe8      	movel %fp@(-24),%sp@-
  fef8dd2:	4879 0fef e99f 	pea 0xfefe99f
- fef8dd8:	6100 c70a      	bsrw 0xfef54e4
+ fef8dd8:	6100 c70a      	bsrw 0xfef54e4			; printf
  fef8ddc:	504f           	addqw #8,%sp
  fef8dde:	7000           	moveq #0,%d0
  fef8de0:	102e fff3      	moveb %fp@(-13),%d0
  fef8de4:	2f00           	movel %d0,%sp@-
  fef8de6:	4879 0fef e9c1 	pea 0xfefe9c1
- fef8dec:	6100 c6f6      	bsrw 0xfef54e4
+ fef8dec:	6100 c6f6      	bsrw 0xfef54e4			; printf
  fef8df0:	504f           	addqw #8,%sp
  fef8df2:	206e fff4      	moveal %fp@(-12),%a0
  fef8df6:	4268 0004      	clrw %a0@(4)
@@ -11129,11 +11185,11 @@ fef863a:	4879 0fef e8c6 	pea 0xfefe8c6
  fef8e46:	673c           	beqs 0xfef8e84
  fef8e48:	7e01           	moveq #1,%d7
  fef8e4a:	21c7 e0a2      	movel %d7,0xffffe0a2
- fef8e4e:	0c38 004e e002 	cmpib #78,0xffffe002
+ fef8e4e:	0c38 004e e002 	cmpib #78,0xffffe002			; XX-0
  fef8e54:	672e           	beqs 0xfef8e84
  fef8e56:	2f2e ffe8      	movel %fp@(-24),%sp@-
  fef8e5a:	4879 0fef e9d0 	pea 0xfefe9d0
- fef8e60:	6100 c682      	bsrw 0xfef54e4
+ fef8e60:	6100 c682      	bsrw 0xfef54e4			; printf
  fef8e64:	504f           	addqw #8,%sp
  fef8e66:	7000           	moveq #0,%d0
  fef8e68:	102e fff3      	moveb %fp@(-13),%d0
@@ -11142,7 +11198,7 @@ fef863a:	4879 0fef e8c6 	pea 0xfefe8c6
  fef8e70:	102e fff2      	moveb %fp@(-14),%d0
  fef8e74:	2f00           	movel %d0,%sp@-
  fef8e76:	4879 0fef e9fc 	pea 0xfefe9fc
- fef8e7c:	6100 c666      	bsrw 0xfef54e4
+ fef8e7c:	6100 c666      	bsrw 0xfef54e4			; printf
  fef8e80:	4fef 000c      	lea %sp@(12),%sp
  fef8e84:	206e fff4      	moveal %fp@(-12),%a0
  fef8e88:	4268 0004      	clrw %a0@(4)
@@ -11173,11 +11229,11 @@ fef863a:	4879 0fef e8c6 	pea 0xfefe8c6
  fef8ee2:	673c           	beqs 0xfef8f20
  fef8ee4:	7e01           	moveq #1,%d7
  fef8ee6:	21c7 e0a2      	movel %d7,0xffffe0a2
- fef8eea:	0c38 004e e002 	cmpib #78,0xffffe002
+ fef8eea:	0c38 004e e002 	cmpib #78,0xffffe002			; XX-0
  fef8ef0:	672e           	beqs 0xfef8f20
  fef8ef2:	2f2e ffe8      	movel %fp@(-24),%sp@-
  fef8ef6:	4879 0fef ea0d 	pea 0xfefea0d
- fef8efc:	6100 c5e6      	bsrw 0xfef54e4
+ fef8efc:	6100 c5e6      	bsrw 0xfef54e4			; printf
  fef8f00:	504f           	addqw #8,%sp
  fef8f02:	7000           	moveq #0,%d0
  fef8f04:	102e fff3      	moveb %fp@(-13),%d0
@@ -11186,7 +11242,7 @@ fef863a:	4879 0fef e8c6 	pea 0xfefe8c6
  fef8f0c:	102e fff2      	moveb %fp@(-14),%d0
  fef8f10:	2f00           	movel %d0,%sp@-
  fef8f12:	4879 0fef ea39 	pea 0xfefea39
- fef8f18:	6100 c5ca      	bsrw 0xfef54e4
+ fef8f18:	6100 c5ca      	bsrw 0xfef54e4			; printf
  fef8f1c:	4fef 000c      	lea %sp@(12),%sp
  fef8f20:	206e fff4      	moveal %fp@(-12),%a0
  fef8f24:	4268 0004      	clrw %a0@(4)
@@ -11242,13 +11298,13 @@ fef8fba:	4879 0fef ea5f 	pea 0xfefea5f
  fef8fd4:	203c 0fef ea92 	movel #267381394,%d0
  fef8fda:	2f00           	movel %d0,%sp@-
  fef8fdc:	4879 0fef ea6c 	pea 0xfefea6c
- fef8fe2:	6100 c500      	bsrw 0xfef54e4
+ fef8fe2:	6100 c500      	bsrw 0xfef54e4			; printf
  fef8fe6:	504f           	addqw #8,%sp
  fef8fe8:	4879 0fef ea99 	pea 0xfefea99
- fef8fee:	6100 c4f4      	bsrw 0xfef54e4
+ fef8fee:	6100 c4f4      	bsrw 0xfef54e4			; printf
  fef8ff2:	584f           	addqw #4,%sp
  fef8ff4:	4879 0fef eac6 	pea 0xfefeac6
- fef8ffa:	6100 c4e8      	bsrw 0xfef54e4
+ fef8ffa:	6100 c4e8      	bsrw 0xfef54e4			; printf
  fef8ffe:	584f           	addqw #4,%sp
  fef9000:	6100 0b20      	bsrw 0xfef9b22
  fef9004:	1d40 ffda      	moveb %d0,%fp@(-38)
@@ -11285,7 +11341,7 @@ fef8fba:	4879 0fef ea5f 	pea 0xfefea5f
  fef9078:	0c2e 0042 ffdb 	cmpib #66,%fp@(-37)
  fef907e:	6610           	bnes 0xfef9090
  fef9080:	4879 0fef eb31 	pea 0xfefeb31
- fef9086:	6100 c45c      	bsrw 0xfef54e4
+ fef9086:	6100 c45c      	bsrw 0xfef54e4			; printf
  fef908a:	584f           	addqw #4,%sp
  fef908c:	42ae ffe4      	clrl %fp@(-28)
  fef9090:	6100 c3ac      	bsrw 0xfef543e
@@ -11306,7 +11362,7 @@ fef8fba:	4879 0fef ea5f 	pea 0xfefea5f
  fef90ca:	4aae ffe4      	tstl %fp@(-28)
  fef90ce:	6700 fece      	beqw 0xfef8f9e
  fef90d2:	6100 099c      	bsrw 0xfef9a70
- fef90d6:	0c38 0051 e002 	cmpib #81,0xffffe002
+ fef90d6:	0c38 0051 e002 	cmpib #81,0xffffe002			; XX-0
  fef90dc:	6606           	bnes 0xfef90e4
  fef90de:	7051           	moveq #81,%d0
  fef90e0:	6000 0318      	braw 0xfef93fa
@@ -11378,7 +11434,7 @@ fef8fba:	4879 0fef ea5f 	pea 0xfefea5f
  fef91b8:	4a95           	tstl %a5@
  fef91ba:	6612           	bnes 0xfef91ce
  fef91bc:	4879 0fef eb4c 	pea 0xfefeb4c
- fef91c2:	6100 c320      	bsrw 0xfef54e4
+ fef91c2:	6100 c320      	bsrw 0xfef54e4			; printf
  fef91c6:	584f           	addqw #4,%sp
  fef91c8:	42ae ffe4      	clrl %fp@(-28)
  fef91cc:	6004           	bras 0xfef91d2
@@ -11709,7 +11765,7 @@ fef8fba:	4879 0fef ea5f 	pea 0xfefea5f
  fef95d2:	7000           	moveq #0,%d0
  fef95d4:	60ca           	bras 0xfef95a0
  fef95d6:	4e56 0000      	linkw %fp,#0
- fef95da:	0c38 004e e002 	cmpib #78,0xffffe002
+ fef95da:	0c38 004e e002 	cmpib #78,0xffffe002			; XX-0
  fef95e0:	6722           	beqs 0xfef9604
  fef95e2:	7000           	moveq #0,%d0
  fef95e4:	102e 0013      	moveb %fp@(19),%d0
@@ -11719,13 +11775,13 @@ fef8fba:	4879 0fef ea5f 	pea 0xfefea5f
  fef95f0:	2f00           	movel %d0,%sp@-
  fef95f2:	2f2e 0008      	movel %fp@(8),%sp@-
  fef95f6:	4879 0fef eb71 	pea 0xfefeb71
- fef95fc:	6100 bee6      	bsrw 0xfef54e4
+ fef95fc:	6100 bee6      	bsrw 0xfef54e4			; printf
  fef9600:	4fef 0010      	lea %sp@(16),%sp
  fef9604:	7001           	moveq #1,%d0
  fef9606:	4e5e           	unlk %fp
  fef9608:	4e75           	rts
  fef960a:	4e56 0000      	linkw %fp,#0
- fef960e:	0c38 004e e002 	cmpib #78,0xffffe002
+ fef960e:	0c38 004e e002 	cmpib #78,0xffffe002			; XX-0
  fef9614:	6738           	beqs 0xfef964e
  fef9616:	7000           	moveq #0,%d0
  fef9618:	102e 0013      	moveb %fp@(19),%d0
@@ -11744,14 +11800,14 @@ fef8fba:	4879 0fef ea5f 	pea 0xfefea5f
  fef963a:	2f00           	movel %d0,%sp@-
  fef963c:	2f2e 0008      	movel %fp@(8),%sp@-
  fef9640:	4879 0fef eba0 	pea 0xfefeba0
- fef9646:	6100 be9c      	bsrw 0xfef54e4
+ fef9646:	6100 be9c      	bsrw 0xfef54e4			; printf
  fef964a:	4fef 0018      	lea %sp@(24),%sp
  fef964e:	7001           	moveq #1,%d0
  fef9650:	4e5e           	unlk %fp
  fef9652:	4e75           	rts
  fef9654:	4e56 fff4      	linkw %fp,#-12
  fef9658:	4879 0fef ebd8 	pea 0xfefebd8
- fef965e:	6100 be84      	bsrw 0xfef54e4
+ fef965e:	6100 be84      	bsrw 0xfef54e4			; printf
  fef9662:	584f           	addqw #4,%sp
  fef9664:	4238 e01a      	clrb 0xffffe01a
  fef9668:	4a38 e015      	tstb 0xffffe015
@@ -11771,7 +11827,7 @@ fef8fba:	4879 0fef ea5f 	pea 0xfefea5f
  fef969a:	6100 c0d2      	bsrw 0xfef576e
  fef969e:	1d40 ffff      	moveb %d0,%fp@(-1)
  fef96a2:	4879 0fef ec13 	pea 0xfefec13
- fef96a8:	6100 be3a      	bsrw 0xfef54e4
+ fef96a8:	6100 be3a      	bsrw 0xfef54e4			; printf
  fef96ac:	584f           	addqw #4,%sp
  fef96ae:	4878 0002      	pea 0x2
  fef96b2:	102e ffff      	moveb %fp@(-1),%d0
@@ -11787,7 +11843,7 @@ fef8fba:	4879 0fef ea5f 	pea 0xfefea5f
  fef96d4:	49c0           	extbl %d0
  fef96d6:	2f00           	movel %d0,%sp@-
  fef96d8:	4879 0fef ec16 	pea 0xfefec16
- fef96de:	6100 be04      	bsrw 0xfef54e4
+ fef96de:	6100 be04      	bsrw 0xfef54e4			; printf
  fef96e2:	504f           	addqw #8,%sp
  fef96e4:	206e fff8      	moveal %fp@(-8),%a0
  fef96e8:	1010           	moveb %a0@,%d0
@@ -11797,7 +11853,7 @@ fef8fba:	4879 0fef ea5f 	pea 0xfefea5f
  fef96f4:	11ee fff7 e015 	moveb %fp@(-9),0xffffe015
  fef96fa:	6056           	bras 0xfef9752
  fef96fc:	4879 0fef ec1c 	pea 0xfefec1c
- fef9702:	6100 bde0      	bsrw 0xfef54e4
+ fef9702:	6100 bde0      	bsrw 0xfef54e4			; printf
  fef9706:	584f           	addqw #4,%sp
  fef9708:	4878 0002      	pea 0x2
  fef970c:	102e ffff      	moveb %fp@(-1),%d0
@@ -11813,7 +11869,7 @@ fef8fba:	4879 0fef ea5f 	pea 0xfefea5f
  fef972e:	49c0           	extbl %d0
  fef9730:	2f00           	movel %d0,%sp@-
  fef9732:	4879 0fef ec1f 	pea 0xfefec1f
- fef9738:	6100 bdaa      	bsrw 0xfef54e4
+ fef9738:	6100 bdaa      	bsrw 0xfef54e4			; printf
  fef973c:	504f           	addqw #8,%sp
  fef973e:	6100 c02e      	bsrw 0xfef576e
  fef9742:	1d40 ffff      	moveb %d0,%fp@(-1)
@@ -11838,22 +11894,22 @@ fef8fba:	4879 0fef ea5f 	pea 0xfefea5f
  fef9784:	42b8 e0a2      	clrl 0xffffe0a2
  fef9788:	42ae fff8      	clrl %fp@(-8)
  fef978c:	4879 0fef ec25 	pea 0xfefec25
- fef9792:	6100 bd50      	bsrw 0xfef54e4
+ fef9792:	6100 bd50      	bsrw 0xfef54e4			; printf
  fef9796:	584f           	addqw #4,%sp
  fef9798:	4879 0fef ec59 	pea 0xfefec59
- fef979e:	6100 bd44      	bsrw 0xfef54e4
+ fef979e:	6100 bd44      	bsrw 0xfef54e4			; printf
  fef97a2:	584f           	addqw #4,%sp
  fef97a4:	4879 0fef ec80 	pea 0xfefec80
- fef97aa:	6100 bd38      	bsrw 0xfef54e4
+ fef97aa:	6100 bd38      	bsrw 0xfef54e4			; printf
  fef97ae:	584f           	addqw #4,%sp
  fef97b0:	4879 0fef ec8d 	pea 0xfefec8d
- fef97b6:	6100 bd2c      	bsrw 0xfef54e4
+ fef97b6:	6100 bd2c      	bsrw 0xfef54e4			; printf
  fef97ba:	584f           	addqw #4,%sp
  fef97bc:	4879 0fef eca1 	pea 0xfefeca1
- fef97c2:	6100 bd20      	bsrw 0xfef54e4
+ fef97c2:	6100 bd20      	bsrw 0xfef54e4			; printf
  fef97c6:	584f           	addqw #4,%sp
  fef97c8:	4879 0fef ecb8 	pea 0xfefecb8
- fef97ce:	6100 bd14      	bsrw 0xfef54e4
+ fef97ce:	6100 bd14      	bsrw 0xfef54e4			; printf
  fef97d2:	584f           	addqw #4,%sp
  fef97d4:	4878 0001      	pea 0x1
  fef97d8:	6100 bb92      	bsrw 0xfef536c
@@ -11877,7 +11933,7 @@ fef8fba:	4879 0fef ea5f 	pea 0xfefea5f
  fef9816:	6100 bc3a      	bsrw 0xfef5452
  fef981a:	1d40 fffe      	moveb %d0,%fp@(-2)
  fef981e:	6100 0250      	bsrw 0xfef9a70
- fef9822:	0c38 0051 e002 	cmpib #81,0xffffe002
+ fef9822:	0c38 0051 e002 	cmpib #81,0xffffe002			; XX-0
  fef9828:	6606           	bnes 0xfef9830
  fef982a:	7071           	moveq #113,%d0
  fef982c:	6000 014a      	braw 0xfef9978
@@ -11909,16 +11965,16 @@ fef8fba:	4879 0fef ea5f 	pea 0xfefea5f
  fef987a:	2f06           	movel %d6,%sp@-
  fef987c:	2f07           	movel %d7,%sp@-
  fef987e:	4879 0fef ecbf 	pea 0xfefecbf
- fef9884:	6100 bc5e      	bsrw 0xfef54e4
+ fef9884:	6100 bc5e      	bsrw 0xfef54e4			; printf
  fef9888:	4fef 000c      	lea %sp@(12),%sp
  fef988c:	2f04           	movel %d4,%sp@-
  fef988e:	2f05           	movel %d5,%sp@-
  fef9890:	4879 0fef ecdf 	pea 0xfefecdf
- fef9896:	6100 bc4c      	bsrw 0xfef54e4
+ fef9896:	6100 bc4c      	bsrw 0xfef54e4			; printf
  fef989a:	4fef 000c      	lea %sp@(12),%sp
  fef989e:	2f07           	movel %d7,%sp@-
  fef98a0:	4879 0fef ecfa 	pea 0xfefecfa
- fef98a6:	6100 bc3c      	bsrw 0xfef54e4
+ fef98a6:	6100 bc3c      	bsrw 0xfef54e4			; printf
  fef98aa:	504f           	addqw #8,%sp
  fef98ac:	7c01           	moveq #1,%d6
  fef98ae:	21c6 e0a2      	movel %d6,0xffffe0a2
@@ -11958,18 +12014,18 @@ fef8fba:	4879 0fef ea5f 	pea 0xfefea5f
  fef9918:	2f06           	movel %d6,%sp@-
  fef991a:	2f07           	movel %d7,%sp@-
  fef991c:	4879 0fef ed06 	pea 0xfefed06
- fef9922:	6100 bbc0      	bsrw 0xfef54e4
+ fef9922:	6100 bbc0      	bsrw 0xfef54e4			; printf
  fef9926:	4fef 000c      	lea %sp@(12),%sp
  fef992a:	2f04           	movel %d4,%sp@-
  fef992c:	2f05           	movel %d5,%sp@-
  fef992e:	4879 0fef ed26 	pea 0xfefed26
- fef9934:	6100 bbae      	bsrw 0xfef54e4
+ fef9934:	6100 bbae      	bsrw 0xfef54e4			; printf
  fef9938:	4fef 000c      	lea %sp@(12),%sp
  fef993c:	7000           	moveq #0,%d0
  fef993e:	102e fffe      	moveb %fp@(-2),%d0
  fef9942:	2f00           	movel %d0,%sp@-
  fef9944:	4879 0fef ed41 	pea 0xfefed41
- fef994a:	6100 bb98      	bsrw 0xfef54e4
+ fef994a:	6100 bb98      	bsrw 0xfef54e4			; printf
  fef994e:	504f           	addqw #8,%sp
  fef9950:	7c01           	moveq #1,%d6
  fef9952:	21c6 e0a2      	movel %d6,0xffffe0a2
@@ -12060,28 +12116,28 @@ fef8fba:	4879 0fef ea5f 	pea 0xfefea5f
 
  fef9a70:	4e56 0000      	linkw %fp,#0
  fef9a74:	4879 0fef ed4d 	pea 0xfefed4d
- fef9a7a:	6100 ba68      	bsrw 0xfef54e4
+ fef9a7a:	6100 ba68      	bsrw 0xfef54e4			; printf
  fef9a7e:	584f           	addqw #4,%sp
  fef9a80:	4878 0001      	pea 0x1
  fef9a84:	6100 b8e6      	bsrw 0xfef536c
  fef9a88:	584f           	addqw #4,%sp
  fef9a8a:	6100 b97c      	bsrw 0xfef5408
  fef9a8e:	0200 005f      	andib #95,%d0
- fef9a92:	11c0 e002      	moveb %d0,0xffffe002
- fef9a96:	0c38 0046 e002 	cmpib #70,0xffffe002
+ fef9a92:	11c0 e002      	moveb %d0,0xffffe002			; XX-0
+ fef9a96:	0c38 0046 e002 	cmpib #70,0xffffe002			; XX-0
  fef9a9c:	6726           	beqs 0xfef9ac4
- fef9a9e:	0c38 0048 e002 	cmpib #72,0xffffe002
+ fef9a9e:	0c38 0048 e002 	cmpib #72,0xffffe002			; XX-0
  fef9aa4:	671e           	beqs 0xfef9ac4
- fef9aa6:	0c38 004c e002 	cmpib #76,0xffffe002
+ fef9aa6:	0c38 004c e002 	cmpib #76,0xffffe002			; XX-0
  fef9aac:	6716           	beqs 0xfef9ac4
- fef9aae:	0c38 0051 e002 	cmpib #81,0xffffe002
+ fef9aae:	0c38 0051 e002 	cmpib #81,0xffffe002			; XX-0
  fef9ab4:	670e           	beqs 0xfef9ac4
- fef9ab6:	0c38 004e e002 	cmpib #78,0xffffe002
+ fef9ab6:	0c38 004e e002 	cmpib #78,0xffffe002			; XX-0
  fef9abc:	6706           	beqs 0xfef9ac4
- fef9abe:	4a38 e002      	tstb 0xffffe002
+ fef9abe:	4a38 e002      	tstb 0xffffe002			; XX-0
  fef9ac2:	6610           	bnes 0xfef9ad4
  fef9ac4:	4879 0fef ee3f 	pea 0xfefee3f
- fef9aca:	6100 ba18      	bsrw 0xfef54e4
+ fef9aca:	6100 ba18      	bsrw 0xfef54e4			; printf
  fef9ace:	584f           	addqw #4,%sp
  fef9ad0:	4e5e           	unlk %fp
  fef9ad2:	4e75           	rts
@@ -12096,13 +12152,13 @@ fef8fba:	4879 0fef ea5f 	pea 0xfefea5f
  fef9ade:	2f2e 0008      	movel %fp@(8),%sp@-
  fef9ae2:	4879 0fef ee41 	pea 0xfefee41
 ; 0xfefee41 \n%s Tests:  (Enter 'q' to return to Test Menu)\n\n
- fef9ae8:	6100 b9fa      	bsrw 0xfef54e4
+ fef9ae8:	6100 b9fa      	bsrw 0xfef54e4			; printf
  fef9aec:	504f           	addqw #8,%sp
  fef9aee:	4a2e 000f      	tstb %fp@(15)
  fef9af2:	660c           	bnes 0xfef9b00
  fef9af4:	4879 0fef ee72 	pea 0xfefee72
 ; 0xfefee72 Cmd -  Test\n\n
- fef9afa:	6100 b9e8      	bsrw 0xfef54e4
+ fef9afa:	6100 b9e8      	bsrw 0xfef54e4			; printf
  fef9afe:	584f           	addqw #4,%sp
  fef9b00:	4e5e           	unlk %fp
  fef9b02:	4e75           	rts
@@ -12111,13 +12167,13 @@ fef8fba:	4879 0fef ea5f 	pea 0xfefea5f
  fef9b08:	2f2e 000c      	movel %fp@(12),%sp@-
  fef9b0c:	2f2e 0008      	movel %fp@(8),%sp@-
  fef9b10:	4879 0fef ee80 	pea 0xfefee80
- fef9b16:	6100 b9cc      	bsrw 0xfef54e4
+ fef9b16:	6100 b9cc      	bsrw 0xfef54e4			; printf
  fef9b1a:	4fef 000c      	lea %sp@(12),%sp
  fef9b1e:	4e5e           	unlk %fp
  fef9b20:	4e75           	rts
  fef9b22:	4e56 0000      	linkw %fp,#0
  fef9b26:	4879 0fef ee90 	pea 0xfefee90
- fef9b2c:	6100 b9b6      	bsrw 0xfef54e4
+ fef9b2c:	6100 b9b6      	bsrw 0xfef54e4			; printf
  fef9b30:	584f           	addqw #4,%sp
  fef9b32:	4878 0001      	pea 0x1
  fef9b36:	6100 b834      	bsrw 0xfef536c
@@ -12129,22 +12185,22 @@ fef8fba:	4879 0fef ea5f 	pea 0xfefea5f
  fef9b48:	4e5e           	unlk %fp
  fef9b4a:	4e75           	rts
  fef9b4c:	4e56 0000      	linkw %fp,#0
- fef9b50:	0c38 004e e002 	cmpib #78,0xffffe002
+ fef9b50:	0c38 004e e002 	cmpib #78,0xffffe002			; XX-0
  fef9b56:	6710           	beqs 0xfef9b68
  fef9b58:	2f2e 0008      	movel %fp@(8),%sp@-
  fef9b5c:	4879 0fef ee97 	pea 0xfefee97
- fef9b62:	6100 b980      	bsrw 0xfef54e4
+ fef9b62:	6100 b980      	bsrw 0xfef54e4			; printf
  fef9b66:	504f           	addqw #8,%sp
  fef9b68:	4e5e           	unlk %fp
  fef9b6a:	4e75           	rts
  fef9b6c:	4e56 0000      	linkw %fp,#0
  fef9b70:	4879 0fef ee9a 	pea 0xfefee9a
- fef9b76:	6100 b96c      	bsrw 0xfef54e4
+ fef9b76:	6100 b96c      	bsrw 0xfef54e4			; printf
  fef9b7a:	584f           	addqw #4,%sp
  fef9b7c:	4e5e           	unlk %fp
  fef9b7e:	4e75           	rts
  fef9b80:	4e56 0000      	linkw %fp,#0
- fef9b84:	0c38 004e e002 	cmpib #78,0xffffe002
+ fef9b84:	0c38 004e e002 	cmpib #78,0xffffe002			; XX-0
  fef9b8a:	672c           	beqs 0xfef9bb8
  fef9b8c:	2f38 e0a6      	movel 0xffffe0a6,%sp@-
  fef9b90:	2f2e 0008      	movel %fp@(8),%sp@-
@@ -12155,17 +12211,17 @@ fef8fba:	4879 0fef ea5f 	pea 0xfefea5f
  fef9ba2:	203c 0fef eee3 	movel #267382499,%d0
  fef9ba8:	2f00           	movel %d0,%sp@-
  fef9baa:	4879 0fef eeaf 	pea 0xfefeeaf
- fef9bb0:	6100 b932      	bsrw 0xfef54e4
+ fef9bb0:	6100 b932      	bsrw 0xfef54e4			; printf
  fef9bb4:	4fef 0010      	lea %sp@(16),%sp
- fef9bb8:	0c38 0046 e002 	cmpib #70,0xffffe002
+ fef9bb8:	0c38 0046 e002 	cmpib #70,0xffffe002			; XX-0
  fef9bbe:	6724           	beqs 0xfef9be4
- fef9bc0:	0c38 004e e002 	cmpib #78,0xffffe002
+ fef9bc0:	0c38 004e e002 	cmpib #78,0xffffe002			; XX-0
  fef9bc6:	671c           	beqs 0xfef9be4
- fef9bc8:	0c38 004c e002 	cmpib #76,0xffffe002
+ fef9bc8:	0c38 004c e002 	cmpib #76,0xffffe002			; XX-0
  fef9bce:	6606           	bnes 0xfef9bd6
  fef9bd0:	4ab8 e0a2      	tstl 0xffffe0a2
  fef9bd4:	660e           	bnes 0xfef9be4
- fef9bd6:	0c38 0048 e002 	cmpib #72,0xffffe002
+ fef9bd6:	0c38 0048 e002 	cmpib #72,0xffffe002			; XX-0
  fef9bdc:	6612           	bnes 0xfef9bf0
  fef9bde:	4ab8 e0a2      	tstl 0xffffe0a2
  fef9be2:	660c           	bnes 0xfef9bf0
@@ -12750,7 +12806,7 @@ fef8fba:	4879 0fef ea5f 	pea 0xfefea5f
  fefa3ba:	6712           	beqs 0xfefa3ce
  fefa3bc:	2f06           	movel %d6,%sp@-
  fefa3be:	4879 0fef ef5d 	pea 0xfefef5d
- fefa3c4:	61ff ffff b11e 	bsrl 0xfef54e4
+ fefa3c4:	61ff ffff b11e 	bsrl 0xfef54e4			; printf
  fefa3ca:	504f           	addqw #8,%sp
  fefa3cc:	601a           	bras 0xfefa3e8
  fefa3ce:	7000           	moveq #0,%d0
@@ -13066,7 +13122,7 @@ fef8fba:	4879 0fef ea5f 	pea 0xfefea5f
  fefa750:	41f9 0fef eee8 	lea 0xfefeee8,%a0
  fefa756:	2f30 4c00      	movel %a0@(0,%d4:l:4),%sp@-
  fefa75a:	4879 0fef ef76 	pea 0xfefef76
- fefa760:	61ff ffff ad82 	bsrl 0xfef54e4
+ fefa760:	61ff ffff ad82 	bsrl 0xfef54e4			; printf
  fefa766:	504f           	addqw #8,%sp
  fefa768:	70ff           	moveq #-1,%d0
  fefa76a:	4cee 30f0 ffe8 	moveml %fp@(-24),%d4-%d7/%a4-%a5
@@ -13124,7 +13180,7 @@ fef8fba:	4879 0fef ea5f 	pea 0xfefea5f
  fefa80c:	41f9 0fef eee8 	lea 0xfefeee8,%a0
  fefa812:	2f30 5c00      	movel %a0@(0,%d5:l:4),%sp@-
  fefa816:	4879 0fef ef89 	pea 0xfefef89
- fefa81c:	61ff ffff acc6 	bsrl 0xfef54e4
+ fefa81c:	61ff ffff acc6 	bsrl 0xfef54e4			; printf
  fefa822:	504f           	addqw #8,%sp
  fefa824:	70ff           	moveq #-1,%d0
  fefa826:	4cee 20e0 fff0 	moveml %fp@(-16),%d5-%d7/%a5
@@ -13253,7 +13309,7 @@ fef8fba:	4879 0fef ea5f 	pea 0xfefea5f
  fefa9da:	4a80           	tstl %d0
  fefa9dc:	6ebc           	bgts 0xfefa99a
  fefa9de:	4879 0fef f038 	pea 0xfeff038
- fefa9e4:	6100 aafe      	bsrw 0xfef54e4
+ fefa9e4:	6100 aafe      	bsrw 0xfef54e4			; printf
  fefa9e8:	584f           	addqw #4,%sp
  fefa9ea:	7001           	moveq #1,%d0
  fefa9ec:	60da           	bras 0xfefa9c8
@@ -13318,7 +13374,7 @@ fef8fba:	4879 0fef ea5f 	pea 0xfefea5f
  fefaabe:	0800 000b      	btst #11,%d0
  fefaac2:	670c           	beqs 0xfefaad0
  fefaac4:	4879 0fef f04f 	pea 0xfeff04f
- fefaaca:	6100 aa18      	bsrw 0xfef54e4
+ fefaaca:	6100 aa18      	bsrw 0xfef54e4			; printf
  fefaace:	584f           	addqw #4,%sp
  fefaad0:	206e fffc      	moveal %fp@(-4),%a0
  fefaad4:	0828 0006 0002 	btst #6,%a0@(2)
@@ -13378,7 +13434,7 @@ fef8fba:	4879 0fef ea5f 	pea 0xfefea5f
  fefab7c:	b079 0fef f244 	cmpw 0xfeff244,%d0
  fefab82:	6712           	beqs 0xfefab96
  fefab84:	4879 0fef f05f 	pea 0xfeff05f
- fefab8a:	6100 a958      	bsrw 0xfef54e4
+ fefab8a:	6100 a958      	bsrw 0xfef54e4			; printf
  fefab8e:	584f           	addqw #4,%sp
  fefab90:	42ae fffc      	clrl %fp@(-4)
  fefab94:	6018           	bras 0xfefabae
@@ -13590,13 +13646,13 @@ fef8fba:	4879 0fef ea5f 	pea 0xfefea5f
  fefae34:	7e00           	moveq #0,%d7
  fefae36:	6040           	bras 0xfefae78
  fefae38:	4879 0fef f10b 	pea 0xfeff10b
- fefae3e:	6100 a6a4      	bsrw 0xfef54e4
+ fefae3e:	6100 a6a4      	bsrw 0xfef54e4			; printf
  fefae42:	584f           	addqw #4,%sp
  fefae44:	6032           	bras 0xfefae78
  fefae46:	4aae 0008      	tstl %fp@(8)
  fefae4a:	670c           	beqs 0xfefae58
  fefae4c:	4879 0fef f0fd 	pea 0xfeff0fd
- fefae52:	6100 a690      	bsrw 0xfef54e4
+ fefae52:	6100 a690      	bsrw 0xfef54e4			; printf
  fefae56:	584f           	addqw #4,%sp
 
  fefae58:	243c 0018 6a00 	movel #1600000,%d2			; Delay
@@ -13651,7 +13707,7 @@ fef8fba:	4879 0fef ea5f 	pea 0xfefea5f
  fefaefc:	b885           	cmpl %d5,%d4
  fefaefe:	6c00 ff6c      	bgew 0xfefae6c
  fefaf02:	4879 0fef f0ec 	pea 0xfeff0ec
- fefaf08:	6100 a5da      	bsrw 0xfef54e4
+ fefaf08:	6100 a5da      	bsrw 0xfef54e4			; printf
  fefaf0c:	584f           	addqw #4,%sp
  fefaf0e:	6046           	bras 0xfefaf56
  fefaf10:	082e 0003 ffe4 	btst #3,%fp@(-28)
@@ -13674,7 +13730,7 @@ fef8fba:	4879 0fef ea5f 	pea 0xfefea5f
  fefaf46:	6010           	bras 0xfefaf58
  fefaf48:	2f06           	movel %d6,%sp@-
  fefaf4a:	4879 0fef f11e 	pea 0xfeff11e
- fefaf50:	6100 a592      	bsrw 0xfef54e4
+ fefaf50:	6100 a592      	bsrw 0xfef54e4			; printf
  fefaf54:	504f           	addqw #8,%sp
  fefaf56:	7000           	moveq #0,%d0
  fefaf58:	4cee 3cfc ffb8 	moveml %fp@(-72),%d2-%d7/%a2-%a5
@@ -13687,19 +13743,19 @@ fef8fba:	4879 0fef ea5f 	pea 0xfefea5f
  fefaf72:	0c2d 0029 000c 	cmpib #41,%a5@(12)
  fefaf78:	6730           	beqs 0xfefafaa
  fefaf7a:	4879 0fef f12e 	pea 0xfeff12e
- fefaf80:	6100 a562      	bsrw 0xfef54e4
+ fefaf80:	6100 a562      	bsrw 0xfef54e4			; printf
  fefaf84:	584f           	addqw #4,%sp
  fefaf86:	6012           	bras 0xfefaf9a
  fefaf88:	101d           	moveb %a5@+,%d0
  fefaf8a:	49c0           	extbl %d0
  fefaf8c:	2f00           	movel %d0,%sp@-
  fefaf8e:	4879 0fef f138 	pea 0xfeff138
- fefaf94:	6100 a54e      	bsrw 0xfef54e4
+ fefaf94:	6100 a54e      	bsrw 0xfef54e4			; printf
  fefaf98:	504f           	addqw #8,%sp
  fefaf9a:	5387           	subql #1,%d7
  fefaf9c:	6cea           	bges 0xfefaf88
  fefaf9e:	4879 0fef f13c 	pea 0xfeff13c
- fefafa4:	6100 a53e      	bsrw 0xfef54e4
+ fefafa4:	6100 a53e      	bsrw 0xfef54e4			; printf
  fefafa8:	584f           	addqw #4,%sp
  fefafaa:	4cee 3080 fff4 	moveml %fp@(-12),%d7/%a4-%a5
  fefafb0:	4e5e           	unlk %fp
@@ -13768,7 +13824,7 @@ fef8fba:	4879 0fef ea5f 	pea 0xfefea5f
  fefb06a:	4a80           	tstl %d0
  fefb06c:	663a           	bnes 0xfefb0a8
  fefb06e:	4879 0fef f198 	pea 0xfeff198
- fefb074:	6100 a46e      	bsrw 0xfef54e4
+ fefb074:	6100 a46e      	bsrw 0xfef54e4			; printf
  fefb078:	584f           	addqw #4,%sp
  fefb07a:	70ff           	moveq #-1,%d0
  fefb07c:	6000 00b8      	braw 0xfefb136
@@ -13781,7 +13837,7 @@ fef8fba:	4879 0fef ea5f 	pea 0xfefea5f
  fefb092:	4a80           	tstl %d0
  fefb094:	6e12           	bgts 0xfefb0a8
  fefb096:	4879 0fef f1b2 	pea 0xfeff1b2
- fefb09c:	6100 a446      	bsrw 0xfef54e4
+ fefb09c:	6100 a446      	bsrw 0xfef54e4			; printf
  fefb0a0:	584f           	addqw #4,%sp
  fefb0a2:	70ff           	moveq #-1,%d0
  fefb0a4:	6000 0090      	braw 0xfefb136
@@ -14021,7 +14077,7 @@ fef8fba:	4879 0fef ea5f 	pea 0xfefea5f
  fefb3b6:	002e 0001 ffed 	orib #1,%fp@(-19)
  fefb3bc:	601e           	bras 0xfefb3dc
  fefb3be:	4879 0fef f1ce 	pea 0xfeff1ce
- fefb3c4:	6100 a11e      	bsrw 0xfef54e4
+ fefb3c4:	6100 a11e      	bsrw 0xfef54e4			; printf
  fefb3c8:	584f           	addqw #4,%sp
  fefb3ca:	7000           	moveq #0,%d0
  fefb3cc:	6000 020c      	braw 0xfefb5da
@@ -14120,7 +14176,7 @@ fef8fba:	4879 0fef ea5f 	pea 0xfefea5f
  fefb4f8:	b0ae fff4      	cmpl %fp@(-12),%d0
  fefb4fc:	6718           	beqs 0xfefb516
  fefb4fe:	4879 0fef f1e3 	pea 0xfeff1e3
- fefb504:	6100 9fde      	bsrw 0xfef54e4
+ fefb504:	6100 9fde      	bsrw 0xfef54e4			; printf
  fefb508:	584f           	addqw #4,%sp
  fefb50a:	7e01           	moveq #1,%d7
  fefb50c:	2547 0008      	movel %d7,%a2@(8)
@@ -14152,7 +14208,7 @@ fef8fba:	4879 0fef ea5f 	pea 0xfefea5f
  fefb564:	1028 0008      	moveb %a0@(8),%d0
  fefb568:	2f00           	movel %d0,%sp@-
  fefb56a:	4879 0fef f1f4 	pea 0xfeff1f4
- fefb570:	6100 9f72      	bsrw 0xfef54e4
+ fefb570:	6100 9f72      	bsrw 0xfef54e4			; printf
  fefb574:	4fef 000c      	lea %sp@(12),%sp
  fefb578:	605e           	bras 0xfefb5d8
  fefb57a:	2d6d 0032 ffd4 	movel %a5@(50),%fp@(-44)
@@ -14174,7 +14230,7 @@ fef8fba:	4879 0fef ea5f 	pea 0xfefea5f
  fefb5b4:	3028 0004      	movew %a0@(4),%d0
  fefb5b8:	2f00           	movel %d0,%sp@-
  fefb5ba:	4879 0fef f213 	pea 0xfeff213
- fefb5c0:	6100 9f22      	bsrw 0xfef54e4
+ fefb5c0:	6100 9f22      	bsrw 0xfef54e4			; printf
  fefb5c4:	504f           	addqw #8,%sp
  fefb5c6:	6010           	bras 0xfefb5d8
  fefb5c8:	bc82           	cmpl %d2,%d6
@@ -14212,7 +14268,7 @@ fef8fba:	4879 0fef ea5f 	pea 0xfefea5f
  fefb624:	6610           	bnes 0xfefb636
  fefb626:	2f2e 0008      	movel %fp@(8),%sp@-
  fefb62a:	4879 0fef f234 	pea 0xfeff234
- fefb630:	6100 9eb2      	bsrw 0xfef54e4
+ fefb630:	6100 9eb2      	bsrw 0xfef54e4			; printf
  fefb634:	504f           	addqw #8,%sp
  fefb636:	4e5e           	unlk %fp
  fefb638:	4e75           	rts
@@ -14226,7 +14282,7 @@ fef8fba:	4879 0fef ea5f 	pea 0xfefea5f
  fefb650:	b081           	cmpl %d1,%d0
  fefb652:	670e           	beqs 0xfefb662
  fefb654:	4879 0fef f248 	pea 0xfeff248
- fefb65a:	6100 9e88      	bsrw 0xfef54e4
+ fefb65a:	6100 9e88      	bsrw 0xfef54e4			; printf
  fefb65e:	584f           	addqw #4,%sp
  fefb660:	6010           	bras 0xfefb672
  fefb662:	41ee ffe2      	lea %fp@(-30),%a0
@@ -14470,7 +14526,7 @@ fef8fba:	4879 0fef ea5f 	pea 0xfefea5f
  fefb9cc:	7c00           	moveq #0,%d6
  fefb9ce:	6016           	bras 0xfefb9e6
  fefb9d0:	4879 0fef f291 	pea 0xfeff291
- fefb9d6:	6100 9b0c      	bsrw 0xfef54e4
+ fefb9d6:	6100 9b0c      	bsrw 0xfef54e4			; printf
  fefb9da:	584f           	addqw #4,%sp
  fefb9dc:	486b 0020      	pea %a3@(32)
  fefb9e0:	6100 0294      	bsrw 0xfefbc76
@@ -14506,7 +14562,7 @@ fef8fba:	4879 0fef ea5f 	pea 0xfefea5f
  fefba2e:	49c0           	extbl %d0
  fefba30:	2f00           	movel %d0,%sp@-
  fefba32:	4879 0fef f2b2 	pea 0xfeff2b2
- fefba38:	6100 9aaa      	bsrw 0xfef54e4
+ fefba38:	6100 9aaa      	bsrw 0xfef54e4			; printf
  fefba3c:	504f           	addqw #8,%sp
  fefba3e:	2079 0fef 009c 	moveal 0xfef009c,%a0
  fefba44:	ba90           	cmpl %a0@,%d5
@@ -14535,7 +14591,7 @@ fef8fba:	4879 0fef ea5f 	pea 0xfefea5f
  fefba90:	bc87           	cmpl %d7,%d6
  fefba92:	6d16           	blts 0xfefbaaa
  fefba94:	4879 0fef f2b6 	pea 0xfeff2b6
- fefba9a:	6100 9a48      	bsrw 0xfef54e4
+ fefba9a:	6100 9a48      	bsrw 0xfef54e4			; printf
  fefba9e:	584f           	addqw #4,%sp
  fefbaa0:	486a 0016      	pea %a2@(22)
  fefbaa4:	6100 01d0      	bsrw 0xfefbc76
@@ -14556,7 +14612,7 @@ fef8fba:	4879 0fef ea5f 	pea 0xfefea5f
  fefbae4:	4a80           	tstl %d0
  fefbae6:	6600 ff56      	bnew 0xfefba3e
  fefbaea:	4879 0fef f2c0 	pea 0xfeff2c0
- fefbaf0:	6100 99f2      	bsrw 0xfef54e4
+ fefbaf0:	6100 99f2      	bsrw 0xfef54e4			; printf
  fefbaf4:	584f           	addqw #4,%sp
  fefbaf6:	2f2a 0026      	movel %a2@(38),%sp@-
  fefbafa:	6100 00ea      	bsrw 0xfefbbe6
@@ -14586,7 +14642,7 @@ fef8fba:	4879 0fef ea5f 	pea 0xfefea5f
  fefbb42:	0c6b 0001 0014 	cmpiw #1,%a3@(20)
  fefbb48:	6600 fe86      	bnew 0xfefb9d0
  fefbb4c:	4879 0fef f270 	pea 0xfeff270
- fefbb52:	6100 9990      	bsrw 0xfef54e4
+ fefbb52:	6100 9990      	bsrw 0xfef54e4			; printf
  fefbb56:	584f           	addqw #4,%sp
  fefbb58:	2f2b 0026      	movel %a3@(38),%sp@-
  fefbb5c:	6100 0088      	bsrw 0xfefbbe6
@@ -14651,7 +14707,7 @@ fef8fba:	4879 0fef ea5f 	pea 0xfefea5f
  fefbc0a:	102e 0008      	moveb %fp@(8),%d0
  fefbc0e:	2f00           	movel %d0,%sp@-
  fefbc10:	4879 0fef f2d2 	pea 0xfeff2d2
- fefbc16:	6100 98cc      	bsrw 0xfef54e4
+ fefbc16:	6100 98cc      	bsrw 0xfef54e4			; printf
  fefbc1a:	4fef 0014      	lea %sp@(20),%sp
  fefbc1e:	2f2e fffc      	movel %fp@(-4),%sp@-
  fefbc22:	7000           	moveq #0,%d0
@@ -14678,7 +14734,7 @@ fef8fba:	4879 0fef ea5f 	pea 0xfefea5f
  fefbc60:	6100 99d4      	bsrw 0xfef5636
  fefbc64:	504f           	addqw #8,%sp
  fefbc66:	4879 0fef f2e1 	pea 0xfeff2e1
- fefbc6c:	6100 9876      	bsrw 0xfef54e4
+ fefbc6c:	6100 9876      	bsrw 0xfef54e4			; printf
  fefbc70:	584f           	addqw #4,%sp
  fefbc72:	4e5e           	unlk %fp
  fefbc74:	4e75           	rts
@@ -14704,7 +14760,7 @@ fef8fba:	4879 0fef ea5f 	pea 0xfefea5f
  fefbcaa:	1015           	moveb %a5@,%d0
  fefbcac:	2f00           	movel %d0,%sp@-
  fefbcae:	4879 0fef f2e3 	pea 0xfeff2e3
- fefbcb4:	6100 982e      	bsrw 0xfef54e4
+ fefbcb4:	6100 982e      	bsrw 0xfef54e4			; printf
  fefbcb8:	4fef 001c      	lea %sp@(28),%sp
  fefbcbc:	2a6e fffc      	moveal %fp@(-4),%a5
  fefbcc0:	4e5e           	unlk %fp
@@ -14849,7 +14905,7 @@ fef8fba:	4879 0fef ea5f 	pea 0xfefea5f
  fefbeb6:	ffd8 
  fefbeb8:	6d78           	blts 0xfefbf32
  fefbeba:	4879 0fef f3b6 	pea 0xfeff3b6
- fefbec0:	6100 9622      	bsrw 0xfef54e4
+ fefbec0:	6100 9622      	bsrw 0xfef54e4			; printf
  fefbec4:	584f           	addqw #4,%sp
  fefbec6:	6056           	bras 0xfefbf1e
  fefbec8:	4aae fff0      	tstl %fp@(-16)
@@ -14865,7 +14921,7 @@ fef8fba:	4879 0fef ea5f 	pea 0xfefea5f
  fefbeea:	48c0           	extl %d0
  fefbeec:	2f00           	movel %d0,%sp@-
  fefbeee:	4879 0fef f33b 	pea 0xfeff33b
- fefbef4:	6100 95ee      	bsrw 0xfef54e4
+ fefbef4:	6100 95ee      	bsrw 0xfef54e4			; printf
  fefbef8:	504f           	addqw #8,%sp
  fefbefa:	6022           	bras 0xfefbf1e
  fefbefc:	2f2c 0884      	movel %a4@(2180),%sp@-
@@ -14874,7 +14930,7 @@ fef8fba:	4879 0fef ea5f 	pea 0xfefea5f
  fefbf06:	41f9 0fef f2f8 	lea 0xfeff2f8,%a0
  fefbf0c:	2f30 0c00      	movel %a0@(0,%d0:l:4),%sp@-
  fefbf10:	4879 0fef f355 	pea 0xfeff355
- fefbf16:	6100 95cc      	bsrw 0xfef54e4
+ fefbf16:	6100 95cc      	bsrw 0xfef54e4			; printf
  fefbf1a:	4fef 000c      	lea %sp@(12),%sp
  fefbf1e:	4aae fff0      	tstl %fp@(-16)
  fefbf22:	6600 fe38      	bnew 0xfefbd5c
@@ -14915,7 +14971,7 @@ fef8fba:	4879 0fef ea5f 	pea 0xfefea5f
  fefbf94:	49c0           	extbl %d0
  fefbf96:	2f00           	movel %d0,%sp@-
  fefbf98:	4879 0fef f334 	pea 0xfeff334
- fefbf9e:	6100 9544      	bsrw 0xfef54e4
+ fefbf9e:	6100 9544      	bsrw 0xfef54e4			; printf
  fefbfa2:	504f           	addqw #8,%sp
  fefbfa4:	486c 0244      	pea %a4@(580)
  fefbfa8:	486c 0230      	pea %a4@(560)
@@ -14931,7 +14987,7 @@ fef8fba:	4879 0fef ea5f 	pea 0xfefea5f
  fefbfc4:	4a80           	tstl %d0
  fefbfc6:	670c           	beqs 0xfefbfd4
  fefbfc8:	4879 0fef f338 	pea 0xfeff338
- fefbfce:	6100 9514      	bsrw 0xfef54e4
+ fefbfce:	6100 9514      	bsrw 0xfef54e4			; printf
  fefbfd2:	584f           	addqw #4,%sp
  fefbfd4:	4aae ffd4      	tstl %fp@(-44)
  fefbfd8:	670a           	beqs 0xfefbfe4
@@ -14976,7 +15032,7 @@ fef8fba:	4879 0fef ea5f 	pea 0xfefea5f
  fefc06a:	41ea 001a      	lea %a2@(26),%a0
  fefc06e:	2750 001e      	movel %a0@,%a3@(30)
  fefc072:	4879 0fef f36a 	pea 0xfeff36a
- fefc078:	6100 946a      	bsrw 0xfef54e4
+ fefc078:	6100 946a      	bsrw 0xfef54e4			; printf
  fefc07c:	584f           	addqw #4,%sp
  fefc07e:	2f2b 001e      	movel %a3@(30),%sp@-
  fefc082:	6100 fb62      	bsrw 0xfefbbe6
@@ -15017,7 +15073,7 @@ fef8fba:	4879 0fef ea5f 	pea 0xfefea5f
  fefc0f8:	4a80           	tstl %d0
  fefc0fa:	670c           	beqs 0xfefc108
  fefc0fc:	4879 0fef f387 	pea 0xfeff387
- fefc102:	6100 93e0      	bsrw 0xfef54e4
+ fefc102:	6100 93e0      	bsrw 0xfef54e4			; printf
  fefc106:	584f           	addqw #4,%sp
  fefc108:	42ae ffd8      	clrl %fp@(-40)
  fefc10c:	42ae ffd0      	clrl %fp@(-48)
@@ -15036,7 +15092,7 @@ fef8fba:	4879 0fef ea5f 	pea 0xfefea5f
  fefc130:	49c0           	extbl %d0
  fefc132:	2f00           	movel %d0,%sp@-
  fefc134:	4879 0fef f38a 	pea 0xfeff38a
- fefc13a:	6100 93a8      	bsrw 0xfef54e4
+ fefc13a:	6100 93a8      	bsrw 0xfef54e4			; printf
  fefc13e:	504f           	addqw #8,%sp
  fefc140:	2d7c 0000 0fa0 	movel #4000,%fp@(-32)
  fefc146:	ffe0 
@@ -15050,7 +15106,7 @@ fef8fba:	4879 0fef ea5f 	pea 0xfefea5f
  fefc166:	0480 0000 4000 	subil #16384,%d0
  fefc16c:	2f00           	movel %d0,%sp@-
  fefc16e:	4879 0fef f38e 	pea 0xfeff38e
- fefc174:	6100 936e      	bsrw 0xfef54e4
+ fefc174:	6100 936e      	bsrw 0xfef54e4			; printf
  fefc178:	504f           	addqw #8,%sp
  fefc17a:	203c 0000 4000 	movel #16384,%d0
  fefc180:	6000 fda6      	braw 0xfefbf28
