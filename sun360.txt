@@ -93,13 +93,29 @@
 ; ==================================
 ; The show starts here.
 ; interestingly the sp is used here as a scratch register
+;
+; Notice that the ROM code mostly runs with dfc/sfc = 3
+; i.e. in control space.
+; being in boot mode forces all program access to ROM
+;
+; Here are the sfc/dfc values and spaces:
+;    0 - reserved
+;    1 - device space, user data
+;    2 - device space, user program
+;    3 - control space
+;    4 - reserved
+;    5 - device space - supervisor data
+;    6 - device space - supervisor program
+;    7 - CPU space
 
  fef00ee:	3e7c 0009      	moveaw #9,%sp
  fef00f2:	4e7b f002      	movec %sp,%cacr
+
  fef00f6:	3e7c 0003      	moveaw #3,%sp
  fef00fa:	4e7b f001      	movec %sp,%dfc
  fef00fe:	4e7b f000      	movec %sp,%sfc
- fef0102:	9fcf           	subal %sp,%sp
+
+ fef0102:	9fcf           	subal %sp,%sp				; sp = 0
 
  fef0104:	0e39 f800 3000 	movesb %sp,0x30000000		; CONTEXT
  fef010a:	0000 
@@ -144,13 +160,18 @@
  fef017e:	4cdf ffff      	moveml %sp@+,%d0-%sp
  fef0182:	33fc 0003 0fe6 	movew #3,0xfe60bfa
  fef0188:	0bfa 
+
+; zero the enable register
  fef018a:	3e7c 0003      	moveaw #3,%sp
  fef018e:	4e7b f001      	movec %sp,%dfc
  fef0192:	9ecf           	subaw %sp,%sp
  fef0194:	0e39 f800 4000 	movesb %sp,0x40000000	; SYSTEM_ENAB
  fef019a:	0000 
+
+; set the VBR
  fef019c:	2e7c 0fe6 0c00 	moveal #266734592,%sp
  fef01a2:	4e7b f801      	movec %sp,%vbr
+
  fef01a6:	23fc 0fef 0248 	movel #267321928,0xfe60bfc
  fef01ac:	0fe6 0bfc 
  fef01b0:	4ff9 0fe6 0bfa 	lea 0xfe60bfa,%sp
@@ -166,11 +187,14 @@
  fef01d6:	6004           	bras 0xfef01dc
  fef01d8:	3e3c 0001      	movew #1,%d7
  fef01dc:	4eba 035c      	jsr %pc@(0xfef053a)			; RESET!
+
  fef01e0:	4239 0fe0 a000 	clrb 0xfe0a000
  fef01e6:	2c38 e17a      	movel 0xffffe17a,%d6
  fef01ea:	303c 0003      	movew #3,%d0
  fef01ee:	4e7b 0001      	movec %d0,%dfc
  fef01f2:	4e7b 0000      	movec %d0,%sfc
+
+; zero the enable register
  fef01f6:	4280           	clrl %d0
  fef01f8:	0e39 0800 4000 	movesb %d0,0x40000000	; SYSTEM_ENAB
  fef01fe:	0000 
@@ -207,6 +231,7 @@
  fef026a:	003c 
  fef026c:	4e7a 8800      	movec %usp,%a0
  fef0270:	2f48 0044      	movel %a0,%sp@(68)
+
  fef0274:	4e7a 8000      	movec %sfc,%a0
  fef0278:	4e7a 9001      	movec %dfc,%a1
  fef027c:	4e7a a801      	movec %vbr,%a2
@@ -389,6 +414,7 @@
  fef04e2:	4e75           	rts
 
 ; Subroutine - read the enable register
+; read_enable -- many calls
  fef04e4:	7000           	moveq #0,%d0
  fef04e6:	4e7a 8000      	movec %sfc,%a0			; save sfc
  fef04ea:	7203           	moveq #3,%d1			; select control space
@@ -399,6 +425,7 @@
  fef04fc:	4e75           	rts
 
 ; Subroutine - write the enable register
+; write_enable
  fef04fe:	302f 0006      	movew %sp@(6),%d0
  fef0502:	4e7a 8001      	movec %dfc,%a0
  fef0506:	7203           	moveq #3,%d1			; select control space
@@ -579,7 +606,7 @@
  fef0718:	7000           	moveq #0,%d0
  fef071a:	3006           	movew %d6,%d0
  fef071c:	2f00           	movel %d0,%sp@-
- fef071e:	4879 fffe 0000 	pea 0xfffe0000
+ fef071e:	4879 fffe 0000 	pea 0xfffe0000			; SCC-A
  fef0724:	6100 15f8      	bsrw 0xfef1d1e
  fef0728:	504f           	addqw #8,%sp
  fef072a:	5205           	addqb #1,%d5
@@ -1670,11 +1697,14 @@ fef153c:	4879 0fef c939 	pea 0xfefc939
  fef1630:	11fc 0001 e01a 	moveb #1,0xffffe01a
  fef1636:	21f9 0fef dd4c 	movel 0xfefdd4c,0xffffe32a
  fef163c:	e32a 
- fef163e:	6100 eea4      	bsrw 0xfef04e4
+
+; disable boot, enable DVMA
+ fef163e:	6100 eea4      	bsrw 0xfef04e4			; read_enable
  fef1642:	0000 00a0      	orib #-96,%d0
  fef1646:	2f00           	movel %d0,%sp@-
- fef1648:	6100 eeb4      	bsrw 0xfef04fe
+ fef1648:	6100 eeb4      	bsrw 0xfef04fe			; write_enable
  fef164c:	584f           	addqw #4,%sp
+
  fef164e:	302e 0070      	movew %fp@(112),%d0
  fef1652:	0240 0fff      	andiw #4095,%d0
  fef1656:	0c40 0003      	cmpiw #3,%d0
@@ -2081,7 +2111,7 @@ fef1b30:	4879 0fef c9b4 	pea 0xfefc9b4
  fef1b92:	4e75           	rts
  fef1b94:	4e56 fff4      	linkw %fp,#-12
  fef1b98:	6100 156a      	bsrw 0xfef3104
- fef1b9c:	6100 e946      	bsrw 0xfef04e4
+ fef1b9c:	6100 e946      	bsrw 0xfef04e4			; read_enable
  fef1ba0:	7201           	moveq #1,%d1
  fef1ba2:	c081           	andl %d1,%d0
  fef1ba4:	6600 00c4      	bnew 0xfef1c6a
@@ -2238,21 +2268,26 @@ fef1c5a:	4879 0fef ca0a 	pea 0xfefca0a
  fef1dae:	13c0 0fe0 a000 	moveb %d0,0xfe0a000
  fef1db4:	4e75           	rts
 
+; -----------------------------------------------------------------
+; Subroutine
  fef1db6:	2f02           	movel %d2,%sp@-
  fef1db8:	2f03           	movel %d3,%sp@-
  fef1dba:	202f 0010      	movel %sp@(16),%d0
  fef1dbe:	0280 0fff e000 	andil #268427264,%d0
  fef1dc4:	0680 2000 0000 	addil #536870912,%d0
  fef1dca:	2040           	moveal %d0,%a0
- fef1dcc:	4e7a 9001      	movec %dfc,%a1
+ fef1dcc:	4e7a 9001      	movec %dfc,%a1			; save
  fef1dd0:	7203           	moveq #3,%d1
  fef1dd2:	4e7b 1001      	movec %d1,%dfc
+
+; disable external cache
  fef1dd6:	0e39 2000 4000 	movesb 0x40000000,%d2	; SYSTEM_ENAB
  fef1ddc:	0000 
  fef1dde:	303c ff7f      	movew #-129,%d0
  fef1de2:	c002           	andb %d2,%d0
  fef1de4:	0e39 0800 4000 	movesb %d0,0x40000000	; SYSTEM_ENAB
  fef1dea:	0000 
+
  fef1dec:	202f 0014      	movel %sp@(20),%d0
  fef1df0:	122f 000f      	moveb %sp@(15),%d1
  fef1df4:	0e39 3000 3000 	movesb 0x30000000,%d3
@@ -2262,14 +2297,18 @@ fef1c5a:	4879 0fef ca0a 	pea 0xfefca0a
  fef1e04:	0e10 0800      	movesb %d0,%a0@
  fef1e08:	0e39 3800 3000 	movesb %d3,0x30000000
  fef1e0e:	0000 
+
+; restore original state
  fef1e10:	0e39 2800 4000 	movesb %d2,0x40000000	; SYSTEM_ENAB
  fef1e16:	0000 
- fef1e18:	4e7b 9001      	movec %a1,%dfc
+ fef1e18:	4e7b 9001      	movec %a1,%dfc			; restore
+
  fef1e1c:	261f           	movel %sp@+,%d3
  fef1e1e:	241f           	movel %sp@+,%d2
  fef1e20:	4e75           	rts
  fef1e22:	0000
 
+; -----------------------------------------------------------------
 ; some kind of big initial routine
 ; "Molly" -- 3 "calls"
 
@@ -2278,11 +2317,13 @@ fef1c5a:	4879 0fef ca0a 	pea 0xfefca0a
  fef1e2c:	2700           	movel %d0,%a3@-
  fef1e2e:	9fcf           	subal %sp,%sp
  fef1e30:	4e7b f801      	movec %sp,%vbr
- fef1e34:	7003           	moveq #3,%d0
 
 ; select control space
+ fef1e34:	7003           	moveq #3,%d0
  fef1e36:	4e7b 0000      	movec %d0,%sfc
  fef1e3a:	4e7b 0001      	movec %d0,%dfc
+
+; turn off all LED
  fef1e3e:	303c 7fff      	movew #32767,%d0
  fef1e42:	0e39 0800 7000 	movesb %d0,0x70000000		; DIAG
  fef1e48:	0000 
@@ -2313,18 +2354,18 @@ fef1c5a:	4879 0fef ca0a 	pea 0xfefca0a
  fef1ea0:	0e10 0800      	movesb %d0,%a0@
  fef1ea4:	203c f400 0010 	movel #-201326576,%d0
  fef1eaa:	0e91 0800      	movesl %d0,%a1@
- fef1eae:	13fc 000c 0fff 	moveb #12,0xfffe004
+ fef1eae:	13fc 000c 0fff 	moveb #12,0xfffe004			; SCC-B
  fef1eb4:	e004 
  fef1eb6:	383c 0100      	movew #256,%d4
  fef1eba:	51cc fffe      	dbf %d4,0xfef1eba
- fef1ebe:	13c1 0fff e004 	moveb %d1,0xfffe004
+ fef1ebe:	13c1 0fff e004 	moveb %d1,0xfffe004			; SCC-B
  fef1ec4:	383c 0100      	movew #256,%d4
  fef1ec8:	51cc fffe      	dbf %d4,0xfef1ec8
- fef1ecc:	13fc 000c 0fff 	moveb #12,0xfffe004
+ fef1ecc:	13fc 000c 0fff 	moveb #12,0xfffe004			; SCC-B
  fef1ed2:	e004 
  fef1ed4:	383c 0100      	movew #256,%d4
  fef1ed8:	51cc fffe      	dbf %d4,0xfef1ed8
- fef1edc:	1039 0fff e004 	moveb 0xfffe004,%d0
+ fef1edc:	1039 0fff e004 	moveb 0xfffe004,%d0			; SCC-B
  fef1ee2:	b200           	cmpb %d0,%d1
  fef1ee4:	6700 000a      	beqw 0xfef1ef0
  fef1ee8:	4dfa 0006      	lea %pc@(0xfef1ef0),%fp
@@ -2340,12 +2381,15 @@ fef1c5a:	4879 0fef ca0a 	pea 0xfefca0a
  fef1f0e:	0800 0000      	btst #0,%d0
  fef1f12:	6600 0006      	bnew 0xfef1f1a
  fef1f16:	08c7 000e      	bset #14,%d7
+
  fef1f1a:	4dfa 0006      	lea %pc@(0xfef1f22),%fp
- fef1f1e:	6000 115c      	braw 0xfef307c				; Xcall
+ fef1f1e:	6000 115c      	braw 0xfef307c				; Xcall - SCC_init
+
 fef1f22:	49f9 0fef ca56 	lea 0xfefca56,%a4
 ; 0xfefca56 \r\nBoot PROM Selftest\n
  fef1f28:	4dfa 0006      	lea %pc@(0xfef1f30),%fp
  fef1f2c:	6000 0fea      	braw 0xfef2f18				; Xprintf
+
  fef1f30:	1e3c fffe      	moveb #-2,%d7
  fef1f34:	49f9 0fef ca6c 	lea 0xfefca6c,%a4
  fef1f3a:	4dfa 0006      	lea %pc@(0xfef1f42),%fp
@@ -3120,17 +3164,21 @@ fef2aee:	49f9 0fef d02b 	lea 0xfefd02b,%a4
 
  fef2afc:	203c 000f ffff 	movel #1048575,%d0
  fef2b02:	0883 001f      	bclr #31,%d3
- fef2b06:	1239 0fff e004 	moveb 0xfffe004,%d1
+
+ fef2b06:	1239 0fff e004 	moveb 0xfffe004,%d1			; SCC-B
  fef2b0c:	0801 0000      	btst #0,%d1
  fef2b10:	6600 0020      	bnew 0xfef2b32
+
  fef2b14:	720f           	moveq #15,%d1
- fef2b16:	51c9 fffe      	dbf %d1,0xfef2b16
- fef2b1a:	1239 0fff e000 	moveb 0xfffe000,%d1
+ fef2b16:	51c9 fffe      	dbf %d1,0xfef2b16			; delay
+
+ fef2b1a:	1239 0fff e000 	moveb 0xfffe000,%d1			; SCC-A
  fef2b20:	0801 0000      	btst #0,%d1
  fef2b24:	6600 001a      	bnew 0xfef2b40
  fef2b28:	5380           	subql #1,%d0
- fef2b2a:	6e00 ffda      	bgtw 0xfef2b06
+ fef2b2a:	6e00 ffda      	bgtw 0xfef2b06				; loop up
  fef2b2e:	6000 004a      	braw 0xfef2b7a
+
  fef2b32:	700f           	moveq #15,%d0
  fef2b34:	51c8 fffe      	dbf %d0,0xfef2b34
  fef2b38:	1039 0fff e006 	moveb 0xfffe006,%d0
@@ -3143,12 +3191,15 @@ fef2aee:	49f9 0fef d02b 	lea 0xfefd02b,%a4
  fef2b54:	0c00 0065      	cmpib #101,%d0
  fef2b58:	6600 0014      	bnew 0xfef2b6e
  fef2b5c:	08c7 0009      	bset #9,%d7
+
 fef2b60:	49f9 0fef d03f 	lea 0xfefd03f,%a4
 ; 0xfefd03f \r\nEcho mode: Output will echo to Video!\r\n
  fef2b66:	4dfa 0006      	lea %pc@(0xfef2b6e),%fp
  fef2b6a:	6000 03ac      	braw 0xfef2f18				; Xprintf
+
  fef2b6e:	4dfa 0006      	lea %pc@(0xfef2b76),%fp
- fef2b72:	6000 0508      	braw 0xfef307c				; Xcall
+ fef2b72:	6000 0508      	braw 0xfef307c				; Xcall - SCC_init
+
  fef2b76:	363c 0005      	movew #5,%d3
  fef2b7a:	2c42           	moveal %d2,%fp				; <<<<<
  fef2b7c:	48e7 ffff      	moveml %d0-%sp,%sp@-
@@ -3340,12 +3391,12 @@ fef2d0a:	49f9 0fef cf6f 	lea 0xfefcf6f,%a4
  fef2dac:	6600 014c      	bnew 0xfef2efa
  fef2db0:	7003           	moveq #3,%d0
  fef2db2:	4e7b 0000      	movec %d0,%sfc
- fef2db6:	1039 0fff e004 	moveb 0xfffe004,%d0
+ fef2db6:	1039 0fff e004 	moveb 0xfffe004,%d0			; SCC-B
  fef2dbc:	0800 0000      	btst #0,%d0
  fef2dc0:	6700 000a      	beqw 0xfef2dcc
  fef2dc4:	1039 0fff e006 	moveb 0xfffe006,%d0
  fef2dca:	6014           	bras 0xfef2de0
- fef2dcc:	1039 0fff e000 	moveb 0xfffe000,%d0
+ fef2dcc:	1039 0fff e000 	moveb 0xfffe000,%d0			; SCC-A
  fef2dd2:	0800 0000      	btst #0,%d0
  fef2dd6:	6700 0122      	beqw 0xfef2efa
  fef2dda:	1039 0fff e002 	moveb 0xfffe002,%d0
@@ -3375,12 +3426,15 @@ fef2d0a:	49f9 0fef cf6f 	lea 0xfefcf6f,%a4
  fef2e54:	41f9 f400 0050 	lea 0xf4000050,%a0
  fef2e5a:	203c 0fff 2000 	movel #268378112,%d0
  fef2e60:	0eb5 8800 0800 	movesl %a0,%a5@(0,%d0:l)
+
  fef2e66:	4dfa 0006      	lea %pc@(0xfef2e6e),%fp
- fef2e6a:	6000 0210      	braw 0xfef307c				; Xcall
+ fef2e6a:	6000 0210      	braw 0xfef307c				; Xcall - SCC_init
+
 fef2e6e:	49f9 0fef d074 	lea 0xfefd074,%a4
 ; 0xfefd074 \r\nWARNING...SelfTest Aborted By User\r\n
  fef2e74:	4dfa 0006      	lea %pc@(0xfef2e7c),%fp
  fef2e78:	6000 009e      	braw 0xfef2f18				; Xprintf
+
  fef2e7c:	42b8 0838      	clrl 0x838
  fef2e80:	11fc 001b 0838 	moveb #27,0x838
  fef2e86:	6000 f9dc      	braw 0xfef2864
@@ -3487,7 +3541,7 @@ fef2e6e:	49f9 0fef d074 	lea 0xfefd074,%a4
  fef2fc8:	0807 0008      	btst #8,%d7
  fef2fcc:	661e           	bnes 0xfef2fec
  fef2fce:	70ff           	moveq #-1,%d0
- fef2fd0:	1239 0fff e004 	moveb 0xfffe004,%d1
+ fef2fd0:	1239 0fff e004 	moveb 0xfffe004,%d1		; SCC-B
  fef2fd6:	0801 0002      	btst #2,%d1
  fef2fda:	56c8 fff4      	dbne %d0,0xfef2fd0
  fef2fde:	700f           	moveq #15,%d0
@@ -3495,7 +3549,7 @@ fef2e6e:	49f9 0fef d074 	lea 0xfefd074,%a4
  fef2fe4:	13c6 0fff e006 	moveb %d6,0xfffe006
  fef2fea:	601c           	bras 0xfef3008
  fef2fec:	70ff           	moveq #-1,%d0
- fef2fee:	1239 0fff e000 	moveb 0xfffe000,%d1
+ fef2fee:	1239 0fff e000 	moveb 0xfffe000,%d1			; SCC-A
  fef2ff4:	0801 0002      	btst #2,%d1
  fef2ff8:	56c8 fff4      	dbne %d0,0xfef2fee
  fef2ffc:	700f           	moveq #15,%d0
@@ -3512,7 +3566,7 @@ fef2e6e:	49f9 0fef d074 	lea 0xfefd074,%a4
  fef3022:	0807 0008      	btst #8,%d7
  fef3026:	661e           	bnes 0xfef3046
  fef3028:	70ff           	moveq #-1,%d0
- fef302a:	1239 0fff e004 	moveb 0xfffe004,%d1
+ fef302a:	1239 0fff e004 	moveb 0xfffe004,%d1			; SCC-B
  fef3030:	0801 0002      	btst #2,%d1
  fef3034:	56c8 fff4      	dbne %d0,0xfef302a
  fef3038:	700f           	moveq #15,%d0
@@ -3520,7 +3574,7 @@ fef2e6e:	49f9 0fef d074 	lea 0xfefd074,%a4
  fef303e:	13c6 0fff e006 	moveb %d6,0xfffe006
  fef3044:	601c           	bras 0xfef3062
  fef3046:	70ff           	moveq #-1,%d0
- fef3048:	1239 0fff e000 	moveb 0xfffe000,%d1
+ fef3048:	1239 0fff e000 	moveb 0xfffe000,%d1			; SCC-A
  fef304e:	0801 0002      	btst #2,%d1
  fef3052:	56c8 fff4      	dbne %d0,0xfef3048
  fef3056:	700f           	moveq #15,%d0
@@ -3537,13 +3591,24 @@ fef2e6e:	49f9 0fef d074 	lea 0xfefd074,%a4
  fef3078:	260b           	movel %a3,%d3
  fef307a:	4ed6           	jmp %fp@
 
-; Xsubroutine
+; ============================================
+; Xsubroutine - SCC_init (3 calls)
+
  fef307c:	4280           	clrl %d0
- fef307e:	41f9 0fef ca18 	lea 0xfefca18,%a0
+ fef307e:	41f9 0fef ca18 	lea 0xfefca18,%a0		; SCC init info A
+
+; Read enable register, check diagnostic switch
+; Just return if it reads zero (non-diagnostic)
+; note that we must get called with sfc=3 for this to work
+
  fef3084:	0e39 0000 4000 	movesb 0x40000000,%d0	; SYSTEM_ENAB
  fef308a:	0000 
  fef308c:	0800 0000      	btst #0,%d0
  fef3090:	6700 0070      	beqw 0xfef3102
+
+; to read the SCC table, we need to flip sfc/dfc to 6
+; (we only read, so just the sfc would do)
+; This allows data access to ROM addresses
  fef3094:	223c 0000 0006 	movel #6,%d1
  fef309a:	4e7b 1000      	movec %d1,%sfc
  fef309e:	4e7b 1001      	movec %d1,%dfc
@@ -3551,13 +3616,17 @@ fef2e6e:	49f9 0fef d074 	lea 0xfefd074,%a4
  fef30a6:	7203           	moveq #3,%d1
  fef30a8:	4e7b 1000      	movec %d1,%sfc
  fef30ac:	4e7b 1001      	movec %d1,%dfc
- fef30b0:	0c00 00ff      	cmpib #-1,%d0
+ fef30b0:	0c00 00ff      	cmpib #-1,%d0			; end of info
  fef30b4:	6712           	beqs 0xfef30c8
- fef30b6:	13c0 0fff e004 	moveb %d0,0xfffe004
+
+; Access to SCC registers must be with dfc=3
+ fef30b6:	13c0 0fff e004 	moveb %d0,0xfffe004		; SCC address - B
  fef30bc:	223c 0000 0800 	movel #2048,%d1
- fef30c2:	51c9 fffe      	dbf %d1,0xfef30c2
- fef30c6:	60cc           	bras 0xfef3094
- fef30c8:	41f9 0fef ca38 	lea 0xfefca38,%a0
+ fef30c2:	51c9 fffe      	dbf %d1,0xfef30c2		; delay
+ fef30c6:	60cc           	bras 0xfef3094			; branch up
+
+ fef30c8:	41f9 0fef ca38 	lea 0xfefca38,%a0		; SCC init info B
+
  fef30ce:	223c 0000 0006 	movel #6,%d1
  fef30d4:	4e7b 1000      	movec %d1,%sfc
  fef30d8:	4e7b 1001      	movec %d1,%dfc
@@ -3565,13 +3634,17 @@ fef2e6e:	49f9 0fef d074 	lea 0xfefd074,%a4
  fef30e0:	7203           	moveq #3,%d1
  fef30e2:	4e7b 1000      	movec %d1,%sfc
  fef30e6:	4e7b 1001      	movec %d1,%dfc
- fef30ea:	0c00 00ff      	cmpib #-1,%d0
+ fef30ea:	0c00 00ff      	cmpib #-1,%d0			; end of info
  fef30ee:	6712           	beqs 0xfef3102
- fef30f0:	13c0 0fff e000 	moveb %d0,0xfffe000
+
+ fef30f0:	13c0 0fff e000 	moveb %d0,0xfffe000		; SCC address A
  fef30f6:	223c 0000 0800 	movel #2048,%d1
- fef30fc:	51c9 fffe      	dbf %d1,0xfef30fc
- fef3100:	60cc           	bras 0xfef30ce
+ fef30fc:	51c9 fffe      	dbf %d1,0xfef30fc		; delay
+ fef3100:	60cc           	bras 0xfef30ce			; branch up
+
  fef3102:	4ed6           	jmp %fp@
+
+; Xsubroutine
  fef3104:	4e56 ffd0      	linkw %fp,#-48
  fef3108:	2d7c 0fef dfb0 	movel #267378608,%fp@(-36)
  fef310e:	ffdc 
@@ -4108,11 +4181,14 @@ fef37a4:	4879 0fef d607 	pea 0xfefd607
  fef37ae:	4fef 0010      	lea %sp@(16),%sp
  fef37b2:	08b9 0007 0fe0 	bclr #7,0xfe08004
  fef37b8:	8004 
- fef37ba:	6100 cd28      	bsrw 0xfef04e4
+
+; disable boot, enable DVMA
+ fef37ba:	6100 cd28      	bsrw 0xfef04e4			; read_enable
  fef37be:	0000 00a0      	orib #-96,%d0
  fef37c2:	2f00           	movel %d0,%sp@-
- fef37c4:	6100 cd38      	bsrw 0xfef04fe
+ fef37c4:	6100 cd38      	bsrw 0xfef04fe			; write_enable
  fef37c8:	584f           	addqw #4,%sp
+
  fef37ca:	0239 007f 0fe0 	andib #127,0xfe0a000
  fef37d0:	a000 
  fef37d2:	0039 0080 0fe0 	orib #-128,0xfe0a000
@@ -4760,6 +4836,7 @@ fef3e66:	4879 0fef 0258 	pea 0xfef0258
  fef4008:	00b0 00b0 00b0 	oril #11534512,%a0@(ffffffffffffffa8,%d0:w)
  fef400e:	00a8 
  fef4010:	6100 c528      	bsrw 0xfef053a			; RESET!
+
  fef4014:	0039 0081 0fe0 	orib #-127,0xfe0a000
  fef401a:	a000 
  fef401c:	2f38 e0ca      	movel 0xffffe0ca,%sp@-
@@ -4778,13 +4855,16 @@ fef3e66:	4879 0fef 0258 	pea 0xfef0258
  fef404c:	52b8 e256      	addql #1,0xffffe256
  fef4050:	6100 c186      	bsrw 0xfef01d8
  fef4054:	6100 c4e4      	bsrw 0xfef053a			; RESET!
+
  fef4058:	4878 0001      	pea 0x1
  fef405c:	4879 0fe0 0000 	pea 0xfe00000
  fef4062:	6100 0f0c      	bsrw 0xfef4f70
  fef4066:	504f           	addqw #8,%sp
+
  fef4068:	42a7           	clrl %sp@-
- fef406a:	6100 c492      	bsrw 0xfef04fe
+ fef406a:	6100 c492      	bsrw 0xfef04fe			; write_enable
  fef406e:	584f           	addqw #4,%sp
+
  fef4070:	4239 0fe0 8000 	clrb 0xfe08000
  fef4076:	2d7c 0fe1 2014 	movel #266412052,%fp@(-196)
  fef407c:	ff3c 
@@ -6005,7 +6085,7 @@ fef4ede:	4879 0fef da52 	pea 0xfefda52
  fef4fa6:	661e           	bnes 0xfef4fc6
  fef4fa8:	bbfc 0fe0 2000 	cmpal #266346496,%a5
  fef4fae:	6616           	bnes 0xfef4fc6
- fef4fb0:	6100 b532      	bsrw 0xfef04e4
+ fef4fb0:	6100 b532      	bsrw 0xfef04e4			; read_enable
  fef4fb4:	0800 0000      	btst #0,%d0
  fef4fb8:	660c           	bnes 0xfef4fc6
  fef4fba:	287c 0fef db12 	moveal #267377426,%a4
@@ -6033,7 +6113,7 @@ fef4ede:	4879 0fef da52 	pea 0xfefda52
  fef4ff6:	65d6           	bcss 0xfef4fce
  fef4ff8:	bbfc 0fe0 2000 	cmpal #266346496,%a5
  fef4ffe:	6660           	bnes 0xfef5060
- fef5000:	6100 b4e2      	bsrw 0xfef04e4
+ fef5000:	6100 b4e2      	bsrw 0xfef04e4			; read_enable
  fef5004:	0800 0000      	btst #0,%d0
  fef5008:	6756           	beqs 0xfef5060
  fef500a:	1abc 000c      	moveb #12,%a5@
@@ -7161,7 +7241,7 @@ fef5c38:	4879 0fef dbf4 	pea 0xfefdbf4
  fef5c76:	206e 0008      	moveal %fp@(8),%a0
  fef5c7a:	0c10 003f      	cmpib #63,%a0@
  fef5c7e:	6700 0430      	beqw 0xfef60b0
- fef5c82:	6100 a860      	bsrw 0xfef04e4
+ fef5c82:	6100 a860      	bsrw 0xfef04e4			; read_enable
  fef5c86:	0800 0004      	btst #4,%d0
  fef5c8a:	6704           	beqs 0xfef5c90
  fef5c8c:	6100 41aa      	bsrw 0xfef9e38
@@ -7222,7 +7302,7 @@ fef5d2c:	4879 0fef dd60 	pea 0xfefdd60
  fef5d32:	6100 f7b0      	bsrw 0xfef54e4			; printf
  fef5d36:	584f           	addqw #4,%sp
  fef5d38:	6000 00e0      	braw 0xfef5e1a
- fef5d3c:	6100 a7a6      	bsrw 0xfef04e4
+ fef5d3c:	6100 a7a6      	bsrw 0xfef04e4			; read_enable
  fef5d40:	7e01           	moveq #1,%d7
  fef5d42:	c087           	andl %d7,%d0
  fef5d44:	b087           	cmpl %d7,%d0
@@ -8257,19 +8337,25 @@ fef647c:	4879 0fef df77 	pea 0xfefdf77
  fef69ac:	21c1 e0ea      	movel %d1,0xffffe0ea
  fef69b0:	4aae fff0      	tstl %fp@(-16)
  fef69b4:	6710           	beqs 0xfef69c6
- fef69b6:	6100 9b2c      	bsrw 0xfef04e4
+
+; enable video
+ fef69b6:	6100 9b2c      	bsrw 0xfef04e4			; read_enable
  fef69ba:	0000 0008      	orib #8,%d0
  fef69be:	2f00           	movel %d0,%sp@-
- fef69c0:	6100 9b3c      	bsrw 0xfef04fe
+ fef69c0:	6100 9b3c      	bsrw 0xfef04fe			; write_enable
  fef69c4:	584f           	addqw #4,%sp
+
  fef69c6:	0cb8 0000 0008 	cmpil #8,0xffffe0f6
  fef69cc:	e0f6 
  fef69ce:	6610           	bnes 0xfef69e0
- fef69d0:	6100 9b12      	bsrw 0xfef04e4
+
+; enable video
+ fef69d0:	6100 9b12      	bsrw 0xfef04e4			; read_enable
  fef69d4:	0000 0008      	orib #8,%d0
  fef69d8:	2f00           	movel %d0,%sp@-
- fef69da:	6100 9b22      	bsrw 0xfef04fe
+ fef69da:	6100 9b22      	bsrw 0xfef04fe			; write_enable
  fef69de:	584f           	addqw #4,%sp
+
  fef69e0:	2f2e 000c      	movel %fp@(12),%sp@-
  fef69e4:	2f2e 0008      	movel %fp@(8),%sp@-
  fef69e8:	6100 0930      	bsrw 0xfef731a
@@ -9095,23 +9181,31 @@ fef647c:	4879 0fef df77 	pea 0xfefdf77
  fef741c:	4878 000b      	pea 0xb
  fef7420:	6100 9094      	bsrw 0xfef04b6
  fef7424:	602a           	bras 0xfef7450
- fef7426:	6100 90bc      	bsrw 0xfef04e4
+
+; clear DIAG bit -- what does this do??
+; I thought this bit was read only
+ fef7426:	6100 90bc      	bsrw 0xfef04e4			; read_enable
  fef742a:	72f7           	moveq #-9,%d1
  fef742c:	c081           	andl %d1,%d0
  fef742e:	2f00           	movel %d0,%sp@-
- fef7430:	6100 90cc      	bsrw 0xfef04fe
+ fef7430:	6100 90cc      	bsrw 0xfef04fe			; write_enable
  fef7434:	584f           	addqw #4,%sp
+
  fef7436:	202e fff8      	movel %fp@(-8),%d0
  fef743a:	53ae fff8      	subql #1,%fp@(-8)
  fef743e:	4a80           	tstl %d0
  fef7440:	66f4           	bnes 0xfef7436
- fef7442:	6100 90a0      	bsrw 0xfef04e4
+
+; enable video
+ fef7442:	6100 90a0      	bsrw 0xfef04e4			; read_enable
  fef7446:	0000 0008      	orib #8,%d0
  fef744a:	2f00           	movel %d0,%sp@-
- fef744c:	6100 90b0      	bsrw 0xfef04fe
+ fef744c:	6100 90b0      	bsrw 0xfef04fe			; write_enable
  fef7450:	584f           	addqw #4,%sp
+
  fef7452:	4e5e           	unlk %fp
  fef7454:	4e75           	rts
+
  fef7456:	4e56 ffe4      	linkw %fp,#-28
  fef745a:	4aae 0008      	tstl %fp@(8)
  fef745e:	6c04           	bges 0xfef7464
@@ -15585,7 +15679,10 @@ fef8fba:	4879 0fef ea5f 	pea 0xfefea5f
 0fefca0a: Completed.\n ++
 0fefca15: \n
 
- fefca16:	0000 09c0
+ fefca16:	0000
+
+; SCC init info -A
+ fefca18:	09c0
  fefca1a:	0446 03c0
  fefca1e:	05e2
  fefca20:	0902
@@ -15597,6 +15694,8 @@ fef8fba:	4879 0fef ea5f 	pea 0xfefea5f
  fefca2c:	05ea 0e03
  fefca30:	0030 0030 0010
  fefca36:	ffff
+
+; SCC init info -B
  fefca38:	0010 0446
  fefca3c:	03c0
  fefca3e:	05e2
