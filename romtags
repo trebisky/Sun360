@@ -14,7 +14,8 @@ of = open ( outfile, "w")
 def process ( line, num, prefix ) :
     tag = re.sub ( r":.*", "", line )
     xtag = prefix + tag
-    srch = "/^ " + tag + "/"
+    #srch = "/^ " + tag + "/"
+    srch = "/^" + tag + "/"
     cmd = [ xtag, infile, srch ]
     of.write ( "\t".join(cmd) + "\n" )
 

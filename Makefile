@@ -30,6 +30,14 @@ sun360.dis: sun360.elf
 sun360.odx: sun360.bin
 	odx sun360.bin >sun360.odx
 
+# I did this needlessly to compare the the disassembly from
+# Dan's image, then discovered that the images are identical
+alt.elf: Roms/sun3_60_v1.9.bin
+	./wrap Roms/sun3_60_v1.9.bin alt.elf 0fef0000
+
+alt.dis: alt.elf
+	$(DUMP) alt.elf >alt.dis
+
 fix: sun360.elf
 	$(DUMP) --start-address=0xfefe2b04 --stop-address=0xfefe2b10 sun360.elf
 
