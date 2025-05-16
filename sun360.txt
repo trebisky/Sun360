@@ -699,6 +699,8 @@ fef0812:	66a6           	bnes 0xfef07ba
 fef0814:	2a6e fff4      	moveal %fp@(-12),%a5
 fef0818:	4e5e           	unlk %fp
 fef081a:	4e75           	rts
+
+; etest_memory
 fef081c:	4e56 ffd8      	linkw %fp,#-40
 fef0820:	2e87           	movel %d7,%sp@
 fef0822:	2e2e 0008      	movel %fp@(8),%d7
@@ -858,6 +860,7 @@ fef0a8a:	6000 fdc0      	braw 0xfef084c
 fef0a8e:	2e2e ffd8      	movel %fp@(-40),%d7
 fef0a92:	4e5e           	unlk %fp
 fef0a94:	4e75           	rts
+
 fef0a96:	4e56 ffec      	linkw %fp,#-20
 fef0a9a:	48d7 00f8      	moveml %d3-%d7,%sp@
 fef0a9e:	2e2e 0008      	movel %fp@(8),%d7
@@ -1058,6 +1061,7 @@ fef0cc8:	6fac           	bles 0xfef0c76
 fef0cca:	4cee 00fc ffe8 	moveml %fp@(-24),%d2-%d7
 fef0cd0:	4e5e           	unlk %fp
 fef0cd2:	4e75           	rts
+
 fef0cd4:	4e56 ffec      	linkw %fp,#-20
 fef0cd8:	48d7 00f8      	moveml %d3-%d7,%sp@
 fef0cdc:	262e 0008      	movel %fp@(8),%d3
@@ -1087,6 +1091,7 @@ fef0d20:	6fcc           	bles 0xfef0cee
 fef0d22:	4cee 00f8 ffec 	moveml %fp@(-20),%d3-%d7
 fef0d28:	4e5e           	unlk %fp
 fef0d2a:	4e75           	rts
+
 fef0d2c:	4e56 fffc      	linkw %fp,#-4
 fef0d30:	2e8d           	movel %a5,%sp@
 fef0d32:	2a7c 0fef c610 	moveal #0xfefc610,%a5
@@ -1108,11 +1113,13 @@ fef0d5e:	1035 0800      	moveb %a5@(0,%d0:l),%d0
 fef0d62:	49c0           	extbl %d0
 fef0d64:	2f00           	movel %d0,%sp@-
 fef0d66:	4879 0fef c615 	pea 0xfefc615
+; 0xfefc615 %c~
 fef0d6c:	61ff 0000 4776 	bsrl 0xfef54e4			; printf
 fef0d72:	504f           	addqw #8,%sp
 fef0d74:	2a6e fffc      	moveal %fp@(-4),%a5
 fef0d78:	4e5e           	unlk %fp
 fef0d7a:	4e75           	rts
+
 fef0d7c:	4e56 fff4      	linkw %fp,#-12
 fef0d80:	48d7 00e0      	moveml %d5-%d7,%sp@
 fef0d84:	2e2e 0008      	movel %fp@(8),%d7
@@ -1137,6 +1144,7 @@ fef0dc8:	2f00           	movel %d0,%sp@-
 fef0dca:	52b8 e0a2      	addql #1,0xffffe0a2
 fef0dce:	2f38 e0a2      	movel 0xffffe0a2,%sp@-
 fef0dd2:	4879 0fef c619 	pea 0xfefc619
+; 0xfefc619 Data Error (%d):  Addr = 0x%x
 fef0dd8:	61ff 0000 470a 	bsrl 0xfef54e4			; printf
 fef0dde:	4fef 000c      	lea %sp@(12),%sp
 fef0de2:	2006           	movel %d6,%d0
@@ -1145,15 +1153,18 @@ fef0de6:	2f00           	movel %d0,%sp@-
 fef0de8:	2f05           	movel %d5,%sp@-
 fef0dea:	2f06           	movel %d6,%sp@-
 fef0dec:	4879 0fef c637 	pea 0xfefc637
+; 0xfefc637 , Exp = 0x%x, Obs = 0x%x, Xor = 0x%x.\n
 fef0df2:	61ff 0000 46f0 	bsrl 0xfef54e4			; printf
 fef0df8:	4fef 0010      	lea %sp@(16),%sp
 fef0dfc:	52b8 e0a6      	addql #1,0xffffe0a6
 fef0e00:	0c38 0048 e002 	cmpib #72,0xffffe002			; XX-0
 fef0e06:	6622           	bnes 0xfef0e2a
 fef0e08:	4879 0fef c65e 	pea 0xfefc65e
+; 0xfefc65e Halted on error => 
 fef0e0e:	61ff 0000 46d4 	bsrl 0xfef54e4			; printf
 fef0e14:	584f           	addqw #4,%sp
 fef0e16:	4879 0fef c672 	pea 0xfefc672
+; 0xfefc672 hit any key to continue!\n
 fef0e1c:	61ff 0000 46c6 	bsrl 0xfef54e4			; printf
 fef0e22:	584f           	addqw #4,%sp
 fef0e24:	61ff 0000 4948 	bsrl 0xfef576e
@@ -1162,12 +1173,19 @@ fef0e2e:	6718           	beqs 0xfef0e48
 fef0e30:	0c38 004c e002 	cmpib #76,0xffffe002			; XX-0
 fef0e36:	6610           	bnes 0xfef0e48
 fef0e38:	4879 0fef c68c 	pea 0xfefc68c
+; 0xfefc68c Looping on error ...\n
 fef0e3e:	61ff 0000 46a4 	bsrl 0xfef54e4			; printf
 fef0e44:	584f           	addqw #4,%sp
 fef0e46:	7001           	moveq #1,%d0
 fef0e48:	4cee 00e0 fff4 	moveml %fp@(-12),%d5-%d7
 fef0e4e:	4e5e           	unlk %fp
 fef0e50:	4e75           	rts
+
+; Subroutine - etest_video
+; single argument has value 1,2,3,4,5
+; Handles a variety of extended tests
+;  of the video subsystems
+
 fef0e52:	4e56 ffc8      	linkw %fp,#-56
 fef0e56:	2e87           	movel %d7,%sp@
 fef0e58:	42ae ffe0      	clrl %fp@(-32)
@@ -1177,8 +1195,10 @@ fef0e66:	ffd0
 fef0e68:	42ae ffe0      	clrl %fp@(-32)
 fef0e6c:	42ae ffdc      	clrl %fp@(-36)
 fef0e70:	6000 0286      	braw 0xfef10f8
+
 fef0e74:	2f2e fff0      	movel %fp@(-16),%sp@-
 fef0e78:	4879 0fef c7f6 	pea 0xfefc7f6
+; 0xfefc7f6 Address range error: range 0 - %x.\n
 fef0e7e:	61ff 0000 4664 	bsrl 0xfef54e4			; printf
 fef0e84:	504f           	addqw #8,%sp
 fef0e86:	42ae ffe0      	clrl %fp@(-32)
@@ -1189,6 +1209,7 @@ fef0e94:	9087           	subl %d7,%d0
 fef0e96:	7e04           	moveq #4,%d7
 fef0e98:	b087           	cmpl %d7,%d0
 fef0e9a:	6200 00ec      	bhiw 0xfef0f88
+; Jump table
 fef0e9e:	303b 0a06      	movew %pc@(0xfef0ea6,%d0:l:2),%d0
 fef0ea2:	4efb 0002      	jmp %pc@(0xfef0ea6,%d0:w)
 fef0ea6:	000a           	.short 0x000a
@@ -1214,11 +1235,13 @@ fef0ee8:	2d7c 0fea 0000 	movel #0xfea0000,%fp@(-4)
 fef0eee:	fffc
 fef0ef0:	2d7c 0feb ffff 	movel #0xfebffff,%fp@(-8)
 fef0ef6:	fff8
+
 fef0ef8:	2d7c ff00 ff00 	movel #0xff00ff00,%fp@(-20)
 fef0efe:	ffec
 fef0f00:	2d7c 0fef c6b8 	movel #0xfefc6b8,%fp@(-52)
 fef0f06:	ffcc
 fef0f08:	6000 0092      	braw 0xfef0f9c
+
 fef0f0c:	2d7c 0fd0 0000 	movel #0xfd00000,%fp@(-4)
 fef0f12:	fffc
 fef0f14:	2d7c 0fdf ffff 	movel #0xfdfffff,%fp@(-8)
@@ -1228,6 +1251,7 @@ fef0f22:	ffec
 fef0f24:	2d7c 0fef c6c5 	movel #0xfefc6c5,%fp@(-52)
 fef0f2a:	ffcc
 fef0f2c:	606e           	bras 0xfef0f9c
+
 fef0f2e:	61ff 0000 882c 	bsrl 0xfef975c
 fef0f34:	0200 005f      	andib #0x5f,%d0
 fef0f38:	1d40 ffd7      	moveb %d0,%fp@(-41)
@@ -1242,6 +1266,7 @@ fef0f5a:	ffec
 fef0f5c:	2d7c 0fef c6d8 	movel #0xfefc6d8,%fp@(-52)
 fef0f62:	ffcc
 fef0f64:	6036           	bras 0xfef0f9c
+
 fef0f66:	2d7c 0fe8 0000 	movel #0xfe80000,%fp@(-4)
 fef0f6c:	fffc
 fef0f6e:	2d7c 0fe9 ffff 	movel #0xfe9ffff,%fp@(-8)
@@ -1251,7 +1276,9 @@ fef0f7c:	ffec
 fef0f7e:	2d7c 0fef c6e2 	movel #0xfefc6e2,%fp@(-52)
 fef0f84:	ffcc
 fef0f86:	6014           	bras 0xfef0f9c
+
 fef0f88:	4879 0fef c6f0 	pea 0xfefc6f0
+; 0xfefc6f0 test_type %1d does not exist for memory_test()\n
 fef0f8e:	61ff 0000 4554 	bsrl 0xfef54e4			; printf
 fef0f94:	584f           	addqw #4,%sp
 fef0f96:	7051           	moveq #81,%d0
@@ -1262,31 +1289,40 @@ fef0fa6:	90ae ffe4      	subl %fp@(-28),%d0
 fef0faa:	2d40 fff0      	movel %d0,%fp@(-16)
 fef0fae:	2f2e ffcc      	movel %fp@(-52),%sp@-
 fef0fb2:	4879 0fef c720 	pea 0xfefc720
+; 0xfefc720 \n%s Tests:  (Enter 'q' to return to Test Menu)\n\n
 fef0fb8:	61ff 0000 452a 	bsrl 0xfef54e4			; printf
 fef0fbe:	504f           	addqw #8,%sp
 fef0fc0:	2f2e fff0      	movel %fp@(-16),%sp@-
 fef0fc4:	4879 0fef c751 	pea 0xfefc751
+; 0xfefc751 Enter Cmd [low addr >= 0] [hi addr <= 0x%x]
 fef0fca:	61ff 0000 4518 	bsrl 0xfef54e4			; printf
 fef0fd0:	504f           	addqw #8,%sp
 fef0fd2:	4879 0fef c77d 	pea 0xfefc77d
+; 0xfefc77d  [pattn]\n\n
 fef0fd8:	61ff 0000 450a 	bsrl 0xfef54e4			; printf
 fef0fde:	584f           	addqw #4,%sp
 fef0fe0:	4879 0fef c788 	pea 0xfefc788
+; 0xfefc788 Cmd - Test\n\n
 fef0fe6:	61ff 0000 44fc 	bsrl 0xfef54e4			; printf
 fef0fec:	584f           	addqw #4,%sp
 fef0fee:	4879 0fef c795 	pea 0xfefc795
+; 0xfefc795  a  - Address Test\n
 fef0ff4:	61ff 0000 44ee 	bsrl 0xfef54e4			; printf
 fef0ffa:	584f           	addqw #4,%sp
 fef0ffc:	4879 0fef c7a9 	pea 0xfefc7a9
+; 0xfefc7a9  c  - Write/Read Test\n
 fef1002:	61ff 0000 44e0 	bsrl 0xfef54e4			; printf
 fef1008:	584f           	addqw #4,%sp
 fef100a:	4879 0fef c7c0 	pea 0xfefc7c0
+; 0xfefc7c0  s  - Scan Memory Test\n
 fef1010:	61ff 0000 44d2 	bsrl 0xfef54e4			; printf
 fef1016:	584f           	addqw #4,%sp
 fef1018:	4879 0fef c7d8 	pea 0xfefc7d8
+; 0xfefc7d8  w  - Write Only Test\n
 fef101e:	61ff 0000 44c4 	bsrl 0xfef54e4			; printf
 fef1024:	584f           	addqw #4,%sp
 fef1026:	4879 0fef c7ef 	pea 0xfefc7ef
+; 0xfefc7ef \nCmd=>
 fef102c:	61ff 0000 44b6 	bsrl 0xfef54e4			; printf
 fef1032:	584f           	addqw #4,%sp
 fef1034:	4878 0001      	pea 0x1
@@ -1301,6 +1337,7 @@ fef1058:	660a           	bnes 0xfef1064
 fef105a:	102e ffd7      	moveb %fp@(-41),%d0
 fef105e:	49c0           	extbl %d0
 fef1060:	6000 03ca      	braw 0xfef142c
+
 fef1064:	0c2e 0057 ffd7 	cmpib #0x57,%fp@(-41)
 fef106a:	672c           	beqs 0xfef1098
 fef106c:	0c2e 0041 ffd7 	cmpib #0x41,%fp@(-41)
@@ -1343,6 +1380,7 @@ fef1106:	0c38 0051 e002 	cmpib #81,0xffffe002			; XX-0
 fef110c:	6700 fe88      	beqw 0xfef0f96
 fef1110:	2f2e ffcc      	movel %fp@(-52),%sp@-
 fef1114:	4879 0fef c81a 	pea 0xfefc81a
+; 0xfefc81a \n%s test from address 0x
 fef111a:	61ff 0000 43c8 	bsrl 0xfef54e4			; printf
 fef1120:	504f           	addqw #8,%sp
 fef1122:	4878 0008      	pea 0x8
@@ -1350,6 +1388,7 @@ fef1126:	2f2e fffc      	movel %fp@(-4),%sp@-
 fef112a:	61ff 0000 450a 	bsrl 0xfef5636
 fef1130:	504f           	addqw #8,%sp
 fef1132:	4879 0fef c833 	pea 0xfefc833
+; 0xfefc833  to 0x
 fef1138:	61ff 0000 43aa 	bsrl 0xfef54e4			; printf
 fef113e:	584f           	addqw #4,%sp
 fef1140:	4878 0008      	pea 0x8
@@ -1357,6 +1396,7 @@ fef1144:	2f2e fff8      	movel %fp@(-8),%sp@-
 fef1148:	61ff 0000 44ec 	bsrl 0xfef5636
 fef114e:	504f           	addqw #8,%sp
 fef1150:	4879 0fef c83a 	pea 0xfefc83a
+; 0xfefc83a .\n\n
 fef1156:	61ff 0000 438c 	bsrl 0xfef54e4			; printf
 fef115c:	584f           	addqw #4,%sp
 fef115e:	202e fff8      	movel %fp@(-8),%d0
@@ -1412,9 +1452,11 @@ fef121e:	6700 010a      	beqw 0xfef132a
 fef1222:	52b8 e0a6      	addql #1,0xffffe0a6
 fef1226:	2f38 e0a6      	movel 0xffffe0a6,%sp@-
 fef122a:	4879 0fef c83e 	pea 0xfefc83e
+; 0xfefc83e Data compare error(%d):\n
 fef1230:	61ff 0000 42b2 	bsrl 0xfef54e4			; printf
 fef1236:	504f           	addqw #8,%sp
 fef1238:	4879 0fef c857 	pea 0xfefc857
+; 0xfefc857    addr = 0x
 fef123e:	61ff 0000 42a4 	bsrl 0xfef54e4			; printf
 fef1244:	584f           	addqw #4,%sp
 fef1246:	4878 0008      	pea 0x8
@@ -1563,6 +1605,7 @@ fef1428:	6000 fa3e      	braw 0xfef0e68
 fef142c:	2e2e ffc8      	movel %fp@(-56),%d7
 fef1430:	4e5e           	unlk %fp
 fef1432:	4e75           	rts
+
 fef1434:	4e56 ffe0      	linkw %fp,#-32
 fef1438:	48d7 00c0      	moveml %d6-%d7,%sp@
 fef143c:	2e2e 0008      	movel %fp@(8),%d7
@@ -4238,6 +4281,7 @@ fef3672:	720c           	moveq #12,%d1
 fef3674:	b018           	cmpb %a0@+,%d0
 fef3676:	54c9 fffc      	dbcc %d1,0xfef3674
 fef367a:	6600 0458      	bnew 0xfef3ad4
+; Jump table
 fef367e:	303b 1206      	movew %pc@(0xfef3686,%d1:w:2),%d0
 fef3682:	4efb 0002      	jmp %pc@(0xfef3686,%d0:w)
 fef3686:	0082 0040 0048 	oril #0x400048,%d2
@@ -4638,6 +4682,7 @@ fef3b8e:	42b8 e024      	clrl 0xffffe024
 fef3b92:	6000 0a00      	braw 0xfef4594
 fef3b96:	21f8 e024 e020 	movel 0xffffe024,0xffffe020		; Merlin
 fef3b9c:	6000 0a80      	braw 0xfef461e
+; Jump table
 fef3ba0:	303b 0a06      	movew %pc@(0xfef3ba8,%d0:l:2),%d0
 fef3ba4:	4efb 0002      	jmp %pc@(0xfef3ba8,%d0:w)
 fef3ba8:	0212 021a      	andib #0x1a,%a2@
@@ -4982,6 +5027,7 @@ fef3fe4:	6100 146c      	bsrw 0xfef5452
 fef3fe8:	7e0b           	moveq #11,%d7
 fef3fea:	b087           	cmpl %d7,%d0
 fef3fec:	6200 05a6      	bhiw 0xfef4594
+; Jump table
 fef3ff0:	303b 0a06      	movew %pc@(0xfef3ff8,%d0:l:2),%d0
 fef3ff4:	4efb 0002      	jmp %pc@(0xfef3ff8,%d0:w)
 fef3ff8:	0018 0036      	orib #0x36,%a0@+
@@ -6001,6 +6047,8 @@ fef4c8e:	4cee 3ce0 ffd4 	moveml %fp@(-44),%d5-%d7/%a2-%a5
 fef4c94:	4e5e           	unlk %fp
 fef4c96:	4e75           	rts
 
+; =============================================================================
+; =============================================================================
 ; Subroutine - extended_tests
 ; Present and handle the:
 ;		"Extended Test Menu"
@@ -6027,105 +6075,151 @@ fef4cb6:	e180           	asll #8,%d0
 fef4cb8:	49c1           	extbl %d1
 fef4cba:	d081           	addl %d1,%d0
 fef4cbc:	2d40 fffc      	movel %d0,%fp@(-4)		; save
+
+; A sanity check, seems needless, not finding the string
+;   in the table would take care of this.
 fef4cc0:	0c80 0000 564f 	cmpil #0x564f,%d0		; VO
 fef4cc6:	6200 00f0      	bhiw 0xfef4db8			; invalid command
 
 ; table of 2 character "commands"
 fef4cca:	41fa 00fa      	lea %pc@(0xfef4dc6),%a0
 
-; it looks like it indexes backwards using d1
+; 13 items (0-12)
+; fef4dc6:    564f            "VO" - video overlay
+; fef4dc8:    564d            "VM" - video monochrome
+; fef4dca:    5645            "VE" - video enable
+; fef4dcc:    5643            "VC" - video color
+; fef4dce:    5354            "ST" - scsi tape
+; fef4dd0:    5349            "SI" - scsi interface
+; fef4dd2:    5344            "SD" - scsi disk bootpath
+; fef4dd4:    5253            "RS" - RS323 serial ports
+; fef4dd6:    4d4b            "MK" - mouse/keyboard
+; fef4dd8:    4d45            "ME" - memory
+; fef4dda:    4b42            "KB" - keyboard
+; fef4ddc:    434d            "CM" - color map
+; fef4dde:    4145            "AE" - ethernet
+
 fef4cce:	720c           	moveq #12,%d1
 fef4cd0:	b058           	cmpw %a0@+,%d0
 fef4cd2:	54c9 fffc      	dbcc %d1,0xfef4cd0		; loop, 12 items
 fef4cd6:	6600 00e0      	bnew 0xfef4db8		; invalid command
 
 ; Jump table - scale d1 by 2
+; The disassembly is almost too helpful here.
+; The first instruction fetches the offset from the table.
+; The second instruction uses the offset to make the jump
 
 fef4cda:	303b 1206      	movew %pc@(0xfef4ce2,%d1:w:2),%d0
 fef4cde:	4efb 0002      	jmp %pc@(0xfef4ce2,%d0:w)
 
 ; 13 items
-fef4ce2:	001a 00b6      	orib #0xb6,%a2@+
-fef4ce6:	0022 0042      	orib #0x42,%a2@-
-fef4cea:	0034 0054 0060 	orib #0x54,%a4@(60,%d0:w)
-fef4cf0:	0070 0078 00a6 	oriw #0x78,%a0@(ffffffffffffffa6,%d0:w)
-fef4cf6:	0096 0086 00c6 	oril #0x8600c6,%fp@
+fef4ce2:	001a	; AE goes to fef4cfc
+fef4ce4:	00b6	; CM
+fef4ce6:	0022	; KB
+fef4ce8:	0042	; ME
+fef4cea:	0034	; MK
+fef4cec:	0054	; RS
+fef4cee:	0060	; SD
+fef4cf0:	0070	; SI
+fef4cf2:	0078	; ST
+fef4cf4:	00a6	; VC
+fef4cf6:	0096	; VE
+fef4cf8:	0086	; VM
+fef4cfa:	00c6	; VO goes to fef4da8
+
+4da8
 
 ; +++++++++ Now we have the handlers for the jump table above
+; Note that what follows are NOT in the same order as
+; the jump table above!
 
-fef4cfc:	6100 31ca      	bsrw 0xfef7ec8
+; AE
+fef4cfc:	6100 31ca      	bsrw 0xfef7ec8			; etest_ether
 fef4d00:	6000 00de      	braw 0xfef4de0			; reenter loop
 
+; KB
 fef4d04:	7000           	moveq #0,%d0
 fef4d06:	1038 e015      	moveb 0xffffe015,%d0
 fef4d0a:	2f00           	movel %d0,%sp@-
-fef4d0c:	6100 4946      	bsrw 0xfef9654
+fef4d0c:	6100 4946      	bsrw 0xfef9654			; etest_kb
 fef4d10:	584f           	addqw #4,%sp
 fef4d12:	6000 00cc      	braw 0xfef4de0			; reenter loop
 
+; MK
 fef4d16:	4878 0001      	pea 0x1
-fef4d1a:	6100 4218      	bsrw 0xfef8f34
+fef4d1a:	6100 4218      	bsrw 0xfef8f34			; etest_serial
 fef4d1e:	584f           	addqw #4,%sp
 fef4d20:	6000 00be      	braw 0xfef4de0			; reenter loop
 
+; ME
 fef4d24:	4238 e003      	clrb 0xffffe003			; XX-0
 fef4d28:	2f2e 0008      	movel %fp@(8),%sp@-
-fef4d2c:	6100 baee      	bsrw 0xfef081c
+fef4d2c:	6100 baee      	bsrw 0xfef081c			; etest_memory
 fef4d30:	584f           	addqw #4,%sp
 fef4d32:	6000 00ac      	braw 0xfef4de0			; reenter loop
 
+; RS
 fef4d36:	42a7           	clrl %sp@-
-fef4d38:	6100 41fa      	bsrw 0xfef8f34
+fef4d38:	6100 41fa      	bsrw 0xfef8f34			; etest_serial
 fef4d3c:	584f           	addqw #4,%sp
 fef4d3e:	6000 00a0      	braw 0xfef4de0			; reenter loop
 
+; SD
 fef4d42:	4879 0fef da69 	pea 0xfefda69
 ; 0xfefda69 sd()
-fef4d48:	6100 310a      	bsrw 0xfef7e54		; scsi_tester ( "sd()" )
+fef4d48:	6100 310a      	bsrw 0xfef7e54			; etest_scsi ( "sd()" )
 fef4d4c:	584f           	addqw #4,%sp
 
 fef4d4e:	6000 0090      	braw 0xfef4de0			; reenter loop
 
-fef4d52:	6100 3872      	bsrw 0xfef85c6
+; SI
+fef4d52:	6100 3872      	bsrw 0xfef85c6			; etest_si
 fef4d56:	6000 0088      	braw 0xfef4de0			; reenter loop
 
+; ST
 fef4d5a:	4879 0fef da6e 	pea 0xfefda6e
 ; 0xfefda6e st()
-fef4d60:	6100 30f2      	bsrw 0xfef7e54		; scsi_tester ( "st()" )
+fef4d60:	6100 30f2      	bsrw 0xfef7e54			; etest_scsi ( "st()" )
 fef4d64:	584f           	addqw #4,%sp
 
 fef4d66:	6078           	bras 0xfef4de0			; reenter loop
 
+; VM
 fef4d68:	4878 0001      	pea 0x1
 fef4d6c:	2f2e 0008      	movel %fp@(8),%sp@-
-fef4d70:	6100 c0e0      	bsrw 0xfef0e52
+fef4d70:	6100 c0e0      	bsrw 0xfef0e52			; etest_video
 fef4d74:	504f           	addqw #8,%sp
 fef4d76:	6068           	bras 0xfef4de0			; reenter loop
 
+; VE
 fef4d78:	4878 0002      	pea 0x2
 fef4d7c:	2f2e 0008      	movel %fp@(8),%sp@-
-fef4d80:	6100 c0d0      	bsrw 0xfef0e52
+fef4d80:	6100 c0d0      	bsrw 0xfef0e52			; etest_video
 fef4d84:	504f           	addqw #8,%sp
 fef4d86:	6058           	bras 0xfef4de0			; reenter loop
 
+; VC
 fef4d88:	4878 0003      	pea 0x3
 fef4d8c:	2f2e 0008      	movel %fp@(8),%sp@-
-fef4d90:	6100 c0c0      	bsrw 0xfef0e52
+fef4d90:	6100 c0c0      	bsrw 0xfef0e52			; etest_video
 fef4d94:	504f           	addqw #8,%sp
 fef4d96:	6048           	bras 0xfef4de0			; reenter loop
 
+; CM
 fef4d98:	4878 0004      	pea 0x4
 fef4d9c:	2f2e 0008      	movel %fp@(8),%sp@-
-fef4da0:	6100 c0b0      	bsrw 0xfef0e52
+fef4da0:	6100 c0b0      	bsrw 0xfef0e52			; etest_video
 fef4da4:	504f           	addqw #8,%sp
 fef4da6:	6038           	bras 0xfef4de0			; reenter loop
 
+; VO
 fef4da8:	4878 0005      	pea 0x5
 fef4dac:	2f2e 0008      	movel %fp@(8),%sp@-
-fef4db0:	6100 c0a0      	bsrw 0xfef0e52
+fef4db0:	6100 c0a0      	bsrw 0xfef0e52			; etest_video
 fef4db4:	504f           	addqw #8,%sp
 fef4db6:	6028           	bras 0xfef4de0			; reenter loop
 
+; Sorry, game over, insert coin
 fef4db8:	4879 0fef da73 	pea 0xfefda73
 ; 0xfefda73 \nInvalid command!\n
 fef4dbe:	6100 0724      	bsrw 0xfef54e4			; printf
@@ -6263,6 +6357,8 @@ fef4ef8:	2e2e fff8      	movel %fp@(-8),%d7
 fef4efc:	4e5e           	unlk %fp
 fef4efe:	4e75           	rts
 
+; =============================================================================
+; =============================================================================
 ; Subroutine
 
 fef4f00:	4e56 ffec      	linkw %fp,#-20
@@ -7177,6 +7273,7 @@ fef587a:	c087           	andl %d7,%d0
 fef587c:	4cee 00c0 fff8 	moveml %fp@(-8),%d6-%d7
 fef5882:	4e5e           	unlk %fp
 fef5884:	4e75           	rts
+
 fef5886:	4e56 fff4      	linkw %fp,#-12
 fef588a:	48d7 00e0      	moveml %d5-%d7,%sp@
 fef588e:	2e2e 0008      	movel %fp@(8),%d7
@@ -7237,6 +7334,7 @@ fef5922:	584f           	addqw #4,%sp
 fef5924:	4cee 00e0 fff4 	moveml %fp@(-12),%d5-%d7
 fef592a:	4e5e           	unlk %fp
 fef592c:	4e75           	rts
+
 fef592e:	7a0d           	moveq #13,%d5
 fef5930:	bc85           	cmpl %d5,%d6
 fef5932:	6604           	bnes 0xfef5938
@@ -7316,6 +7414,7 @@ fef5a38:	11fc 00ff e011 	moveb #-1,0xffffe011
 fef5a3e:	6000 ff36      	braw 0xfef5976
 fef5a42:	4e5e           	unlk %fp
 fef5a44:	4e75           	rts
+
 fef5a46:	0000 4e56      	orib #0x56,%d0
 fef5a4a:	0000 42b8      	orib #0xb8,%d0
 fef5a4e:	e17e           	rolw %d0,%d6
@@ -7325,6 +7424,7 @@ fef5a5c:	e0ba
 fef5a5e:	11fc 007f e014 	moveb #0x7f,0xffffe014
 fef5a64:	4e5e           	unlk %fp
 fef5a66:	4e75           	rts
+
 fef5a68:	4e56 ffec      	linkw %fp,#-20
 fef5a6c:	48d7 00f0      	moveml %d4-%d7,%sp@
 fef5a70:	2038 e252      	movel 0xffffe252,%d0
@@ -7410,6 +7510,7 @@ fef5b68:	e888           	lsrl #4,%d0
 fef5b6a:	7e0a           	moveq #10,%d7
 fef5b6c:	b087           	cmpl %d7,%d0
 fef5b6e:	6200 ff00      	bhiw 0xfef5a70
+; Jump table
 fef5b72:	303b 0a06      	movew %pc@(0xfef5b7a,%d0:l:2),%d0
 fef5b76:	4efb 0002      	jmp %pc@(0xfef5b7a,%d0:w)
 fef5b7a:	0016 0016      	orib #0x16,%fp@
@@ -7446,6 +7547,8 @@ fef5bd4:	0480 0000 00a0 	subil #0xa0,%d0
 fef5bda:	7e08           	moveq #8,%d7
 fef5bdc:	b087           	cmpl %d7,%d0
 fef5bde:	6200 fe90      	bhiw 0xfef5a70
+
+; Jump table
 fef5be2:	303b 0a06      	movew %pc@(0xfef5bea,%d0:l:2),%d0
 fef5be6:	4efb 0002      	jmp %pc@(0xfef5bea,%d0:w)
 fef5bea:	0012 005c      	orib #0x5c,%a2@
@@ -7498,6 +7601,7 @@ fef5c7e:	6700 0430      	beqw 0xfef60b0			; print usage message
 fef5c82:	6100 a860      	bsrw 0xfef04e4			; read_enable
 fef5c86:	0800 0004      	btst #4,%d0
 fef5c8a:	6704           	beqs 0xfef5c90
+
 fef5c8c:	6100 41aa      	bsrw 0xfef9e38
 fef5c90:	2a6e 0008      	moveal %fp@(8),%a5
 fef5c94:	600e           	bras 0xfef5ca4
@@ -8002,6 +8106,8 @@ fef61ea:	202e 0008      	movel %fp@(8),%d0
 fef61ee:	7203           	moveq #3,%d1
 fef61f0:	b081           	cmpl %d1,%d0
 fef61f2:	6238           	bhis 0xfef622c
+
+; jump table
 fef61f4:	303b 0a06      	movew %pc@(0xfef61fc,%d0:l:2),%d0
 fef61f8:	4efb 0002      	jmp %pc@(0xfef61fc,%d0:w)
 fef61fc:	001c 0008      	orib #8,%a4@+
@@ -8329,6 +8435,7 @@ fef6518:	6cec           	bges 0xfef6506
 
 fef651a:	4440           	negw %d0
 fef651c:	e340           	aslw #1,%d0
+
 fef651e:	4efb 0002      	jmp %pc@(0xfef6522,%d0:w)
 fef6522:	3521           	movew %a1@-,%a2@-
 fef6524:	3521           	movew %a1@-,%a2@-
@@ -8360,6 +8467,7 @@ fef6558:	5180           	subql #8,%d0
 fef655a:	6cec           	bges 0xfef6548
 fef655c:	4440           	negw %d0
 fef655e:	e340           	aslw #1,%d0
+
 fef6560:	4efb 0002      	jmp %pc@(0xfef6564,%d0:w)
 fef6564:	30ca           	movew %a2,%a0@+
 fef6566:	30ca           	movew %a2,%a0@+
@@ -9047,6 +9155,8 @@ fef6dfa:	7208           	moveq #8,%d1
 fef6dfc:	b018           	cmpb %a0@+,%d0
 fef6dfe:	54c9 fffc      	dbcc %d1,0xfef6dfc
 fef6e02:	6600 0220      	bnew 0xfef7024
+
+; Jump table
 fef6e06:	303b 1206      	movew %pc@(0xfef6e0e,%d1:w:2),%d0
 fef6e0a:	4efb 0002      	jmp %pc@(0xfef6e0e,%d0:w)
 fef6e0e:	0012 001a      	orib #0x1a,%a2@
@@ -9256,6 +9366,8 @@ fef70a0:	9081           	subl %d1,%d0
 fef70a2:	7233           	moveq #51,%d1
 fef70a4:	b081           	cmpl %d1,%d0
 fef70a6:	6200 fcf8      	bhiw 0xfef6da0
+
+; Jump table
 fef70aa:	303b 0a06      	movew %pc@(0xfef70b2,%d0:l:2),%d0
 fef70ae:	4efb 0002      	jmp %pc@(0xfef70b2,%d0:w)
 fef70b2:	0068 0086 009e 	oriw #0x86,%a0@(158)
@@ -10409,7 +10521,7 @@ fef7e4e:	4e5e           	unlk %fp
 fef7e50:	4e75           	rts
 fef7e52:	0000
 
-; Subroutine --- scsi_tester - 2 calls
+; Subroutine --- etest_scsi - 2 calls
 ; called from the extended test menu
 ; Called with one argument, the string sd() or st()
 
@@ -10457,6 +10569,8 @@ fef7ebc:	66b8           	bnes 0xfef7e76
 fef7ebe:	4cee 30c0 fff0 	moveml %fp@(-16),%d6-%d7/%a4-%a5
 fef7ec4:	4e5e           	unlk %fp
 fef7ec6:	4e75           	rts
+
+; Subroutine etest_ether
 fef7ec8:	4e56 fff4      	linkw %fp,#-12
 fef7ecc:	48d7 00a0      	moveml %d5/%d7,%sp@
 fef7ed0:	42b8 e0a6      	clrl 0xffffe0a6
@@ -10504,6 +10618,7 @@ fef7f5c:	4879 0fef e738 	pea 0xfefe738
 fef7f62:	6100 1b76      	bsrw 0xfef9ada		; announce_test
 fef7f66:	504f           	addqw #8,%sp
 fef7f68:	4879 0fef e745 	pea 0xfefe745
+; 0xfefe745 w - Wr/Rd CSR1 Reg Test\nl - Local Loopback Test\nx - External Loopback Test
 fef7f6e:	6100 d574      	bsrw 0xfef54e4			; printf
 fef7f72:	584f           	addqw #4,%sp
 fef7f74:	6100 1bac      	bsrw 0xfef9b22			; get_cmd
@@ -10527,6 +10642,7 @@ fef7faa:	7051           	moveq #81,%d0
 fef7fac:	4cee 00a0 fff4 	moveml %fp@(-12),%d5/%d7
 fef7fb2:	4e5e           	unlk %fp
 fef7fb4:	4e75           	rts
+
 fef7fb6:	4e56 fff4      	linkw %fp,#-12
 fef7fba:	48d7 00e0      	moveml %d5-%d7,%sp@
 fef7fbe:	3e2e 000a      	movew %fp@(10),%d7
@@ -11002,7 +11118,8 @@ fef85bc:	4cee 20e0 fff0 	moveml %fp@(-16),%d5-%d7/%a5
 fef85c2:	4e5e           	unlk %fp
 fef85c4:	4e75           	rts
 
-; Subroutine
+; etest_si
+; extended test of scsi interface
 fef85c6:	4e56 fff4      	linkw %fp,#-12
 fef85ca:	48d7 00a0      	moveml %d5/%d7,%sp@
 fef85ce:	6068           	bras 0xfef8638
@@ -11786,6 +11903,10 @@ fef8f28:	2038 e0a2      	movel 0xffffe0a2,%d0
 fef8f2c:	2e2e ffe4      	movel %fp@(-28),%d7
 fef8f30:	4e5e           	unlk %fp
 fef8f32:	4e75           	rts
+
+; Subroutine - etest_serial
+; arg is 0 to test serial A/B
+; arg is 1 to test mouse/kb
 fef8f34:	4e56 ffcc      	linkw %fp,#-52
 fef8f38:	48d7 2080      	moveml %d7/%a5,%sp@
 fef8f3c:	1d7c 0057 ffd8 	moveb #0x57,%fp@(-40)
@@ -11834,12 +11955,15 @@ fef8fd2:	6006           	bras 0xfef8fda
 fef8fd4:	203c 0fef ea92 	movel #0xfefea92,%d0
 fef8fda:	2f00           	movel %d0,%sp@-
 fef8fdc:	4879 0fef ea6c 	pea 0xfefea6c
+; 0xfefea6c Enter port cmd: Cmd [port(%s)]
 fef8fe2:	6100 c500      	bsrw 0xfef54e4			; printf
 fef8fe6:	504f           	addqw #8,%sp
 fef8fe8:	4879 0fef ea99 	pea 0xfefea99
+; 0xfefea99  [Baud rate(decimal #)] [hex byte pattern]\n\n
 fef8fee:	6100 c4f4      	bsrw 0xfef54e4			; printf
 fef8ff2:	584f           	addqw #4,%sp
 fef8ff4:	4879 0fef eac6 	pea 0xfefeac6
+; 0xfefeac6 Cmd -  Test\n\nw - Wr/Rd SCC Reg 12 Test\nx - Xmit Char Test\ni - Internal Loopback Test\ne - External Loopback
 fef8ffa:	6100 c4e8      	bsrw 0xfef54e4			; printf
 fef8ffe:	584f           	addqw #4,%sp
 fef9000:	6100 0b20      	bsrw 0xfef9b22			; get_cmd
@@ -11877,6 +12001,7 @@ fef9076:	6618           	bnes 0xfef9090
 fef9078:	0c2e 0042 ffdb 	cmpib #0x42,%fp@(-37)
 fef907e:	6610           	bnes 0xfef9090
 fef9080:	4879 0fef eb31 	pea 0xfefeb31
+; 0xfefeb31 \nCannot test port in use!\n
 fef9086:	6100 c45c      	bsrw 0xfef54e4			; printf
 fef908a:	584f           	addqw #4,%sp
 fef908c:	42ae ffe4      	clrl %fp@(-28)
@@ -11970,6 +12095,7 @@ fef91b6:	601a           	bras 0xfef91d2
 fef91b8:	4a95           	tstl %a5@
 fef91ba:	6612           	bnes 0xfef91ce
 fef91bc:	4879 0fef eb4c 	pea 0xfefeb4c
+; 0xfefeb4c Invalid Baud rate!\n
 fef91c2:	6100 c320      	bsrw 0xfef54e4			; printf
 fef91c6:	584f           	addqw #4,%sp
 fef91c8:	42ae ffe4      	clrl %fp@(-28)
@@ -12153,6 +12279,7 @@ fef93f6:	6000 fba2      	braw 0xfef8f9a
 fef93fa:	4cee 2080 ffcc 	moveml %fp@(-52),%d7/%a5
 fef9400:	4e5e           	unlk %fp
 fef9402:	4e75           	rts
+
 fef9404:	4e56 fff0      	linkw %fp,#-16
 fef9408:	2e87           	movel %d7,%sp@
 fef940a:	42ae fffc      	clrl %fp@(-4)
@@ -12341,8 +12468,11 @@ fef964a:	4fef 0018      	lea %sp@(24),%sp
 fef964e:	7001           	moveq #1,%d0
 fef9650:	4e5e           	unlk %fp
 fef9652:	4e75           	rts
+
+; Subroutine etest_kb
 fef9654:	4e56 fff4      	linkw %fp,#-12
 fef9658:	4879 0fef ebd8 	pea 0xfefebd8
+; 0xfefebd8 \nType keyboard keys to display them.  To exit type 'esc'.\n
 fef965e:	6100 be84      	bsrw 0xfef54e4			; printf
 fef9662:	584f           	addqw #4,%sp
 fef9664:	4238 e01a      	clrb 0xffffe01a
@@ -12379,6 +12509,7 @@ fef96d0:	102e ffff      	moveb %fp@(-1),%d0
 fef96d4:	49c0           	extbl %d0
 fef96d6:	2f00           	movel %d0,%sp@-
 fef96d8:	4879 0fef ec16 	pea 0xfefec16
+; 0xfefec16   %c\n
 fef96de:	6100 be04      	bsrw 0xfef54e4			; printf
 fef96e2:	504f           	addqw #8,%sp
 fef96e4:	206e fff8      	moveal %fp@(-8),%a0
@@ -12405,6 +12536,7 @@ fef972a:	102e ffff      	moveb %fp@(-1),%d0
 fef972e:	49c0           	extbl %d0
 fef9730:	2f00           	movel %d0,%sp@-
 fef9732:	4879 0fef ec1f 	pea 0xfefec1f
+; 0xfefec1f   %c\n
 fef9738:	6100 bdaa      	bsrw 0xfef54e4			; printf
 fef973c:	504f           	addqw #8,%sp
 fef973e:	6100 c02e      	bsrw 0xfef576e
@@ -12418,6 +12550,7 @@ fef9750:	66aa           	bnes 0xfef96fc
 fef9752:	11fc 0001 e01a 	moveb #1,0xffffe01a
 fef9758:	4e5e           	unlk %fp
 fef975a:	4e75           	rts
+
 fef975c:	4e56 ffe4      	linkw %fp,#-28
 fef9760:	48d7 20f0      	moveml %d4-%d7/%a5,%sp@
 fef9764:	2a7c 0fe0 e000 	moveal #0xfe0e000,%a5
@@ -14676,6 +14809,7 @@ fefb258:	720a           	moveq #10,%d1
 fefb25a:	b018           	cmpb %a0@+,%d0
 fefb25c:	54c9 fffc      	dbcc %d1,0xfefb25a
 fefb260:	6600 015c      	bnew 0xfefb3be
+; Jump table
 fefb264:	303b 1206      	movew %pc@(0xfefb26c,%d1:w:2),%d0
 fefb268:	4efb 0002      	jmp %pc@(0xfefb26c,%d0:w)
 fefb26c:	00ca           	.short 0x00ca
@@ -15907,6 +16041,7 @@ fefc214:	202e 0014      	movel %fp@(20),%d0
 fefc218:	760f           	moveq #15,%d3
 fefc21a:	b083           	cmpl %d3,%d0
 fefc21c:	6200 01be      	bhiw 0xfefc3dc
+; Jump table
 fefc220:	303b 0a06      	movew %pc@(0xfefc228,%d0:l:2),%d0
 fefc224:	4efb 0002      	jmp %pc@(0xfefc228,%d0:w)
 fefc228:	0068 01b4 01b4 	oriw #0x1b4,%a0@(436)
