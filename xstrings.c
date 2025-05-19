@@ -226,7 +226,8 @@ main ( int argc, char **argv )
 			// These are from the 3-60 disassembly
 			// batch ( 0xe738, 0xf480 );
 			// batch ( 0xdb34, 0xdc10 );
-			batch ( 0xc544, 0xda90 );
+			// batch ( 0xc544, 0xda90 );
+			batch ( 0xf38e, 0xf480 );
 		} else if ( argc == 1 ) {
 			single ( argv[0] );
 		} else {

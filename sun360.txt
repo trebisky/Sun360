@@ -13,9 +13,16 @@
 ; This is exactly opposite from ARM where
 ; "motion" is from right to left, here:
 ;   movs    r0, #0  places the value 0 into r0
+;
+; ------------------------------------------------
+; When the smoke clears, this loads code to 0x4000,
+;  sets SP to 0x4000 and jumps to the code.
 
 ; ==========================================
+; ==========================================
+;
 ; The first two words are read by the processor at reset
+
 0fef0000:  0fe60c00		; stack pointer
 0fef0004:  0fef00ee		; initial PC
 
@@ -116,6 +123,16 @@ fef00fa:	4e7b f001      	movec %sp,%dfc
 fef00fe:	4e7b f000      	movec %sp,%sfc
 
 fef0102:	9fcf           	subal %sp,%sp				; sp = 0
+
+; Here are the bits in the SYS_ENABLE register
+;  0 - DIAG switch (actually read only in the schematics, write is floating)
+;  1 - FPA - enable floating point accelerator
+;  2 - COPY - enable copy mode to video memory, if present
+;  3 - VIDEO - enable video display
+;  4 - CACHE - enable external cache if present
+;  5 - SDVMA - enable system DVMA if present
+;  6 - FPP - enable floating point accelerator if present
+;  7 - BOOT- - enable boot state, 0 = boot 1 = normal
 
 fef0104:	0e39 f800 3000 	movesb %sp,0x30000000		; CONTEXT
 fef010a:	0000
@@ -884,6 +901,7 @@ fef0aca:	6744           	beqs 0xfef0b10
 fef0acc:	4cee 00f8 ffec 	moveml %fp@(-20),%d3-%d7
 fef0ad2:	4e5e           	unlk %fp
 fef0ad4:	4e75           	rts
+
 fef0ad6:	2f05           	movel %d5,%sp@-
 fef0ad8:	2f06           	movel %d6,%sp@-
 fef0ada:	2f07           	movel %d7,%sp@-
@@ -974,6 +992,7 @@ fef0bc8:	6faa           	bles 0xfef0b74
 fef0bca:	4cee 00fc ffe8 	moveml %fp@(-24),%d2-%d7
 fef0bd0:	4e5e           	unlk %fp
 fef0bd2:	4e75           	rts
+
 fef0bd4:	4e56 ffe8      	linkw %fp,#-24
 fef0bd8:	48d7 00fc      	moveml %d2-%d7,%sp@
 fef0bdc:	242e 0008      	movel %fp@(8),%d2
@@ -1020,6 +1039,7 @@ fef0c50:	6f9c           	bles 0xfef0bee
 fef0c52:	4cee 00fc ffe8 	moveml %fp@(-24),%d2-%d7
 fef0c58:	4e5e           	unlk %fp
 fef0c5a:	4e75           	rts
+
 fef0c5c:	4e56 ffe8      	linkw %fp,#-24
 fef0c60:	48d7 00fc      	moveml %d2-%d7,%sp@
 fef0c64:	242e 0008      	movel %fp@(8),%d2
@@ -1702,6 +1722,7 @@ fef156e:	6d00 feea      	bltw 0xfef145a
 fef1572:	4cee 00c0 ffe0 	moveml %fp@(-32),%d6-%d7
 fef1578:	4e5e           	unlk %fp
 fef157a:	4e75           	rts
+
 fef157c:	4e56 fff0      	linkw %fp,#-16
 fef1580:	48d7 00e0      	moveml %d5-%d7,%sp@
 fef1584:	2e2e 0008      	movel %fp@(8),%d7
@@ -1740,6 +1761,7 @@ fef15e8:	6dda           	blts 0xfef15c4
 fef15ea:	4cee 00e0 fff0 	moveml %fp@(-16),%d5-%d7
 fef15f0:	4e5e           	unlk %fp
 fef15f2:	4e75           	rts
+
 fef15f4:	4e56 fffc      	linkw %fp,#-4
 fef15f8:	2e87           	movel %d7,%sp@
 fef15fa:	2e3c 0080 0000 	movel #0x800000,%d7
@@ -1753,6 +1775,7 @@ fef161a:	6de4           	blts 0xfef1600
 fef161c:	2e2e fffc      	movel %fp@(-4),%d7
 fef1620:	4e5e           	unlk %fp
 fef1622:	4e75           	rts
+
 fef1624:	4e56 ffa0      	linkw %fp,#-96
 fef1628:	48d7 20c0      	moveml %d6-%d7/%a5,%sp@
 fef162c:	42ae fff8      	clrl %fp@(-8)
@@ -2171,6 +2194,7 @@ fef1b86:	42b8 e086      	clrl 0xffffe086
 fef1b8a:	4cee 20c0 ffa0 	moveml %fp@(-96),%d6-%d7/%a5
 fef1b90:	4e5e           	unlk %fp
 fef1b92:	4e75           	rts
+
 fef1b94:	4e56 fff4      	linkw %fp,#-12
 fef1b98:	6100 156a      	bsrw 0xfef3104
 fef1b9c:	6100 e946      	bsrw 0xfef04e4			; read_enable
@@ -2236,11 +2260,13 @@ fef1c64:	584f           	addqw #4,%sp
 fef1c66:	6100 f98c      	bsrw 0xfef15f4
 fef1c6a:	4e5e           	unlk %fp
 fef1c6c:	4e75           	rts
-fef1c6e:	0000 2000      	orib #0,%d0
-fef1c72:	0000 202f      	orib #0x2f,%d0
-fef1c76:	0004 0280      	orib #0x80,%d4
-fef1c7a:	0fff           	.short 0x0fff
-fef1c7c:	e000           	asrb #8,%d0
+fef1c6e:	0000
+
+fef1c70:	2000
+fef1c72:	0000
+
+ fef1c74:	202f 0004      	movel %sp@(4),%d0
+ fef1c78:	0280 0fff e000 	andil #268427264,%d0
 fef1c7e:	0680 1000 0000 	addil #0x10000000,%d0
 fef1c84:	2040           	moveal %d0,%a0
 fef1c86:	4e7a 1000      	movec %sfc,%d1
@@ -2249,6 +2275,7 @@ fef1c8e:	4e7b 9000      	movec %a1,%sfc
 fef1c92:	0e90 0000      	movesl %a0@,%d0
 fef1c96:	4e7b 1000      	movec %d1,%sfc
 fef1c9a:	4e75           	rts
+
 fef1c9c:	202f 0004      	movel %sp@(4),%d0
 fef1ca0:	0280 0fff e000 	andil #0xfffe000,%d0
 fef1ca6:	0680 2000 0000 	addil #0x20000000,%d0	; SEGMAP
@@ -2293,6 +2320,7 @@ fef1d14:	0e90 0800      	movesl %d0,%a0@
 fef1d18:	4e7b 1001      	movec %d1,%dfc		; restore
 fef1d1c:	4e75           	rts
 
+; Subroutine
 fef1d1e:	202f 0004      	movel %sp@(4),%d0
 fef1d22:	0280 0fff e000 	andil #0xfffe000,%d0
 fef1d28:	0680 2000 0000 	addil #0x20000000,%d0	; SEGMAP
@@ -4189,6 +4217,7 @@ fef3564:	6100 1f7e      	bsrw 0xfef54e4			; printf
 fef3568:	584f           	addqw #4,%sp
 fef356a:	4e5e           	unlk %fp
 fef356c:	4e75           	rts
+
 fef356e:	4e56 fffc      	linkw %fp,#-4
 fef3572:	2e87           	movel %d7,%sp@
 fef3574:	7e00           	moveq #0,%d7
@@ -4206,6 +4235,7 @@ fef3592:	584f           	addqw #4,%sp
 fef3594:	2e2e fffc      	movel %fp@(-4),%d7
 fef3598:	4e5e           	unlk %fp
 fef359a:	4e75           	rts
+
 fef359c:	4e56 fff8      	linkw %fp,#-8
 fef35a0:	48d7 00c0      	moveml %d6-%d7,%sp@
 fef35a4:	2e2e 000c      	movel %fp@(12),%d7
@@ -4311,6 +4341,7 @@ fef36da:	584f           	addqw #4,%sp
 
 fef36dc:	2c00           	movel %d0,%d6
 fef36de:	6f00 044e      	blew 0xfef3b2e
+
 fef36e2:	2d46 006c      	movel %d6,%fp@(108)
 fef36e6:	6000 074a      	braw 0xfef3e32
 fef36ea:	0c39 0012 0fe0 	cmpib #0x12,0xfe04017
@@ -4651,6 +4682,7 @@ fef3b22:	7e7d           	moveq #125,%d7
 fef3b24:	240c           	movel %a4,%d2
 fef3b26:	0805 0403      	btst #3,%d5
 fef3b2a:	0201 0000      	andib #0,%d1
+
 fef3b2e:	0cb8 0000 0003 	cmpil #3,0xffffe0f6
 fef3b34:	e0f6
 fef3b36:	6634           	bnes 0xfef3b6c
@@ -4682,6 +4714,7 @@ fef3b8e:	42b8 e024      	clrl 0xffffe024
 fef3b92:	6000 0a00      	braw 0xfef4594
 fef3b96:	21f8 e024 e020 	movel 0xffffe024,0xffffe020		; Merlin
 fef3b9c:	6000 0a80      	braw 0xfef461e
+
 ; Jump table
 fef3ba0:	303b 0a06      	movew %pc@(0xfef3ba8,%d0:l:2),%d0
 fef3ba4:	4efb 0002      	jmp %pc@(0xfef3ba8,%d0:w)
@@ -4708,6 +4741,7 @@ fef3bde:	0b22           	btst %d5,%a2@-
 fef3be0:	0b22           	btst %d5,%a2@-
 fef3be2:	003c 6100      	orib #0,%ccr
 fef3be6:	1858           	.short 0x1858
+
 fef3be8:	6100 181e      	bsrw 0xfef5408		; Hokey
 fef3bec:	0200 005f      	andib #0x5f,%d0
 fef3bf0:	49c0           	extbl %d0
@@ -5739,6 +5773,7 @@ fef48c0:	4fef 000c      	lea %sp@(12),%sp
 fef48c4:	202e fff4      	movel %fp@(-12),%d0
 fef48c8:	4e5e           	unlk %fp
 fef48ca:	4e75           	rts
+
 fef48cc:	4e56 fff4      	linkw %fp,#-12
 fef48d0:	48d7 3800      	moveml %a3-%a5,%sp@
 fef48d4:	2a6e 0008      	moveal %fp@(8),%a5
@@ -5774,6 +5809,7 @@ fef4926:	65d6           	bcss 0xfef48fe
 fef4928:	4cee 3800 fff4 	moveml %fp@(-12),%a3-%a5
 fef492e:	4e5e           	unlk %fp
 fef4930:	4e75           	rts
+
 fef4932:	4e56 fff4      	linkw %fp,#-12
 fef4936:	48d7 3080      	moveml %d7/%a4-%a5,%sp@
 fef493a:	2e2e 0008      	movel %fp@(8),%d7
@@ -5874,6 +5910,7 @@ fef4a4a:	6100 0a98      	bsrw 0xfef54e4			; printf
 fef4a4e:	584f           	addqw #4,%sp
 fef4a50:	4e5e           	unlk %fp
 fef4a52:	4e75           	rts
+
 fef4a54:	4e56 fff8      	linkw %fp,#-8
 fef4a58:	41f9 0fef d59a 	lea 0xfefd59a,%a0
 fef4a5e:	2d50 fffc      	movel %a0@,%fp@(-4)
@@ -5893,6 +5930,7 @@ fef4a94:	fff8
 fef4a96:	6dce           	blts 0xfef4a66
 fef4a98:	4e5e           	unlk %fp
 fef4a9a:	4e75           	rts
+
 fef4a9c:	4e56 ffd4      	linkw %fp,#-44
 fef4aa0:	48d7 3ce0      	moveml %d5-%d7/%a2-%a5,%sp@
 fef4aa4:	2a6e 0008      	moveal %fp@(8),%a5
@@ -6693,6 +6731,7 @@ fef52e8:	584f           	addqw #4,%sp
 fef52ea:	4cee 20f8 ffe8 	moveml %fp@(-24),%d3-%d7/%a5
 fef52f0:	4e5e           	unlk %fp
 fef52f2:	4e75           	rts
+
 fef52f4:	4e56 fff4      	linkw %fp,#-12
 fef52f8:	48d7 20c0      	moveml %d6-%d7/%a5,%sp@
 fef52fc:	2e2e 0008      	movel %fp@(8),%d7
@@ -7187,6 +7226,7 @@ fef5794:	4e5e           	unlk %fp
 fef5796:	4e75           	rts
 
 ; Subroutine Annie - at least 10 calls
+;  pretty big
 fef5798:	4e56 fff8      	linkw %fp,#-8
 fef579c:	48d7 00c0      	moveml %d6-%d7,%sp@
 fef57a0:	0c38 0012 e000 	cmpib #18,0xffffe000			; XX-0-A
@@ -7414,10 +7454,10 @@ fef5a38:	11fc 00ff e011 	moveb #-1,0xffffe011
 fef5a3e:	6000 ff36      	braw 0xfef5976
 fef5a42:	4e5e           	unlk %fp
 fef5a44:	4e75           	rts
+fef5a46:	0000
 
-fef5a46:	0000 4e56      	orib #0x56,%d0
-fef5a4a:	0000 42b8      	orib #0xb8,%d0
-fef5a4e:	e17e           	rolw %d0,%d6
+fef5a48:	4e56 0000      	linkw %fp,#0
+fef5a4c:	42b8 e17e      	clrl 0xffffe17e
 fef5a50:	11fc 004c e013 	moveb #0x4c,0xffffe013
 fef5a56:	21fc 0000 01f4 	movel #0x1f4,0xffffe0ba
 fef5a5c:	e0ba
@@ -7583,10 +7623,15 @@ fef5c4e:	4cee 00f0 ffec 	moveml %fp@(-20),%d4-%d7
 fef5c54:	4e5e           	unlk %fp
 fef5c56:	4e75           	rts
 
+; ==================================================================================================
+; ==================================================================================================
 ; routine -- huge_boot
 ; called from 3 places
+;  returns -1 on failure, or a value
+
 fef5c58:	4e56 ff90      	linkw %fp,#-112
 fef5c5c:	48d7 3cf8      	moveml %d3-%d7/%a2-%a5,%sp@
+
 fef5c60:	97cb           	subal %a3,%a3
 fef5c62:	95ca           	subal %a2,%a2
 fef5c64:	2079 0fef 000c 	moveal 0xfef000c,%a0
@@ -7598,8 +7643,8 @@ fef5c76:	206e 0008      	moveal %fp@(8),%a0
 fef5c7a:	0c10 003f      	cmpib #0x3f,%a0@
 fef5c7e:	6700 0430      	beqw 0xfef60b0			; print usage message
 
-fef5c82:	6100 a860      	bsrw 0xfef04e4			; read_enable
-fef5c86:	0800 0004      	btst #4,%d0
+fef5c82:	6100 a860      	bsrw 0xfef04e4			; read_enable ENABLE register
+fef5c86:	0800 0004      	btst #4,%d0				: ?? what is in bit 4
 fef5c8a:	6704           	beqs 0xfef5c90
 
 fef5c8c:	6100 41aa      	bsrw 0xfef9e38
@@ -7625,6 +7670,7 @@ fef5cc0:	202e 0008      	movel %fp@(8),%d0
 fef5cc4:	5480           	addql #2,%d0
 fef5cc6:	b9c0           	cmpal %d0,%a4
 fef5cc8:	6600 03e6      	bnew 0xfef60b0			; print usage message
+
 fef5ccc:	206e 0008      	moveal %fp@(8),%a0
 fef5cd0:	1490           	moveb %a0@,%a2@
 fef5cd2:	206e 0008      	moveal %fp@(8),%a0
@@ -7632,28 +7678,34 @@ fef5cd6:	1568 0001 0001 	moveb %a0@(1),%a2@(1)
 fef5cdc:	528d           	addql #1,%a5
 fef5cde:	202e fff0      	movel %fp@(-16),%d0
 fef5ce2:	0680 0000 0086 	addil #0x86,%d0
-fef5ce8:	2f00           	movel %d0,%sp@-
+
+fef5ce8:	2f00           	movel %d0,%sp@-			; place for result
 fef5cea:	4855           	pea %a5@
-fef5cec:	6100 0406      	bsrw 0xfef60f4
+fef5cec:	6100 0406      	bsrw 0xfef60f4			; scanner
 fef5cf0:	504f           	addqw #8,%sp
+
 fef5cf2:	2a40           	moveal %d0,%a5
 fef5cf4:	202e fff0      	movel %fp@(-16),%d0
 fef5cf8:	0680 0000 008a 	addil #0x8a,%d0
-fef5cfe:	2f00           	movel %d0,%sp@-
+
+fef5cfe:	2f00           	movel %d0,%sp@-			; place for result
 fef5d00:	4855           	pea %a5@
-fef5d02:	6100 03f0      	bsrw 0xfef60f4
+fef5d02:	6100 03f0      	bsrw 0xfef60f4			; scanner
 fef5d06:	504f           	addqw #8,%sp
+
 fef5d08:	2a40           	moveal %d0,%a5
 fef5d0a:	202e fff0      	movel %fp@(-16),%d0
 fef5d0e:	0680 0000 008e 	addil #0x8e,%d0
-fef5d14:	2f00           	movel %d0,%sp@-
+
+fef5d14:	2f00           	movel %d0,%sp@-			; place for result
 fef5d16:	4855           	pea %a5@
-fef5d18:	6100 03da      	bsrw 0xfef60f4
+fef5d18:	6100 03da      	bsrw 0xfef60f4			; scanner
 fef5d1c:	504f           	addqw #8,%sp
+
 fef5d1e:	2a40           	moveal %d0,%a5
 fef5d20:	4a15           	tstb %a5@
-fef5d22:	6708           	beqs 0xfef5d2c
-fef5d24:	0c15 0029      	cmpib #0x29,%a5@
+fef5d22:	6708           	beqs 0xfef5d2c			; expect null
+fef5d24:	0c15 0029      	cmpib #0x29,%a5@		; or )
 fef5d28:	6600 0386      	bnew 0xfef60b0			; print usage message
 
 fef5d2c:	4879 0fef dd60 	pea 0xfefdd60
@@ -7761,9 +7813,20 @@ fef5e5c:	4215           	clrb %a5@
 fef5e5e:	528d           	addql #1,%a5
 fef5e60:	0c15 0020      	cmpib #0x20,%a5@
 fef5e64:	67f8           	beqs 0xfef5e5e
+
+; This is the "boot option list"
+; BOOT-ON
+; We have a table that looks like this:
+; fefdd50:	0feff0cc -->  "sd"
+; fefdd54:	0feff00c -->  "le"
+; fefdd58:	0feff178 -->  "st"
+; fefdd5c:	00000000
+
 fef5e66:	2d7c 0fef dd50 	movel #0xfefdd50,%fp@(-8)
 fef5e6c:	fff8
 fef5e6e:	6000 00c2      	braw 0xfef5f32
+
+; loop - AAA
 fef5e72:	4a78 e07e      	tstw 0xffffe07e
 fef5e76:	6618           	bnes 0xfef5e90
 fef5e78:	206e fff4      	moveal %fp@(-12),%a0
@@ -7798,10 +7861,12 @@ fef5ec4:	4fef 0020      	lea %sp@(32),%sp
 fef5ec8:	2f38 e176      	movel 0xffffe176,%sp@-
 fef5ecc:	6100 044a      	bsrw 0xfef6318
 fef5ed0:	584f           	addqw #4,%sp
-fef5ed2:	4878 0036      	pea 0x36
-fef5ed6:	486e ffb8      	pea %fp@(-72)
+
+fef5ed2:	4878 0036      	pea 0x36				; count
+fef5ed6:	486e ffb8      	pea %fp@(-72)			; addr
 fef5eda:	6100 0470      	bsrw 0xfef634c			; memzero
 fef5ede:	504f           	addqw #8,%sp
+
 fef5ee0:	206e fff0      	moveal %fp@(-16),%a0
 fef5ee4:	2d68 0086 ffc2 	movel %a0@(134),%fp@(-62)
 fef5eea:	2d68 008a ffc6 	movel %a0@(138),%fp@(-58)
@@ -7830,10 +7895,13 @@ fef5f28:	584f           	addqw #4,%sp
 
 fef5f2a:	6000 01bc      	braw 0xfef60e8			; return -1
 
-fef5f2e:	58ae fff8      	addql #4,%fp@(-8)
+fef5f2e:	58ae fff8      	addql #4,%fp@(-8)		; several branches here from above
+													; to go to next loop iteration
+
+; enter loop AAA here.
 fef5f32:	206e fff8      	moveal %fp@(-8),%a0
 fef5f36:	2d50 fff4      	movel %a0@,%fp@(-12)
-fef5f3a:	6600 ff36      	bnew 0xfef5e72
+fef5f3a:	6600 ff36      	bnew 0xfef5e72			; loop - AAA
 
 fef5f3e:	4aae fff4      	tstl %fp@(-12)
 fef5f42:	663c           	bnes 0xfef5f80
@@ -7850,9 +7918,9 @@ fef5f56:	6000 0190      	braw 0xfef60e8			; return -1
 
 ; Setup args for invalid device message.
 fef5f5a:	102a 0001      	moveb %a2@(1),%d0
-fef5f5e:	49c0           	extbl %d0
+fef5f5e:	49c0           	extbl %d0			; 'd' in sd
 fef5f60:	2f00           	movel %d0,%sp@-
-fef5f62:	1012           	moveb %a2@,%d0
+fef5f62:	1012           	moveb %a2@,%d0		; 's' in sd
 fef5f64:	49c0           	extbl %d0
 fef5f66:	2f00           	movel %d0,%sp@-
 
@@ -7863,65 +7931,100 @@ fef5f72:	4fef 000c      	lea %sp@(12),%sp
 
 fef5f76:	4a84           	tstl %d4
 fef5f78:	6600 0136      	bnew 0xfef60b0			; print usage message
+
 fef5f7c:	6000 016a      	braw 0xfef60e8			; return -1
 
 fef5f80:	4a78 e07e      	tstw 0xffffe07e
 fef5f84:	6732           	beqs 0xfef5fb8
-fef5f86:	4855           	pea %a5@
-fef5f88:	2f2e fffc      	movel %fp@(-4),%sp@-
+
+;  Sun devices -- 
+;  if you want to boot a 3/50, 3/60, 3/75/140, 1/160/180, 3/110,
+;   3/260, 3/280 or 3/80 from SCSI sd(0,0,0), set EEPROM locations
+;   0x019-0x01d to 73 64 00 00 00.)
+; Boot strings look like:
+;	sd(0,0,0)
+
+; setup arguments for printf
+;  It is a stack after all, so push args in reverse order.
+;  the format string last of all
+;
+fef5f86:	4855           	pea %a5@				; s
+fef5f88:	2f2e fffc      	movel %fp@(-4),%sp@-	; s - file (usually "vmunix")
 fef5f8c:	206e fff0      	moveal %fp@(-16),%a0
-fef5f90:	2f28 008e      	movel %a0@(142),%sp@-
-fef5f94:	2f28 008a      	movel %a0@(138),%sp@-
-fef5f98:	2f28 0086      	movel %a0@(134),%sp@-
+
+fef5f90:	2f28 008e      	movel %a0@(142),%sp@-	; x - partition
+fef5f94:	2f28 008a      	movel %a0@(138),%sp@-	; x - disk (probably 0)
+fef5f98:	2f28 0086      	movel %a0@(134),%sp@-	; x - controller (0)
+
 fef5f9c:	102b 0001      	moveb %a3@(1),%d0
 fef5fa0:	49c0           	extbl %d0
-fef5fa2:	2f00           	movel %d0,%sp@-
+fef5fa2:	2f00           	movel %d0,%sp@-		; device char2
 fef5fa4:	1013           	moveb %a3@,%d0
 fef5fa6:	49c0           	extbl %d0
-fef5fa8:	2f00           	movel %d0,%sp@-
+fef5fa8:	2f00           	movel %d0,%sp@-		; device char 1
 fef5faa:	4879 0fef de01 	pea 0xfefde01
 ; 0xfefde01 Boot: %c%c(%x,%x,%x)%s %s\n
 fef5fb0:	6100 f532      	bsrw 0xfef54e4			; printf
 fef5fb4:	4fef 0020      	lea %sp@(32),%sp
+
+; here if we branch around the printf
+; BOOT-ON
 fef5fb8:	206e fff0      	moveal %fp@(-16),%a0
-fef5fbc:	1153 0084      	moveb %a3@,%a0@(132)
+fef5fbc:	1153 0084      	moveb %a3@,%a0@(132)	; dev-1
 fef5fc0:	206e fff0      	moveal %fp@(-16),%a0
-fef5fc4:	116b 0001 0085 	moveb %a3@(1),%a0@(133)
+fef5fc4:	116b 0001 0085 	moveb %a3@(1),%a0@(133)	; dev-2
+
 fef5fca:	206e fff0      	moveal %fp@(-16),%a0
 fef5fce:	216e fff4 0096 	movel %fp@(-12),%a0@(150)
+
+; figure out where to build string
 fef5fd4:	286e fff0      	moveal %fp@(-16),%a4
 fef5fd8:	7e20           	moveq #32,%d7
 fef5fda:	d9c7           	addal %d7,%a4
-fef5fdc:	18d3           	moveb %a3@,%a4@+
-fef5fde:	18eb 0001      	moveb %a3@(1),%a4@+
-fef5fe2:	18fc 0028      	moveb #0x28,%a4@+
+
+fef5fdc:	18d3           	moveb %a3@,%a4@+		; device d1
+fef5fde:	18eb 0001      	moveb %a3@(1),%a4@+		; device d2
+
+fef5fe2:	18fc 0028      	moveb #0x28,%a4@+		; (
 fef5fe6:	206e fff0      	moveal %fp@(-16),%a0
-fef5fea:	2f28 0086      	movel %a0@(134),%sp@-
-fef5fee:	4854           	pea %a4@
-fef5ff0:	6100 0198      	bsrw 0xfef618a
+
+; We build up a hex string in the spot indicated by a4
+; It will look like (xx,xx,xx)
+
+fef5fea:	2f28 0086      	movel %a0@(134),%sp@-	; int
+fef5fee:	4854           	pea %a4@				; string pointer
+fef5ff0:	6100 0198      	bsrw 0xfef618a			; to_hex
 fef5ff4:	504f           	addqw #8,%sp
+
 fef5ff6:	2840           	moveal %d0,%a4
-fef5ff8:	18fc 002c      	moveb #0x2c,%a4@+
+fef5ff8:	18fc 002c      	moveb #0x2c,%a4@+		; ,
 fef5ffc:	206e fff0      	moveal %fp@(-16),%a0
+
 fef6000:	2f28 008a      	movel %a0@(138),%sp@-
 fef6004:	4854           	pea %a4@
-fef6006:	6100 0182      	bsrw 0xfef618a
+fef6006:	6100 0182      	bsrw 0xfef618a			; to_hex
 fef600a:	504f           	addqw #8,%sp
+
 fef600c:	2840           	moveal %d0,%a4
-fef600e:	18fc 002c      	moveb #0x2c,%a4@+
+fef600e:	18fc 002c      	moveb #0x2c,%a4@+		; ,
 fef6012:	206e fff0      	moveal %fp@(-16),%a0
+
 fef6016:	2f28 008e      	movel %a0@(142),%sp@-
 fef601a:	4854           	pea %a4@
-fef601c:	6100 016c      	bsrw 0xfef618a
+fef601c:	6100 016c      	bsrw 0xfef618a			; to_hex
 fef6020:	504f           	addqw #8,%sp
+
 fef6022:	2840           	moveal %d0,%a4
-fef6024:	18fc 0029      	moveb #0x29,%a4@+
+fef6024:	18fc 0029      	moveb #0x29,%a4@+		; )
+
 fef6028:	206e fff0      	moveal %fp@(-16),%a0
 fef602c:	214c 0092      	movel %a4,%a0@(146)
-fef6030:	206e fffc      	moveal %fp@(-4),%a0
+
+fef6030:	206e fffc      	moveal %fp@(-4),%a0		; append filename
 fef6034:	52ae fffc      	addql #1,%fp@(-4)
 fef6038:	18d0           	moveb %a0@,%a4@+
-fef603a:	66f4           	bnes 0xfef6030
+fef603a:	66f4           	bnes 0xfef6030			; loop
+
 fef603c:	206e fff0      	moveal %fp@(-16),%a0
 fef6040:	2008           	movel %a0,%d0
 fef6042:	7e20           	moveq #32,%d7
@@ -7929,26 +8032,41 @@ fef6044:	d087           	addl %d7,%d0
 fef6046:	2080           	movel %d0,%a0@
 fef6048:	7e01           	moveq #1,%d7
 fef604a:	6002           	bras 0xfef604e
+
+; loop - skip blanks
 fef604c:	528d           	addql #1,%a5
+
+; loop AA
 fef604e:	0c15 0020      	cmpib #0x20,%a5@
 fef6052:	67f8           	beqs 0xfef604c
+
 fef6054:	4a15           	tstb %a5@
-fef6056:	6720           	beqs 0xfef6078
+fef6056:	6720           	beqs 0xfef6078		; null byte - done!
+
 fef6058:	206e fff0      	moveal %fp@(-16),%a0
 fef605c:	218c 7c00      	movel %a4,%a0@(0,%d7:l:4)
 fef6060:	5287           	addql #1,%d7
 fef6062:	6008           	bras 0xfef606c
+
+: loop BB - up to blank
 fef6064:	0c15 0020      	cmpib #0x20,%a5@
 fef6068:	6706           	beqs 0xfef6070
+
 fef606a:	18dd           	moveb %a5@+,%a4@+
+
 fef606c:	4a15           	tstb %a5@
-fef606e:	66f4           	bnes 0xfef6064
-fef6070:	421c           	clrb %a4@+
+fef606e:	66f4           	bnes 0xfef6064		; loop BB
+
+fef6070:	421c           	clrb %a4@+			; terminate with \0
+
 fef6072:	7c07           	moveq #7,%d6
 fef6074:	be86           	cmpl %d6,%d7
-fef6076:	6dd6           	blts 0xfef604e
+fef6076:	6dd6           	blts 0xfef604e		; loop AA
+
+; done 
 fef6078:	206e fff0      	moveal %fp@(-16),%a0
 fef607c:	42b0 7c00      	clrl %a0@(0,%d7:l:4)
+
 fef6080:	486e ffb8      	pea %fp@(-72)
 fef6084:	206e fff4      	moveal %fp@(-12),%a0
 fef6088:	2068 0006      	moveal %a0@(6),%a0
@@ -7964,11 +8082,13 @@ fef609e:	4879 0fef de1c 	pea 0xfefde1c
 fef60a4:	6100 f43e      	bsrw 0xfef54e4			; printf
 fef60a8:	584f           	addqw #4,%sp
 
+; Here on load success
 fef60aa:	202e ffb4      	movel %fp@(-76),%d0		; rval
-fef60ae:	603a           	bras 0xfef60ea			; return
+fef60ae:	603a           	bras 0xfef60ea			; return with value
 
 ; Print usage message
 ; list possible boot devices
+; Then return with -1
 
 fef60b0:	4879 0fef de2f 	pea 0xfefde2f
 ; 0xfefde2f Boot syntax: b [!][dev(ctlr,unit,part)] name [options]\nPossible boot devices:\n
@@ -7977,8 +8097,9 @@ fef60ba:	584f           	addqw #4,%sp
 
 fef60bc:	2d7c 0fef dd50 	movel #0xfefdd50,%fp@(-8)
 fef60c2:	fff8
-fef60c4:	6018           	bras 0xfef60de
+fef60c4:	6018           	bras 0xfef60de		; enter loop to print them
 
+; BOOT-ON
 ; We have a table that looks like this:
 ; fefdd50:	0feff0cc -->  "sd"
 ; fefdd54:	0feff00c -->  "le"
@@ -8002,90 +8123,130 @@ fef60da:	58ae fff8      	addql #4,%fp@(-8)
 ; enter loop here
 fef60de:	206e fff8      	moveal %fp@(-8),%a0
 fef60e2:	2d50 fff4      	movel %a0@,%fp@(-12)
-fef60e6:	66de           	bnes 0xfef60c6			; loop to zero entry
+fef60e6:	66de           	bnes 0xfef60c6			; loop until zero entry
 
 fef60e8:	70ff           	moveq #-1,%d0			; return -1
+
 fef60ea:	4cee 3cf8 ff90 	moveml %fp@(-112),%d3-%d7/%a2-%a5
 fef60f0:	4e5e           	unlk %fp
 fef60f2:	4e75           	rts
 
+; ==================================================================================================
+; ==================================================================================================
+
+; Subroutine "scanner"
+; single argument - points to string
+
 fef60f4:	4e56 fff8      	linkw %fp,#-8
 fef60f8:	48d7 2080      	moveml %d7/%a5,%sp@
-fef60fc:	2a6e 0008      	moveal %fp@(8),%a5
+
+fef60fc:	2a6e 0008      	moveal %fp@(8),%a5		; arg
 fef6100:	7e00           	moveq #0,%d7
 fef6102:	6002           	bras 0xfef6106
+
 fef6104:	528d           	addql #1,%a5
-fef6106:	0c15 0020      	cmpib #0x20,%a5@
+fef6106:	0c15 0020      	cmpib #0x20,%a5@		; skip blanks
 fef610a:	67f8           	beqs 0xfef6104
+
 fef610c:	604e           	bras 0xfef615c
-fef610e:	0c15 0030      	cmpib #0x30,%a5@
+
+loop - A
+fef610e:	0c15 0030      	cmpib #0x30,%a5@		; '0' 
 fef6112:	6d12           	blts 0xfef6126
-fef6114:	0c15 0039      	cmpib #0x39,%a5@
+fef6114:	0c15 0039      	cmpib #0x39,%a5@		; '9'
 fef6118:	6e0c           	bgts 0xfef6126
+
 fef611a:	2007           	movel %d7,%d0
 fef611c:	e980           	asll #4,%d0
 fef611e:	1215           	moveb %a5@,%d1
 fef6120:	49c1           	extbl %d1
 fef6122:	7e30           	moveq #48,%d7
 fef6124:	602e           	bras 0xfef6154
-fef6126:	0c15 0061      	cmpib #0x61,%a5@
+
+fef6126:	0c15 0061      	cmpib #0x61,%a5@		; 'a'
 fef612a:	6d12           	blts 0xfef613e
-fef612c:	0c15 0066      	cmpib #0x66,%a5@
+fef612c:	0c15 0066      	cmpib #0x66,%a5@		; 'f'
 fef6130:	6e0c           	bgts 0xfef613e
+
 fef6132:	2007           	movel %d7,%d0
 fef6134:	e980           	asll #4,%d0
 fef6136:	1215           	moveb %a5@,%d1
 fef6138:	49c1           	extbl %d1
 fef613a:	7e57           	moveq #87,%d7
 fef613c:	6016           	bras 0xfef6154
-fef613e:	0c15 0041      	cmpib #0x41,%a5@
+
+fef613e:	0c15 0041      	cmpib #0x41,%a5@		; 'A'
 fef6142:	6d20           	blts 0xfef6164
-fef6144:	0c15 0046      	cmpib #0x46,%a5@
+fef6144:	0c15 0046      	cmpib #0x46,%a5@		; 'F'
 fef6148:	6e1a           	bgts 0xfef6164
+
 fef614a:	2007           	movel %d7,%d0
 fef614c:	e980           	asll #4,%d0
 fef614e:	1215           	moveb %a5@,%d1
 fef6150:	49c1           	extbl %d1
 fef6152:	7e37           	moveq #55,%d7
+
 fef6154:	9287           	subl %d7,%d1
 fef6156:	d081           	addl %d1,%d0
 fef6158:	2e00           	movel %d0,%d7
 fef615a:	528d           	addql #1,%a5
-fef615c:	4a15           	tstb %a5@
-fef615e:	66ae           	bnes 0xfef610e
+
+fef615c:	4a15           	tstb %a5@			; '\0'
+fef615e:	66ae           	bnes 0xfef610e		; loop - A
+
 fef6160:	6002           	bras 0xfef6164
 fef6162:	528d           	addql #1,%a5
-fef6164:	0c15 0020      	cmpib #0x20,%a5@
+fef6164:	0c15 0020      	cmpib #0x20,%a5@	; skip spaces
 fef6168:	67f8           	beqs 0xfef6162
-fef616a:	0c15 002c      	cmpib #0x2c,%a5@
+
+fef616a:	0c15 002c      	cmpib #0x2c,%a5@	; comma
 fef616e:	6602           	bnes 0xfef6172
 fef6170:	528d           	addql #1,%a5
-fef6172:	0c15 0020      	cmpib #0x20,%a5@
+fef6172:	0c15 0020      	cmpib #0x20,%a5@	; skip spaces
 fef6176:	67f8           	beqs 0xfef6170
+
 fef6178:	206e 000c      	moveal %fp@(12),%a0
-fef617c:	2087           	movel %d7,%a0@
-fef617e:	200d           	movel %a5,%d0
+fef617c:	2087           	movel %d7,%a0@		; result
+
+fef617e:	200d           	movel %a5,%d0		; modified pointer
+
 fef6180:	4cee 2080 fff8 	moveml %fp@(-8),%d7/%a5
 fef6186:	4e5e           	unlk %fp
 fef6188:	4e75           	rts
+
+; Subroutine to_hex - 3 calls in boot section
+; 2 arguments
+;	arg1 is a pointer to where the result string should go
+;	arg2 is an integer to convert
+
 fef618a:	4e56 fff4      	linkw %fp,#-12
 fef618e:	48d7 20c0      	moveml %d6-%d7/%a5,%sp@
-fef6192:	2a6e 0008      	moveal %fp@(8),%a5
-fef6196:	2e2e 000c      	movel %fp@(12),%d7
+
+fef6192:	2a6e 0008      	moveal %fp@(8),%a5		; arg1 (string pointer)
+fef6196:	2e2e 000c      	movel %fp@(12),%d7		; arg2 (integer value)
+
 fef619a:	2007           	movel %d7,%d0
 fef619c:	e888           	lsrl #4,%d0
-fef619e:	2c00           	movel %d0,%d6
-fef61a0:	670a           	beqs 0xfef61ac
-fef61a2:	2f06           	movel %d6,%sp@-
-fef61a4:	4855           	pea %a5@
-fef61a6:	61e2           	bsrs 0xfef618a
+fef619e:	2c00           	movel %d0,%d6			; d6 = d7 >> 4
+
+fef61a0:	670a           	beqs 0xfef61ac			; done if 0
+
+fef61a2:	2f06           	movel %d6,%sp@-			; arg2
+fef61a4:	4855           	pea %a5@				; arg1
+fef61a6:	61e2           	bsrs 0xfef618a			; recursion
 fef61a8:	504f           	addqw #8,%sp
+
 fef61aa:	2a40           	moveal %d0,%a5
+
 fef61ac:	7c0f           	moveq #15,%d6
-fef61ae:	ce86           	andl %d6,%d7
+fef61ae:	ce86           	andl %d6,%d7			; d7 &= 0xf
+
+; This is "0123456789ABCDEF"
 fef61b0:	41f9 0fef de84 	lea 0xfefde84,%a0
 fef61b6:	1af0 7800      	moveb %a0@(0,%d7:l),%a5@+
-fef61ba:	200d           	movel %a5,%d0
+
+fef61ba:	200d           	movel %a5,%d0		; return modified pointer
+
 fef61bc:	4cee 20c0 fff4 	moveml %fp@(-12),%d6-%d7/%a5
 fef61c2:	4e5e           	unlk %fp
 fef61c4:	4e75           	rts
@@ -8096,6 +8257,7 @@ fef61ca:	70ff           	moveq #-1,%d0
 fef61cc:	4e5e           	unlk %fp
 fef61ce:	4e75           	rts
 
+; subroutine
 fef61d0:	4e56 fff4      	linkw %fp,#-12
 fef61d4:	48d7 3080      	moveml %d7/%a4-%a5,%sp@
 fef61d8:	2e2e 000c      	movel %fp@(12),%d7
@@ -8110,40 +8272,56 @@ fef61f2:	6238           	bhis 0xfef622c
 ; jump table
 fef61f4:	303b 0a06      	movew %pc@(0xfef61fc,%d0:l:2),%d0
 fef61f8:	4efb 0002      	jmp %pc@(0xfef61fc,%d0:w)
-fef61fc:	001c 0008      	orib #8,%a4@+
-fef6200:	0026 0012      	orib #0x12,%fp@-
-fef6204:	2a78 e006      	moveal 0xffffe006,%a5			; XX-0
+
+fef61fc:	001c		; fef6218
+fef61fe:	0008		; fef6204
+fef6200:	0026		; fef6222
+fef6202:	0012		; fef620E
+
+fef6204:	2a78 e006      	moveal 0xffffe006,%a5		; XX-0
 fef6208:	dfb8 e006      	addl %d7,0xffffe006			; XX-0
 fef620c:	6052           	bras 0xfef6260
-fef620e:	2a78 e00a      	moveal 0xffffe00a,%a5			; XX-0
+
+fef620e:	2a78 e00a      	moveal 0xffffe00a,%a5		; XX-0
 fef6212:	dfb8 e00a      	addl %d7,0xffffe00a			; XX-0
 fef6216:	6048           	bras 0xfef6260
-fef6218:	2a78 e006      	moveal 0xffffe006,%a5			; XX-0
+
+fef6218:	2a78 e006      	moveal 0xffffe006,%a5		; XX-0
 fef621c:	dfb8 e006      	addl %d7,0xffffe006			; XX-0
 fef6220:	600e           	bras 0xfef6230
-fef6222:	2a78 e00a      	moveal 0xffffe00a,%a5			; XX-0
+
+fef6222:	2a78 e00a      	moveal 0xffffe00a,%a5		; XX-0
 fef6226:	dfb8 e00a      	addl %d7,0xffffe00a			; XX-0
 fef622a:	6004           	bras 0xfef6230
+
 fef622c:	7000           	moveq #0,%d0
 fef622e:	6032           	bras 0xfef6262
+
 fef6230:	284d           	moveal %a5,%a4
 fef6232:	6028           	bras 0xfef625c
-fef6234:	2f38 e38a      	movel 0xffffe38a,%sp@-
+
+; location "Taco" only 5 references in the ROM, mysterious
+fef6234:	2f38 e38a      	movel 0xffffe38a,%sp@-		; Taco
 fef6238:	4854           	pea %a4@
 fef623a:	6100 ba8a      	bsrw 0xfef1cc6
 fef623e:	504f           	addqw #8,%sp
+
 fef6240:	49ec 2000      	lea %a4@(8192),%a4
 fef6244:	0487 0000 2000 	subil #0x2000,%d7
-fef624a:	2038 e38a      	movel 0xffffe38a,%d0
+
+fef624a:	2038 e38a      	movel 0xffffe38a,%d0		; Taco
 fef624e:	0280 0007 ffff 	andil #0x7ffff,%d0
 fef6254:	5380           	subql #1,%d0
-fef6256:	eff8 0353 e38a 	bfins %d0,0xffffe38a,13,19
+fef6256:	eff8 0353 e38a 	bfins %d0,0xffffe38a,13,19		; Taco
+
 fef625c:	4a87           	tstl %d7
 fef625e:	66d4           	bnes 0xfef6234
+
 fef6260:	200d           	movel %a5,%d0
 fef6262:	4cee 3080 fff4 	moveml %fp@(-12),%d7/%a4-%a5
 fef6268:	4e5e           	unlk %fp
 fef626a:	4e75           	rts
+
 fef626c:	4e56 ffe8      	linkw %fp,#-24
 fef6270:	48d7 3080      	moveml %d7/%a4-%a5,%sp@
 fef6274:	2a6e 000c      	moveal %fp@(12),%a5
@@ -8193,18 +8371,21 @@ fef630a:	d0ae fffc      	addl %fp@(-4),%d0
 fef630e:	4cee 3080 ffe8 	moveml %fp@(-24),%d7/%a4-%a5
 fef6314:	4e5e           	unlk %fp
 fef6316:	4e75           	rts
+
 fef6318:	4e56 0000      	linkw %fp,#0
 fef631c:	21fc 0fe6 4000 	movel #266747904,0xffffe006			; XX-0
 fef6322:	e006
 fef6324:	21fc 0ff0 0000 	movel #267386880,0xffffe00a			; XX-0
 fef632a:	e00a
 fef632c:	41f9 0fef de98 	lea 0xfefde98,%a0
-fef6332:	21d0 e38a      	movel %a0@,0xffffe38a
+fef6332:	21d0 e38a      	movel %a0@,0xffffe38a		; Taco
 fef6336:	2038 e176      	movel 0xffffe176,%d0
 fef633a:	720d           	moveq #13,%d1
 fef633c:	e2a8           	lsrl %d1,%d0
 fef633e:	5380           	subql #1,%d0
-fef6340:	eff8 0353 e38a 	bfins %d0,0xffffe38a,13,19
+
+; bit field insert, a pretty rare instruction!
+fef6340:	eff8 0353 e38a 	bfins %d0,0xffffe38a,13,19		; Taco
 fef6346:	4e5e           	unlk %fp
 fef6348:	4e75           	rts
 fef634a:	0000
@@ -8227,14 +8408,19 @@ fef6368:	4cee 20c0 fff4 	moveml %fp@(-12),%d6-%d7/%a5
 fef636e:	4e5e           	unlk %fp
 fef6370:	4e75           	rts
 
+; Subroutine - bcopy ( src, dst, count )
+; 7 calls
 fef6372:	4e56 fff4      	linkw %fp,#-12
 fef6376:	48d7 3080      	moveml %d7/%a4-%a5,%sp@
-fef637a:	2a6e 0008      	moveal %fp@(8),%a5
-fef637e:	286e 000c      	moveal %fp@(12),%a4
-fef6382:	3e2e 0012      	movew %fp@(18),%d7
+
+fef637a:	2a6e 0008      	moveal %fp@(8),%a5			; arg1
+fef637e:	286e 000c      	moveal %fp@(12),%a4			; arg2
+fef6382:	3e2e 0012      	movew %fp@(18),%d7			; arg3 (low 16 bits)
+
 fef6386:	5347           	subqw #1,%d7
-fef6388:	18dd           	moveb %a5@+,%a4@+
+fef6388:	18dd           	moveb %a5@+,%a4@+			; byte by byte copy
 fef638a:	51cf fffc      	dbf %d7,0xfef6388
+
 fef638e:	4cee 3080 fff4 	moveml %fp@(-12),%d7/%a4-%a5
 fef6394:	4e5e           	unlk %fp
 fef6396:	4e75           	rts
@@ -8841,6 +9027,7 @@ fef69ec:	504f           	addqw #8,%sp
 fef69ee:	7000           	moveq #0,%d0
 fef69f0:	4e5e           	unlk %fp
 fef69f2:	4e75           	rts
+
 fef69f4:	4e56 ffe8      	linkw %fp,#-24
 fef69f8:	48d7 3080      	moveml %d7/%a4-%a5,%sp@
 fef69fc:	42a7           	clrl %sp@-
@@ -8890,6 +9077,7 @@ fef6a82:	70ff           	moveq #-1,%d0
 fef6a84:	4cee 3080 ffe8 	moveml %fp@(-24),%d7/%a4-%a5
 fef6a8a:	4e5e           	unlk %fp
 fef6a8c:	4e75           	rts
+
 fef6a8e:	4879 0fe7 c000 	pea 0xfe7c000
 fef6a94:	6100 9afa      	bsrw 0xfef0590
 fef6a98:	584f           	addqw #4,%sp
@@ -9628,6 +9816,7 @@ fef73a6:	c081           	andl %d1,%d0
 fef73a8:	21c0 e0d6      	movel %d0,0xffffe0d6
 fef73ac:	4e5e           	unlk %fp
 fef73ae:	4e75           	rts
+
 fef73b0:	4e56 fff8      	linkw %fp,#-8
 fef73b4:	2d7c 0000 4e20 	movel #0x4e20,%fp@(-8)
 fef73ba:	fff8
@@ -9877,6 +10066,7 @@ fef76ca:	b0ae 0014      	cmpl %fp@(20),%d0
 fef76ce:	65ca           	bcss 0xfef769a
 fef76d0:	4e5e           	unlk %fp
 fef76d2:	4e75           	rts
+
 fef76d4:	4e56 fff0      	linkw %fp,#-16
 fef76d8:	202e 0010      	movel %fp@(16),%d0
 fef76dc:	90ae 0008      	subl %fp@(8),%d0
@@ -9916,6 +10106,7 @@ fef774a:	b0ae 0014      	cmpl %fp@(20),%d0
 fef774e:	65cc           	bcss 0xfef771c
 fef7750:	4e5e           	unlk %fp
 fef7752:	4e75           	rts
+
 fef7754:	4e56 fff4      	linkw %fp,#-12
 fef7758:	48d7 3080      	moveml %d7/%a4-%a5,%sp@
 fef775c:	7eff           	moveq #-1,%d7
@@ -9930,6 +10121,7 @@ fef7774:	65fa           	bcss 0xfef7770
 fef7776:	4cee 3080 fff4 	moveml %fp@(-12),%d7/%a4-%a5
 fef777c:	4e5e           	unlk %fp
 fef777e:	4e75           	rts
+
 fef7780:	4e56 fff8      	linkw %fp,#-8
 fef7784:	48d7 00c0      	moveml %d6-%d7,%sp@
 fef7788:	7e00           	moveq #0,%d7
@@ -10010,6 +10202,7 @@ fef7854:	4fef 0014      	lea %sp@(20),%sp
 fef7858:	4cee 00c0 fff8 	moveml %fp@(-8),%d6-%d7
 fef785e:	4e5e           	unlk %fp
 fef7860:	4e75           	rts
+
 fef7862:	4e56 fff8      	linkw %fp,#-8
 fef7866:	48d7 00c0      	moveml %d6-%d7,%sp@
 fef786a:	7e00           	moveq #0,%d7
@@ -10066,6 +10259,7 @@ fef78f0:	4fef 0010      	lea %sp@(16),%sp
 fef78f4:	4cee 00c0 fff8 	moveml %fp@(-8),%d6-%d7
 fef78fa:	4e5e           	unlk %fp
 fef78fc:	4e75           	rts
+
 fef78fe:	4e56 ffc4      	linkw %fp,#-60
 fef7902:	48d7 00c0      	moveml %d6-%d7,%sp@
 fef7906:	2d78 e0c6 fffc 	movel 0xffffe0c6,%fp@(-4)
@@ -10174,6 +10368,7 @@ fef7a4c:	504f           	addqw #8,%sp
 fef7a4e:	4cee 00c0 ffc4 	moveml %fp@(-60),%d6-%d7
 fef7a54:	4e5e           	unlk %fp
 fef7a56:	4e75           	rts
+
 fef7a58:	4e56 ffc0      	linkw %fp,#-64
 fef7a5c:	48d7 00e0      	moveml %d5-%d7,%sp@
 fef7a60:	2d78 e0c6 fffc 	movel 0xffffe0c6,%fp@(-4)
@@ -10268,6 +10463,7 @@ fef7b7a:	504f           	addqw #8,%sp
 fef7b7c:	4cee 00e0 ffc0 	moveml %fp@(-64),%d5-%d7
 fef7b82:	4e5e           	unlk %fp
 fef7b84:	4e75           	rts
+
 fef7b86:	4e56 fff4      	linkw %fp,#-12
 fef7b8a:	48d7 3080      	moveml %d7/%a4-%a5,%sp@
 fef7b8e:	2a6e 000c      	moveal %fp@(12),%a5
@@ -10360,7 +10556,7 @@ fef7c70:	203c 0000 4000 	movel #0x4000,%d0			; return 0x4000
 fef7c76:	4e5e           	unlk %fp
 fef7c78:	4e75           	rts
 
-; Subroutine
+; Subroutine - st_xyz, in call table
 
 fef7c7a:	4e56 fff0      	linkw %fp,#-16
 fef7c7e:	48d7 20e0      	moveml %d5-%d7/%a5,%sp@
@@ -10368,17 +10564,21 @@ fef7c82:	7aff           	moveq #-1,%d5
 fef7c84:	7e01           	moveq #1,%d7
 fef7c86:	2a7c 0000 4000 	moveal #0x4000,%a5
 fef7c8c:	600c           	bras 0xfef7c9a
+
 fef7c8e:	2a3c 0000 4000 	movel #0x4000,%d5
 fef7c94:	6042           	bras 0xfef7cd8
+
+; loop
 fef7c96:	5287           	addql #1,%d7
 fef7c98:	dbc6           	addal %d6,%a5
-fef7c9a:	206e 0008      	moveal %fp@(8),%a0
+fef7c9a:	206e 0008      	moveal %fp@(8),%a0		; enter loop here
 fef7c9e:	2147 001e      	movel %d7,%a0@(30)
 fef7ca2:	206e 0008      	moveal %fp@(8),%a0
 fef7ca6:	217c 0000 8000 	movel #0x8000,%a0@(38)
 fef7cac:	0026
 fef7cae:	206e 0008      	moveal %fp@(8),%a0
 fef7cb2:	214d 0022      	movel %a5,%a0@(34)
+
 fef7cb6:	4878 0001      	pea 0x1
 fef7cba:	2f2e 0008      	movel %fp@(8),%sp@-
 fef7cbe:	206e 0008      	moveal %fp@(8),%a0
@@ -10386,17 +10586,21 @@ fef7cc2:	2068 0002      	moveal %a0@(2),%a0
 fef7cc6:	2068 0012      	moveal %a0@(18),%a0
 fef7cca:	4e90           	jsr %a0@
 fef7ccc:	504f           	addqw #8,%sp
+
 fef7cce:	2c00           	movel %d0,%d6
-fef7cd0:	66c4           	bnes 0xfef7c96
+fef7cd0:	66c4           	bnes 0xfef7c96		; loop back
+
 fef7cd2:	7c01           	moveq #1,%d6
 fef7cd4:	be86           	cmpl %d6,%d7
-fef7cd6:	66b6           	bnes 0xfef7c8e
+fef7cd6:	66b6           	bnes 0xfef7c8e		; loop back
+
 fef7cd8:	2f2e 0008      	movel %fp@(8),%sp@-
 fef7cdc:	206e 0008      	moveal %fp@(8),%a0
 fef7ce0:	2068 0002      	moveal %a0@(2),%a0
 fef7ce4:	2068 000e      	moveal %a0@(14),%a0
 fef7ce8:	4e90           	jsr %a0@
 fef7cea:	584f           	addqw #4,%sp
+
 fef7cec:	2005           	movel %d5,%d0
 fef7cee:	4cee 20e0 fff0 	moveml %fp@(-16),%d5-%d7/%a5
 fef7cf4:	4e5e           	unlk %fp
@@ -10466,6 +10670,7 @@ fef7daa:	584f           	addqw #4,%sp
 fef7dac:	4cee 3000 fff8 	moveml %fp@(-8),%a4-%a5
 fef7db2:	4e5e           	unlk %fp
 fef7db4:	4e75           	rts
+
 fef7db6:	4e56 0000      	linkw %fp,#0
 fef7dba:	2f2e 0008      	movel %fp@(8),%sp@-
 fef7dbe:	206e 0008      	moveal %fp@(8),%a0
@@ -10475,8 +10680,9 @@ fef7dca:	4e90           	jsr %a0@
 fef7dcc:	584f           	addqw #4,%sp
 fef7dce:	4e5e           	unlk %fp
 fef7dd0:	4e75           	rts
-fef7dd2:	0000 4e56      	orib #0x56,%d0
-fef7dd6:	fec4           	.short 0xfec4
+fef7dd2:	0000
+
+ fef7dd4:	4e56 fec4      	linkw %fp,#-316
 fef7dd8:	48d7 20c0      	moveml %d6-%d7/%a5,%sp@
 fef7ddc:	206e 0008      	moveal %fp@(8),%a0
 fef7de0:	2a68 0002      	moveal %a0@(2),%a5
@@ -10535,6 +10741,8 @@ fef7e6c:	6604           	bnes 0xfef7e72
 fef7e6e:	7051           	moveq #81,%d0
 fef7e70:	604c           	bras 0xfef7ebe
 fef7e72:	42b8 e0a6      	clrl 0xffffe0a6
+
+; loop
 fef7e76:	42b8 e0a2      	clrl 0xffffe0a2
 fef7e7a:	284d           	moveal %a5,%a4
 
@@ -10556,10 +10764,13 @@ fef7ea0:	584f           	addqw #4,%sp
 
 fef7ea2:	4a80           	tstl %d0
 fef7ea4:	6e0a           	bgts 0xfef7eb0
+
+; Boot fails
 fef7ea6:	7e01           	moveq #1,%d7
 fef7ea8:	21c7 e0a2      	movel %d7,0xffffe0a2
 fef7eac:	52b8 e0a6      	addql #1,0xffffe0a6
 
+; Good boot
 fef7eb0:	5286           	addql #1,%d6
 fef7eb2:	2f06           	movel %d6,%sp@-
 fef7eb4:	6100 1cca      	bsrw 0xfef9b80
@@ -10677,6 +10888,7 @@ fef8012:	66b8           	bnes 0xfef7fcc
 fef8014:	4cee 00e0 fff4 	moveml %fp@(-12),%d5-%d7
 fef801a:	4e5e           	unlk %fp
 fef801c:	4e75           	rts
+
 fef801e:	4e56 ffe8      	linkw %fp,#-24
 fef8022:	48d7 30f0      	moveml %d4-%d7/%a4-%a5,%sp@
 fef8026:	3e2e 000a      	movew %fp@(10),%d7
@@ -10744,6 +10956,7 @@ fef80e0:	6600 ff5a      	bnew 0xfef803c
 fef80e4:	4cee 30f0 ffe8 	moveml %fp@(-24),%d4-%d7/%a4-%a5
 fef80ea:	4e5e           	unlk %fp
 fef80ec:	4e75           	rts
+
 fef80ee:	4e56 ffc8      	linkw %fp,#-56
 fef80f2:	48d7 3ce8      	moveml %d3/%d5-%d7/%a2-%a5,%sp@
 fef80f6:	3e2e 000a      	movew %fp@(10),%d7
@@ -10878,6 +11091,7 @@ fef82ba:	2038 e0a2      	movel 0xffffe0a2,%d0
 fef82be:	4cee 3ce8 ffc8 	moveml %fp@(-56),%d3/%d5-%d7/%a2-%a5
 fef82c4:	4e5e           	unlk %fp
 fef82c6:	4e75           	rts
+
 fef82c8:	3003           	movew %d3,%d0
 fef82ca:	5343           	subqw #1,%d3
 fef82cc:	4a40           	tstw %d0
@@ -11555,6 +11769,7 @@ fef8aba:	3010           	movew %a0@,%d0
 fef8abc:	2e2e fff0      	movel %fp@(-16),%d7
 fef8ac0:	4e5e           	unlk %fp
 fef8ac2:	4e75           	rts
+
 fef8ac4:	4e56 fff0      	linkw %fp,#-16
 fef8ac8:	2e87           	movel %d7,%sp@
 fef8aca:	2d7c 0fe1 2014 	movel #0xfe12014,%fp@(-12)
@@ -11725,6 +11940,7 @@ fef8cb8:	2038 e0a2      	movel 0xffffe0a2,%d0
 fef8cbc:	2e2e fff0      	movel %fp@(-16),%d7
 fef8cc0:	4e5e           	unlk %fp
 fef8cc2:	4e75           	rts
+
 fef8cc4:	4e56 ffec      	linkw %fp,#-20
 fef8cc8:	2e87           	movel %d7,%sp@
 fef8cca:	2d7c 0fe1 2014 	movel #0xfe12014,%fp@(-4)
@@ -11773,6 +11989,7 @@ fef8d5e:	2038 e0a2      	movel 0xffffe0a2,%d0
 fef8d62:	2e2e ffec      	movel %fp@(-20),%d7
 fef8d66:	4e5e           	unlk %fp
 fef8d68:	4e75           	rts
+
 fef8d6a:	4e56 ffe4      	linkw %fp,#-28
 fef8d6e:	2e87           	movel %d7,%sp@
 fef8d70:	2d7c 0fe1 2000 	movel #0xfe12000,%fp@(-4)
@@ -12376,6 +12593,7 @@ fef9538:	6600 fed4      	bnew 0xfef940e
 fef953c:	2e2e fff0      	movel %fp@(-16),%d7
 fef9540:	4e5e           	unlk %fp
 fef9542:	4e75           	rts
+
 fef9544:	4e56 fff8      	linkw %fp,#-8
 fef9548:	2e87           	movel %d7,%sp@
 fef954a:	4878 0001      	pea 0x1
@@ -12399,6 +12617,7 @@ fef957c:	67cc           	beqs 0xfef954a
 fef957e:	2e2e fff8      	movel %fp@(-8),%d7
 fef9582:	4e5e           	unlk %fp
 fef9584:	4e75           	rts
+
 fef9586:	4e56 fff4      	linkw %fp,#-12
 fef958a:	2e87           	movel %d7,%sp@
 fef958c:	2d7c 0001 86a0 	movel #0x186a0,%fp@(-8)
@@ -12410,6 +12629,7 @@ fef959c:	102e ffff      	moveb %fp@(-1),%d0
 fef95a0:	2e2e fff4      	movel %fp@(-12),%d7
 fef95a4:	4e5e           	unlk %fp
 fef95a6:	4e75           	rts
+
 fef95a8:	206e 0008      	moveal %fp@(8),%a0
 fef95ac:	1d50 ffff      	moveb %a0@,%fp@(-1)
 
@@ -12438,11 +12658,13 @@ fef95ee:	49c0           	extbl %d0
 fef95f0:	2f00           	movel %d0,%sp@-
 fef95f2:	2f2e 0008      	movel %fp@(8),%sp@-
 fef95f6:	4879 0fef eb71 	pea 0xfefeb71
+; 0xfefeb71 %s ready timeout: Port = %c, SCC status = %x.\n
 fef95fc:	6100 bee6      	bsrw 0xfef54e4			; printf
 fef9600:	4fef 0010      	lea %sp@(16),%sp
 fef9604:	7001           	moveq #1,%d0
 fef9606:	4e5e           	unlk %fp
 fef9608:	4e75           	rts
+
 fef960a:	4e56 0000      	linkw %fp,#0
 fef960e:	0c38 004e e002 	cmpib #78,0xffffe002			; XX-0
 fef9614:	6738           	beqs 0xfef964e
@@ -12463,6 +12685,7 @@ fef9636:	102e 000f      	moveb %fp@(15),%d0
 fef963a:	2f00           	movel %d0,%sp@-
 fef963c:	2f2e 0008      	movel %fp@(8),%sp@-
 fef9640:	4879 0fef eba0 	pea 0xfefeba0
+; 0xfefeba0 %sData Error: Port = %c, Exp = %x, Obs = %x, Xor = %x.\n
 fef9646:	6100 be9c      	bsrw 0xfef54e4			; printf
 fef964a:	4fef 0018      	lea %sp@(24),%sp
 fef964e:	7001           	moveq #1,%d0
@@ -12563,21 +12786,27 @@ fef9780:	42b8 e0a6      	clrl 0xffffe0a6
 fef9784:	42b8 e0a2      	clrl 0xffffe0a2
 fef9788:	42ae fff8      	clrl %fp@(-8)
 fef978c:	4879 0fef ec25 	pea 0xfefec25
+; 0xfefec25 \nBrooktree DAC (Color Map) Tests:  ('q' for exit)\n\n
 fef9792:	6100 bd50      	bsrw 0xfef54e4			; printf
 fef9796:	584f           	addqw #4,%sp
 fef9798:	4879 0fef ec59 	pea 0xfefec59
+; 0xfefec59 Enter Cmd [pattern (one byte in hex)]\n
 fef979e:	6100 bd44      	bsrw 0xfef54e4			; printf
 fef97a2:	584f           	addqw #4,%sp
 fef97a4:	4879 0fef ec80 	pea 0xfefec80
+; 0xfefec80 Cmd - Test\n\n
 fef97aa:	6100 bd38      	bsrw 0xfef54e4			; printf
 fef97ae:	584f           	addqw #4,%sp
 fef97b0:	4879 0fef ec8d 	pea 0xfefec8d
+; 0xfefec8d  a  - Address Test\n
 fef97b6:	6100 bd2c      	bsrw 0xfef54e4			; printf
 fef97ba:	584f           	addqw #4,%sp
 fef97bc:	4879 0fef eca1 	pea 0xfefeca1
+; 0xfefeca1  c  - Write/Read Test\n
 fef97c2:	6100 bd20      	bsrw 0xfef54e4			; printf
 fef97c6:	584f           	addqw #4,%sp
 fef97c8:	4879 0fef ecb8 	pea 0xfefecb8
+; 0xfefecb8 \nCmd=>
 fef97ce:	6100 bd14      	bsrw 0xfef54e4			; printf
 fef97d2:	584f           	addqw #4,%sp
 fef97d4:	4878 0001      	pea 0x1
@@ -12711,6 +12940,7 @@ fef9974:	6000 fe0a      	braw 0xfef9780
 fef9978:	4cee 20f0 ffe4 	moveml %fp@(-28),%d4-%d7/%a5
 fef997e:	4e5e           	unlk %fp
 fef9980:	4e75           	rts
+
 fef9982:	4e56 ffdc      	linkw %fp,#-36
 fef9986:	102e 0017      	moveb %fp@(23),%d0
 fef998a:	0280 0000 000f 	andil #0xf,%d0
@@ -12785,6 +13015,7 @@ fef9a6e:	4e75           	rts
 
 fef9a70:	4e56 0000      	linkw %fp,#0
 fef9a74:	4879 0fef ed4d 	pea 0xfefed4d
+; 0xfefed4d \nTest Options: (Enter 'q' to return to Test Menu)\n\nCmd  -  Option\n\n f   -  Loop forever\n h   -  Loop forever with Halt on error\n l   -  Loop once with Loop on error\n n   -  Loop forever with error messages inhibited\n<cr> -  Loop once\n~\nCmd=>
 fef9a7a:	6100 ba68      	bsrw 0xfef54e4			; printf
 fef9a7e:	584f           	addqw #4,%sp
 fef9a80:	4878 0001      	pea 0x1
@@ -12806,6 +13037,7 @@ fef9abc:	6706           	beqs 0xfef9ac4
 fef9abe:	4a38 e002      	tstb 0xffffe002			; XX-0
 fef9ac2:	6610           	bnes 0xfef9ad4
 fef9ac4:	4879 0fef ee3f 	pea 0xfefee3f
+; 0xfefee3f \n
 fef9aca:	6100 ba18      	bsrw 0xfef54e4			; printf
 fef9ace:	584f           	addqw #4,%sp
 fef9ad0:	4e5e           	unlk %fp
@@ -12867,6 +13099,7 @@ fef9b50:	0c38 004e e002 	cmpib #78,0xffffe002			; XX-0
 fef9b56:	6710           	beqs 0xfef9b68
 fef9b58:	2f2e 0008      	movel %fp@(8),%sp@-
 fef9b5c:	4879 0fef ee97 	pea 0xfefee97
+; 0xfefee97 %s
 fef9b62:	6100 b980      	bsrw 0xfef54e4			; printf
 fef9b66:	504f           	addqw #8,%sp
 fef9b68:	4e5e           	unlk %fp
@@ -12880,9 +13113,13 @@ fef9b7a:	584f           	addqw #4,%sp
 fef9b7c:	4e5e           	unlk %fp
 fef9b7e:	4e75           	rts
 
+; Subroutine, called after a successful boot/load
+;  and many other cases.
 fef9b80:	4e56 0000      	linkw %fp,#0
 fef9b84:	0c38 004e e002 	cmpib #78,0xffffe002			; XX-0
 fef9b8a:	672c           	beqs 0xfef9bb8
+
+; set up big printf
 fef9b8c:	2f38 e0a6      	movel 0xffffe0a6,%sp@-
 fef9b90:	2f2e 0008      	movel %fp@(8),%sp@-
 fef9b94:	4ab8 e0a2      	tstl 0xffffe0a2
@@ -12892,28 +13129,36 @@ fef9ba0:	6006           	bras 0xfef9ba8
 fef9ba2:	203c 0fef eee3 	movel #0xfefeee3,%d0
 fef9ba8:	2f00           	movel %d0,%sp@-
 fef9baa:	4879 0fef eeaf 	pea 0xfefeeaf
+; 0xfefeeaf Test %sed during pass %d.  Total errors = %d.\n
 fef9bb0:	6100 b932      	bsrw 0xfef54e4			; printf
 fef9bb4:	4fef 0010      	lea %sp@(16),%sp
-fef9bb8:	0c38 0046 e002 	cmpib #70,0xffffe002			; XX-0
+
+fef9bb8:	0c38 0046 e002 	cmpib #70,0xffffe002			; 'p' -- XX-0
 fef9bbe:	6724           	beqs 0xfef9be4
-fef9bc0:	0c38 004e e002 	cmpib #78,0xffffe002			; XX-0
+
+fef9bc0:	0c38 004e e002 	cmpib #78,0xffffe002			; 'x' -- XX-0
 fef9bc6:	671c           	beqs 0xfef9be4
-fef9bc8:	0c38 004c e002 	cmpib #76,0xffffe002			; XX-0
+
+fef9bc8:	0c38 004c e002 	cmpib #76,0xffffe002			; 'v' -- XX-0
 fef9bce:	6606           	bnes 0xfef9bd6
 fef9bd0:	4ab8 e0a2      	tstl 0xffffe0a2
 fef9bd4:	660e           	bnes 0xfef9be4
-fef9bd6:	0c38 0048 e002 	cmpib #72,0xffffe002			; XX-0
+
+fef9bd6:	0c38 0048 e002 	cmpib #72,0xffffe002			; 'r' -- XX-0
 fef9bdc:	6612           	bnes 0xfef9bf0
 fef9bde:	4ab8 e0a2      	tstl 0xffffe0a2
 fef9be2:	660c           	bnes 0xfef9bf0
+
 fef9be4:	6100 bbb2      	bsrw 0xfef5798		; Annie
+
 fef9be8:	4a80           	tstl %d0
-fef9bea:	6c04           	bges 0xfef9bf0
+fef9bea:	6c04           	bges 0xfef9bf0		; return 0
 fef9bec:	7001           	moveq #1,%d0
-fef9bee:	6002           	bras 0xfef9bf2
+fef9bee:	6002           	bras 0xfef9bf2		; return 1
 fef9bf0:	7000           	moveq #0,%d0
 fef9bf2:	4e5e           	unlk %fp
 fef9bf4:	4e75           	rts
+
 fef9bf6:	4e56 ffe8      	linkw %fp,#-24
 fef9bfa:	48d7 20f0      	moveml %d4-%d7/%a5,%sp@
 fef9bfe:	2e2e 0008      	movel %fp@(8),%d7
@@ -12948,6 +13193,7 @@ fef9c4c:	65e0           	bcss 0xfef9c2e
 fef9c4e:	4cee 20f0 ffe8 	moveml %fp@(-24),%d4-%d7/%a5
 fef9c54:	4e5e           	unlk %fp
 fef9c56:	4e75           	rts
+
 fef9c58:	4e56 ffe8      	linkw %fp,#-24
 fef9c5c:	48d7 20f0      	moveml %d4-%d7/%a5,%sp@
 fef9c60:	2e2e 0008      	movel %fp@(8),%d7
@@ -12976,8 +13222,9 @@ fef9ca2:	65e0           	bcss 0xfef9c84
 fef9ca4:	4cee 20f0 ffe8 	moveml %fp@(-24),%d4-%d7/%a5
 fef9caa:	4e5e           	unlk %fp
 fef9cac:	4e75           	rts
-fef9cae:	0000 4e56      	orib #0x56,%d0
-fef9cb2:	ffe4           	.short 0xffe4
+fef9cae:	0000
+
+fef9cb0:	4e56 ffe4      	linkw %fp,#-28
 fef9cb4:	48d7 38f0      	moveml %d4-%d7/%a3-%a5,%sp@
 fef9cb8:	206e 0008      	moveal %fp@(8),%a0
 fef9cbc:	2668 0010      	moveal %a0@(16),%a3
@@ -13029,6 +13276,7 @@ fef9d34:	51ce fff6      	dbf %d6,0xfef9d2c
 fef9d38:	4cee 38f0 ffe4 	moveml %fp@(-28),%d4-%d7/%a3-%a5
 fef9d3e:	4e5e           	unlk %fp
 fef9d40:	4e75           	rts
+
 fef9d42:	0000 226f      	orib #0x6f,%d0
 fef9d46:	0008           	.short 0x0008
 fef9d48:	4e7a 1000      	movec %sfc,%d1
@@ -13038,6 +13286,7 @@ fef9d54:	7000           	moveq #0,%d0
 fef9d56:	0e10 0000      	movesb %a0@,%d0
 fef9d5a:	4e7b 1000      	movec %d1,%sfc
 fef9d5e:	4e75           	rts
+
 fef9d60:	226f 0008      	moveal %sp@(8),%a1
 fef9d64:	4e7a 1000      	movec %sfc,%d1
 fef9d68:	4e7b 9000      	movec %a1,%sfc
@@ -13046,6 +13295,7 @@ fef9d70:	7000           	moveq #0,%d0
 fef9d72:	0e50 0000      	movesw %a0@,%d0
 fef9d76:	4e7b 1000      	movec %d1,%sfc
 fef9d7a:	4e75           	rts
+
 fef9d7c:	226f 0008      	moveal %sp@(8),%a1
 fef9d80:	4e7a 1000      	movec %sfc,%d1
 fef9d84:	4e7b 9000      	movec %a1,%sfc
@@ -13053,6 +13303,7 @@ fef9d88:	206f 0004      	moveal %sp@(4),%a0
 fef9d8c:	0e90 0000      	movesl %a0@,%d0
 fef9d90:	4e7b 1000      	movec %d1,%sfc
 fef9d94:	4e75           	rts
+
 fef9d96:	226f 0008      	moveal %sp@(8),%a1
 fef9d9a:	4e7a 1001      	movec %dfc,%d1
 fef9d9e:	4e7b 9001      	movec %a1,%dfc
@@ -13067,6 +13318,7 @@ fef9dbe:	0001 0004      	orib #4,%d1
 fef9dc2:	4e7b 1002      	movec %d1,%cacr
 fef9dc6:	4e7b 9802      	movec %a1,%caar
 fef9dca:	4e75           	rts
+
 fef9dcc:	226f 0008      	moveal %sp@(8),%a1
 fef9dd0:	4e7a 1001      	movec %dfc,%d1
 fef9dd4:	4e7b 9001      	movec %a1,%dfc
@@ -13081,6 +13333,7 @@ fef9df4:	0001 0004      	orib #4,%d1
 fef9df8:	4e7b 1002      	movec %d1,%cacr
 fef9dfc:	4e7b 9802      	movec %a1,%caar
 fef9e00:	4e75           	rts
+
 fef9e02:	226f 0008      	moveal %sp@(8),%a1
 fef9e06:	4e7a 1001      	movec %dfc,%d1
 fef9e0a:	4e7b 9001      	movec %a1,%dfc
@@ -13095,6 +13348,7 @@ fef9e2a:	0001 0004      	orib #4,%d1
 fef9e2e:	4e7b 1002      	movec %d1,%cacr
 fef9e32:	4e7b 9802      	movec %a1,%caar
 fef9e36:	4e75           	rts
+
 fef9e38:	4e7a 9001      	movec %dfc,%a1
 fef9e3c:	2f09           	movel %a1,%sp@-
 fef9e3e:	4e7a 8000      	movec %sfc,%a0
@@ -13119,6 +13373,7 @@ fef9e82:	4e7b 8000      	movec %a0,%sfc
 fef9e86:	225f           	moveal %sp@+,%a1
 fef9e88:	4e7b 9001      	movec %a1,%dfc
 fef9e8c:	4e75           	rts
+
 fef9e8e:	4e7a 3001      	movec %dfc,%d3
 fef9e92:	7003           	moveq #3,%d0
 fef9e94:	4e7b 0001      	movec %d0,%dfc
@@ -13136,6 +13391,7 @@ fef9ec8:	4e7b 3001      	movec %d3,%dfc
 fef9ecc:	41f9 3000 0000 	lea 0x30000000,%a0		; CONTEXT
 fef9ed2:	0e10 2800      	movesb %d2,%a0@
 fef9ed6:	4e75           	rts
+
 fef9ed8:	4e7a 3001      	movec %dfc,%d3
 fef9edc:	7003           	moveq #3,%d0
 fef9ede:	4e7b 0001      	movec %d0,%dfc
@@ -13156,6 +13412,7 @@ fef9f1a:	4e7b 3001      	movec %d3,%dfc
 fef9f1e:	41f9 3000 0000 	lea 0x30000000,%a0		; CONTEXT
 fef9f24:	0e10 2800      	movesb %d2,%a0@
 fef9f28:	4e75           	rts
+
 fef9f2a:	4e7a 3001      	movec %dfc,%d3
 fef9f2e:	7003           	moveq #3,%d0
 fef9f30:	4e7b 0001      	movec %d0,%dfc
@@ -13694,6 +13951,7 @@ fefa5ec:	422d 0003      	clrb %a5@(3)
 fefa5f0:	4cee 2080 fff8 	moveml %fp@(-8),%d7/%a5
 fefa5f6:	4e5e           	unlk %fp
 fefa5f8:	4e75           	rts
+
 fefa5fa:	4e56 ffe8      	linkw %fp,#-24
 fefa5fe:	48d7 20f8      	moveml %d3-%d7/%a5,%sp@
 fefa602:	2a6e 0008      	moveal %fp@(8),%a5
@@ -13983,10 +14241,12 @@ fefa8b6:	2d7c 000f 4240 	movel #0xf4240,%fp@(-4)
 fefa8bc:	fffc
 fefa8be:	022c fffc 0003 	andib #-4,%a4@(3)
 fefa8c4:	38bc 0004      	movew #4,%a4@
-fefa8c8:	4878 0018      	pea 0x18
-fefa8cc:	486d 200a      	pea %a5@(8202)
+
+fefa8c8:	4878 0018      	pea 0x18				; count
+fefa8cc:	486d 200a      	pea %a5@(8202)			; addr
 fefa8d0:	6100 ba7a      	bsrw 0xfef634c			; memzero
 fefa8d4:	504f           	addqw #8,%sp
+
 fefa8d6:	486d 2004      	pea %a5@(8196)
 fefa8da:	6100 0d60      	bsrw 0xfefb63c
 fefa8de:	584f           	addqw #4,%sp
@@ -14013,14 +14273,17 @@ fefa934:	2208           	movel %a0,%d1
 fefa936:	e0a1           	asrl %d0,%d1
 fefa938:	1741 0017      	moveb %d1,%a3@(23)
 fefa93c:	022b ff1f 0016 	andib #0x1f,%a3@(22)
+
 fefa942:	4878 0010      	pea 0x10
 fefa946:	486d 2028      	pea %a5@(8232)
 fefa94a:	6100 ba00      	bsrw 0xfef634c			; memzero
 fefa94e:	504f           	addqw #8,%sp
+
 fefa950:	4878 0008      	pea 0x8
 fefa954:	486d 2038      	pea %a5@(8248)
 fefa958:	6100 b9f2      	bsrw 0xfef634c			; memzero
 fefa95c:	504f           	addqw #8,%sp
+
 fefa95e:	022c fffc 0003 	andib #-4,%a4@(3)
 fefa964:	002c 0001 0003 	orib #1,%a4@(3)
 fefa96a:	4240           	clrw %d0
@@ -14092,11 +14355,13 @@ fefaa38:	2d7c 000f 4240 	movel #0xf4240,%fp@(-12)
 fefaa3e:	fff4
 fefaa40:	41ed 2cc0      	lea %a5@(11456),%a0
 fefaa44:	2d48 fff8      	movel %a0,%fp@(-8)
-fefaa48:	2f2e 0010      	movel %fp@(16),%sp@-
-fefaa4c:	2f08           	movel %a0,%sp@-
-fefaa4e:	2f2e 000c      	movel %fp@(12),%sp@-
-fefaa52:	6100 b91e      	bsrw 0xfef6372
+
+fefaa48:	2f2e 0010      	movel %fp@(16),%sp@-	; count
+fefaa4c:	2f08           	movel %a0,%sp@-			; dst
+fefaa4e:	2f2e 000c      	movel %fp@(12),%sp@-	; src
+fefaa52:	6100 b91e      	bsrw 0xfef6372			; bcopy
 fefaa56:	4fef 000c      	lea %sp@(12),%sp
+
 fefaa5a:	206e fffc      	moveal %fp@(-4),%a0
 fefaa5e:	202e fff8      	movel %fp@(-8),%d0
 fefaa62:	7210           	moveq #16,%d1
@@ -14201,11 +14466,13 @@ fefab90:	42ae fffc      	clrl %fp@(-4)
 fefab94:	6018           	bras 0xfefabae
 fefab96:	4aae fffc      	tstl %fp@(-4)
 fefab9a:	6f12           	bles 0xfefabae
+
 fefab9c:	2f2e fffc      	movel %fp@(-4),%sp@-
 fefaba0:	2f2e 000c      	movel %fp@(12),%sp@-
 fefaba4:	4852           	pea %a2@
-fefaba6:	6100 b7ca      	bsrw 0xfef6372
+fefaba6:	6100 b7ca      	bsrw 0xfef6372			; bcopy
 fefabaa:	4fef 000c      	lea %sp@(12),%sp
+
 fefabae:	426b 0006      	clrw %a3@(6)
 fefabb2:	177c 0080 0002 	moveb #0x80,%a3@(2)
 fefabb8:	7001           	moveq #1,%d0
@@ -14397,15 +14664,18 @@ fefad9e:	45eb 0010      	lea %a3@(16),%a2
 fefada2:	0cae 0000 000a 	cmpil #0xa,%fp@(8)
 fefada8:	0008
 fefadaa:	6612           	bnes 0xfefadbe
+
 fefadac:	2f2e fff8      	movel %fp@(-8),%sp@-
 fefadb0:	2f2d 0032      	movel %a5@(50),%sp@-
 fefadb4:	4854           	pea %a4@
-fefadb6:	6100 b5ba      	bsrw 0xfef6372
+fefadb6:	6100 b5ba      	bsrw 0xfef6372			; bcopy
 fefadba:	4fef 000c      	lea %sp@(12),%sp
+
 fefadbe:	4878 0006      	pea 0x6
 fefadc2:	486e fff0      	pea %fp@(-16)
 fefadc6:	6100 b584      	bsrw 0xfef634c			; memzero
 fefadca:	504f           	addqw #8,%sp
+
 fefadcc:	1d6e 000b fff0 	moveb %fp@(11),%fp@(-16)
 fefadd2:	202b 0004      	movel %a3@(4),%d0
 fefadd6:	efee 0203 fff0 	bfins %d0,%fp@(-16),8,3
@@ -14480,10 +14750,12 @@ fefaea4:	70ff           	moveq #-1,%d0
 fefaea6:	6000 00b0      	braw 0xfefaf58
 fefaeaa:	082e 0001 ffe4 	btst #1,%fp@(-28)
 fefaeb0:	675e           	beqs 0xfefaf10
+
 fefaeb2:	4878 0006      	pea 0x6
 fefaeb6:	486e ffe8      	pea %fp@(-24)
 fefaeba:	6100 b490      	bsrw 0xfef634c			; memzero
 fefaebe:	504f           	addqw #8,%sp
+
 fefaec0:	1d7c 0003 ffe8 	moveb #3,%fp@(-24)
 fefaec6:	202b 0004      	movel %a3@(4),%d0
 fefaeca:	efee 0203 ffe8 	bfins %d0,%fp@(-24),8,3
@@ -14514,11 +14786,13 @@ fefaf1c:	6d00 ff1a      	bltw 0xfefae38
 fefaf20:	0cae 0000 0008 	cmpil #8,%fp@(8)
 fefaf26:	0008
 fefaf28:	6612           	bnes 0xfefaf3c
+
 fefaf2a:	2f2e fff8      	movel %fp@(-8),%sp@-
 fefaf2e:	4854           	pea %a4@
 fefaf30:	2f2d 0032      	movel %a5@(50),%sp@-
-fefaf34:	6100 b43c      	bsrw 0xfef6372
+fefaf34:	6100 b43c      	bsrw 0xfef6372			; bcopy
 fefaf38:	4fef 000c      	lea %sp@(12),%sp
+
 fefaf3c:	4a83           	tstl %d3
 fefaf3e:	6704           	beqs 0xfefaf44
 fefaf40:	2003           	movel %d3,%d0
@@ -14583,10 +14857,12 @@ fefafb4:	4e56 ffe4      	linkw %fp,#-28
 fefafb8:	48d7 38f0      	moveml %d4-%d7/%a3-%a5,%sp@
 fefafbc:	2a6e 0008      	moveal %fp@(8),%a5
 fefafc0:	286d 0006      	moveal %a5@(6),%a4
+
 fefafc4:	4878 0034      	pea 0x34
 fefafc8:	4854           	pea %a4@
 fefafca:	6100 b380      	bsrw 0xfef634c			; memzero
 fefafce:	504f           	addqw #8,%sp
+
 fefafd0:	47ec 0014      	lea %a4@(20),%a3
 fefafd4:	202d 000e      	movel %a5@(14),%d0
 fefafd8:	e680           	asrl #3,%d0
@@ -14744,6 +15020,7 @@ fefb186:	7000           	moveq #0,%d0
 fefb188:	4cee 3000 fff8 	moveml %fp@(-8),%a4-%a5
 fefb18e:	4e5e           	unlk %fp
 fefb190:	4e75           	rts
+
 fefb192:	4e56 fff8      	linkw %fp,#-8
 fefb196:	48d7 3000      	moveml %a4-%a5,%sp@
 fefb19a:	2a6e 0008      	moveal %fp@(8),%a5
@@ -14766,6 +15043,8 @@ fefb1c6:	504f           	addqw #8,%sp
 fefb1c8:	4cee 3000 fff8 	moveml %fp@(-8),%a4-%a5
 fefb1ce:	4e5e           	unlk %fp
 fefb1d0:	4e75           	rts
+
+; Big routine - st
 fefb1d2:	4e56 ffa8      	linkw %fp,#-88
 fefb1d6:	48d7 3cfc      	moveml %d2-%d7/%a2-%a5,%sp@
 fefb1da:	2e2e 0008      	movel %fp@(8),%d7
@@ -14788,12 +15067,14 @@ fefb20a:	202d 0032      	movel %a5@(50),%d0
 fefb20e:	d086           	addl %d6,%d0
 fefb210:	2f00           	movel %d0,%sp@-
 fefb212:	4853           	pea %a3@
-fefb214:	6100 b15c      	bsrw 0xfef6372
+fefb214:	6100 b15c      	bsrw 0xfef6372			; bcopy
 fefb218:	4fef 000c      	lea %sp@(12),%sp
+
 fefb21c:	4878 0006      	pea 0x6
 fefb220:	486e ffec      	pea %fp@(-20)
 fefb224:	6100 b126      	bsrw 0xfef634c			; memzero
 fefb228:	504f           	addqw #8,%sp
+
 fefb22a:	1d47 ffec      	moveb %d7,%fp@(-20)
 fefb22e:	202a 0004      	movel %a2@(4),%d0
 fefb232:	efee 0203 ffec 	bfins %d0,%fp@(-20),8,3
@@ -14841,10 +15122,12 @@ fefb2c4:	1d7c 000d ffec 	moveb #0xd,%fp@(-20)
 fefb2ca:	1d7c 0027 ffee 	moveb #0x27,%fp@(-18)
 fefb2d0:	6000 010a      	braw 0xfefb3dc
 fefb2d4:	286d 0032      	moveal %a5@(50),%a4
+
 fefb2d8:	4878 000e      	pea 0xe
 fefb2dc:	4854           	pea %a4@
 fefb2de:	6100 b06c      	bsrw 0xfef634c			; memzero
 fefb2e2:	504f           	addqw #8,%sp
+
 fefb2e4:	022c ff8f 0002 	andib #0x8f,%a4@(2)
 fefb2ea:	002c 0010 0002 	orib #0x10,%a4@(2)
 fefb2f0:	196e fffb 0004 	moveb %fp@(-5),%a4@(4)
@@ -14959,20 +15242,24 @@ fefb45e:	be85           	cmpl %d5,%d7
 fefb460:	661a           	bnes 0xfefb47c
 fefb462:	4a86           	tstl %d6
 fefb464:	6716           	beqs 0xfefb47c
+
 fefb466:	2f06           	movel %d6,%sp@-
 fefb468:	4853           	pea %a3@
 fefb46a:	202d 0032      	movel %a5@(50),%d0
 fefb46e:	7e10           	moveq #16,%d7
 fefb470:	d087           	addl %d7,%d0
 fefb472:	2f00           	movel %d0,%sp@-
-fefb474:	6100 aefc      	bsrw 0xfef6372
+fefb474:	6100 aefc      	bsrw 0xfef6372			; bcopy
 fefb478:	4fef 000c      	lea %sp@(12),%sp
+
 fefb47c:	082e 0001 ffe0 	btst #1,%fp@(-32)
 fefb482:	6700 0144      	beqw 0xfefb5c8
+
 fefb486:	4878 0006      	pea 0x6
 fefb48a:	486e ffe4      	pea %fp@(-28)
 fefb48e:	6100 aebc      	bsrw 0xfef634c			; memzero
 fefb492:	504f           	addqw #8,%sp
+
 fefb494:	1d7c 0003 ffe4 	moveb #3,%fp@(-28)
 fefb49a:	202a 0004      	movel %a2@(4),%d0
 fefb49e:	efee 0203 ffe4 	bfins %d0,%fp@(-28),8,3
@@ -15209,6 +15496,7 @@ fefb750:	4fef 000c      	lea %sp@(12),%sp
 fefb754:	4cee 3c00 fff0 	moveml %fp@(-16),%a2-%a5
 fefb75a:	4e5e           	unlk %fp
 fefb75c:	4e75           	rts
+
 fefb75e:	4e56 ffe8      	linkw %fp,#-24
 fefb762:	48d7 3c80      	moveml %d7/%a2-%a5,%sp@
 fefb766:	2a6e 0008      	moveal %fp@(8),%a5
@@ -15300,6 +15588,7 @@ fefb886:	7000           	moveq #0,%d0
 fefb888:	4cee 3c80 ffe8 	moveml %fp@(-24),%d7/%a2-%a5
 fefb88e:	4e5e           	unlk %fp
 fefb890:	4e75           	rts
+
 fefb892:	4e56 ffbc      	linkw %fp,#-68
 fefb896:	48d7 3000      	moveml %a4-%a5,%sp@
 fefb89a:	2a6e 0008      	moveal %fp@(8),%a5
@@ -15334,6 +15623,7 @@ fefb90a:	4fef 0010      	lea %sp@(16),%sp
 fefb90e:	4cee 3000 ffbc 	moveml %fp@(-68),%a4-%a5
 fefb914:	4e5e           	unlk %fp
 fefb916:	4e75           	rts
+
 fefb918:	4e56 ffbc      	linkw %fp,#-68
 fefb91c:	48d7 3000      	moveml %a4-%a5,%sp@
 fefb920:	2a6e 0008      	moveal %fp@(8),%a5
@@ -15353,6 +15643,7 @@ fefb954:	4fef 0010      	lea %sp@(16),%sp
 fefb958:	4cee 3000 ffbc 	moveml %fp@(-68),%a4-%a5
 fefb95e:	4e5e           	unlk %fp
 fefb960:	4e75           	rts
+
 fefb962:	4e56 ffd4      	linkw %fp,#-44
 fefb966:	48d7 3cfc      	moveml %d2-%d7/%a2-%a5,%sp@
 fefb96a:	2a6e 0008      	moveal %fp@(8),%a5
@@ -15509,6 +15800,7 @@ fefbb60:	6000 fe82      	braw 0xfefb9e4
 fefbb64:	4cee 3cfc ffd4 	moveml %fp@(-44),%d2-%d7/%a2-%a5
 fefbb6a:	4e5e           	unlk %fp
 fefbb6c:	4e75           	rts
+
 fefbb6e:	4e56 fffc      	linkw %fp,#-4
 fefbb72:	2e87           	movel %d7,%sp@
 fefbb74:	2e2e 0008      	movel %fp@(8),%d7
@@ -15529,6 +15821,7 @@ fefbba0:	1007           	moveb %d7,%d0
 fefbba2:	2e2e fffc      	movel %fp@(-4),%d7
 fefbba6:	4e5e           	unlk %fp
 fefbba8:	4e75           	rts
+
 fefbbaa:	4e56 fff0      	linkw %fp,#-16
 fefbbae:	48d7 20e0      	moveml %d5-%d7/%a5,%sp@
 fefbbb2:	3e2e 000e      	movew %fp@(14),%d7
@@ -15550,6 +15843,7 @@ fefbbda:	4680           	notl %d0
 fefbbdc:	4cee 20e0 fff0 	moveml %fp@(-16),%d5-%d7/%a5
 fefbbe2:	4e5e           	unlk %fp
 fefbbe4:	4e75           	rts
+
 fefbbe6:	4e56 fffc      	linkw %fp,#-4
 fefbbea:	7202           	moveq #2,%d1
 fefbbec:	2d41 fffc      	movel %d1,%fp@(-4)
@@ -15653,7 +15947,7 @@ fefbcfc:	4e5e           	unlk %fp
 fefbcfe:	4e75           	rts
 
 ; Subroutine tftp-1
-; big routine for tftp
+; big routine for tftp - one call
 fefbd00:	4e56 ffb0      	linkw %fp,#-80
 fefbd04:	48d7 3cc0      	moveml %d6-%d7/%a2-%a5,%sp@
 fefbd08:	2a6e 0008      	moveal %fp@(8),%a5
@@ -15810,6 +16104,7 @@ fefbf1a:	4fef 000c      	lea %sp@(12),%sp
 fefbf1e:	4aae fff0      	tstl %fp@(-16)
 fefbf22:	6600 fe38      	bnew 0xfefbd5c
 fefbf26:	70ff           	moveq #-1,%d0
+
 fefbf28:	4cee 3cc0 ffb0 	moveml %fp@(-80),%d6-%d7/%a2-%a5
 fefbf2e:	4e5e           	unlk %fp
 fefbf30:	4e75           	rts
@@ -15925,11 +16220,13 @@ fefc092:	0446 000c      	subiw #0xc,%d6
 fefc096:	671e           	beqs 0xfefc0b6
 fefc098:	3006           	movew %d6,%d0
 fefc09a:	48c0           	extl %d0
+
 fefc09c:	2f00           	movel %d0,%sp@-
 fefc09e:	2f2c 0888      	movel %a4@(2184),%sp@-
 fefc0a2:	486a 002e      	pea %a2@(46)
-fefc0a6:	6100 a2ca      	bsrw 0xfef6372
+fefc0a6:	6100 a2ca      	bsrw 0xfef6372			; bcopy
 fefc0aa:	4fef 000c      	lea %sp@(12),%sp
+
 fefc0ae:	3006           	movew %d6,%d0
 fefc0b0:	48c0           	extl %d0
 fefc0b2:	d1ac 0888      	addl %d0,%a4@(2184)
@@ -15987,13 +16284,20 @@ fefc15a:	0c46 0200      	cmpiw #0x200,%d6
 fefc15e:	6c00 fd50      	bgew 0xfefbeb0
 fefc162:	202c 0888      	movel %a4@(2184),%d0
 fefc166:	0480 0000 4000 	subil #0x4000,%d0
+
+; Here is the last message we see before we
+;  jump to loaded code`
 fefc16c:	2f00           	movel %d0,%sp@-
 fefc16e:	4879 0fef f38e 	pea 0xfeff38e
 ; 0xfeff38e Downloaded %d bytes from tftp server.\n\n
 fefc174:	6100 936e      	bsrw 0xfef54e4			; printf
 fefc178:	504f           	addqw #8,%sp
+
 fefc17a:	203c 0000 4000 	movel #0x4000,%d0
-fefc180:	6000 fda6      	braw 0xfefbf28
+fefc180:	6000 fda6      	braw 0xfefbf28		; return
+; branches up to return -- from ftp-1 !
+
+
 fefc184:	4e56 ffdc      	linkw %fp,#-36
 fefc188:	48d7 38f8      	moveml %d3-%d7/%a3-%a5,%sp@
 fefc18c:	42ae fffc      	clrl %fp@(-4)
@@ -16999,10 +17303,11 @@ fefdd44:	0000 0000      	orib #0,%d0
 fefdd48:	0000 0000      	orib #0,%d0
 fefdd4c:	0fef dd30      	bset %d7,%sp@(-8912)
 
-fefdd50:	0feff0cc      	bset %d7,%sp@(-3892)
-fefdd54:	0feff00c      	bset %d7,%sp@(-4084)
-fefdd58:	0feff178      	bset %d7,%sp@(-3720)
-fefdd5c:	00000000      	orib #0,%d0
+; table points to list of 3 options for boot
+fefdd50:	0feff0cc
+fefdd54:	0feff00c
+fefdd58:	0feff178
+fefdd5c:	00000000
 
 fefdd60:	426f 6f74      	clrw %sp@(28532)
 fefdd64:	3a20           	movew %a0@-,%d5
@@ -17121,12 +17426,15 @@ fefde76:	7669           	moveq #105,%d3
 fefde78:	6365           	blss 0xfefdedf
 fefde7a:	733a           	.short 0x733a
 fefde7c:	0a00 2020      	eorib #0x20,%d0
-fefde80:	2573 0a00 3031 	movel %a3@(0,%d0:l:2),%a2@(12337)
+fefde80:	2573 0a00
+
+fefde84:	3031
 fefde86:	3233 3435      	movew %a3@(35,%d3:w:4),%d1
 fefde8a:	3637 3839      	movew %sp@(39,%d3:l),%d3
 fefde8e:	6162           	bsrs 0xfefdef2
 fefde90:	6364           	blss 0xfefdef6
 fefde92:	6566           	bcss 0xfefdefa
+
 fefde94:	0000 0000      	orib #0,%d0
 fefde98:	e000           	asrb #8,%d0
 fefde9a:	0000 e000      	orib #0,%d0
@@ -18093,6 +18401,7 @@ fefeef4:	0fefefd4
 
 ; =========================================================
 ; 3 control blocks.  Where are these referenced?
+; BOOT-ON
 
 fefefea:	0000
 fefefec:	0012 0000
@@ -18161,7 +18470,7 @@ feff170:	0000 0000
 feff174:	0000 fe00
 feff178:	7374           	; "st"
 feff17a:	0fef7dd4
-feff17e:	0fef7c7a
+feff17e:	0fef7c7a		; st_xyz
 feff182:	0fefafb4		; stopen
 feff186:	0fefb158
 feff18a:	0fefb192
@@ -18224,8 +18533,8 @@ feff314:	0fef f454
 0feff36a: Booting from tftp server at
 0feff387: X.
 0feff38a: %c.
-0feff38e: Downloaded %d bytes from tftp server.\n ++
-0feff3b4: \n
+
+0feff38e: Downloaded %d bytes from tftp server.\n\n
 0feff3b6: tftp: time-out.\n
 0feff3c8: not defined
 0feff3d4: file not found

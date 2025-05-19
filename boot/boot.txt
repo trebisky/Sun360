@@ -1,0 +1,62 @@
+# This is the second stage boot
+; The source for this is sys/boot/sun3/srt0.s
+;
+    4000:	46fc 2700      	movew #0x2700,%sr
+
+    4004:	41fa fffa      	lea %pc@(0x4000),%a0
+    4008:	43f9 001c 0000 	lea 0x1c0000,%a1
+
+    400e:	2608           	movel %a0,%d3		; src
+    4010:	2809           	movel %a1,%d4		; dst
+    4012:	b3c8           	cmpal %a0,%a1
+    4014:	6712           	beqs 0x4028			; no move
+
+; 0x1f0b88 must be last address
+    4016:	203c 001f 0b88 	movel #2034568,%d0
+    401c:	9089           	subl %a1,%d0
+
+; convert to long word count
+    401e:	e488           	lsrl #2,%d0
+    4020:	2a00           	movel %d0,%d5		; save
+
+    4022:	22d8           	movel %a0@+,%a1@+		; copy loop
+    4024:	51c8 fffc      	dbf %d0,0x4022
+
+; This just yields a jump to 0x402e - why?
+    4028:	70f2           	moveq #-14,%d0
+    402a:	4efb 021e      	jmp %pc@(0x404a,%d0:w:2)
+
+    402e:	7009           	moveq #9,%d0
+    4030:	4e7b 0002      	movec %d0,%cacr
+
+    4034:	7003           	moveq #3,%d0
+    4036:	23c0 001d 39ba 	movel %d0,0x1d39ba
+
+; jump to relocated code
+    403c:	4ef9 001c 0042 	jmp 0x1c0042
+
+    4042:	23cf 001b fffc 	movel %sp,0x1bfffc
+    4048:	2e7c 001b fffc 	moveal #1835004,%sp
+    404e:	207c 001d 8da8 	moveal #1936808,%a0
+    4054:	4298           	clrl %a0@+
+    4056:	b1fc 001f 0b88 	cmpal #2034568,%a0
+    405c:	6f00 fff6      	blew 0x4054
+    4060:	2079 0fef 0038 	moveal 0xfef0038,%a0
+    4066:	2010           	movel %a0@,%d0
+    4068:	20bc 0000 0001 	movel #1,%a0@
+
+    406e:	4879 001d 39be 	pea 0x1d39be
+    4074:	4eb9 001c eb98 	jsr 0x1ceb98
+    407a:	584f           	addqw #4,%sp
+
+    407c:	4a80           	tstl %d0
+    407e:	6600 0020      	bnew 0x40a0
+    4082:	42a7           	clrl %sp@-
+    4084:	42a7           	clrl %sp@-
+    4086:	4eb9 001c 00b0 	jsr 0x1c00b0
+    408c:	504f           	addqw #8,%sp
+    408e:	4eb9 001c 2334 	jsr 0x1c2334
+    4094:	4879 001d 39be 	pea 0x1d39be
+    409a:	4eb9 001c eba8 	jsr 0x1ceba8
+    40a0:	2e79 001b fffc 	moveal 0x1bfffc,%sp
+    40a6:	4e75           	rts
