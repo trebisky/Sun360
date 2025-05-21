@@ -168,6 +168,7 @@ fef0140:	7efd           	moveq #-3,%d7
 fef0142:	0e39 7800 7000 	movesb %d7,0x70000000	; DIAG
 fef0148:	0000
 
+; This shoulda been where the stack was anyway
 fef014a:	2e0f           	movel %sp,%d7
 fef014c:	4ff9 0fe6 0c00 	lea 0xfe60c00,%sp
 fef0152:	48e7 ffff      	moveml %d0-%sp,%sp@-
@@ -2550,9 +2551,11 @@ fef1e84:	6000 0ee2      	braw 0xfef2d68				; Xcall - set_stack
 fef1e88:	7003           	moveq #3,%d0
 fef1e8a:	4e7b 0000      	movec %d0,%sfc
 fef1e8e:	4e7b 0001      	movec %d0,%dfc
+
 fef1e92:	4280           	clrl %d0
 fef1e94:	0e39 0800 3000 	movesb %d0,0x30000000		; CONTEXT
 fef1e9a:	0000
+
 fef1e9c:	103c 00ff      	moveb #-1,%d0
 fef1ea0:	0e10 0800      	movesb %d0,%a0@
 fef1ea4:	203c f400 0010 	movel #0xf4000010,%d0
@@ -2780,30 +2783,41 @@ fef218a:	6000 0bba      	braw 0xfef2d46				; Xcall - start_test
 
 fef218e:	0e39 0800 3000 	movesb %d0,0x30000000		; CONTEXT
 fef2194:	0000
+
 fef2196:	2c3c 0000 07ff 	movel #0x7ff,%d6
 fef219c:	2a7c 2ffe 0000 	moveal #0x2ffe0000,%a5
+
 fef21a2:	0e15 6800      	movesb %d6,%a5@
 fef21a6:	9bfc 0002 0000 	subal #0x20000,%a5
 fef21ac:	51ce fff4      	dbf %d6,0xfef21a2
+
 fef21b0:	243c 5a97 2c5a 	movel #0x5a972c5a,%d2
 fef21b6:	4dfa 0006      	lea %pc@(0xfef21be),%fp
 fef21ba:	6000 0bac      	braw 0xfef2d68				; Xcall - set_stack
+
 fef21be:	283c 0000 0fff 	movel #0xfff,%d4
 fef21c4:	2a7c 1000 0000 	moveal #0x10000000,%a5		; & PGMAP
 fef21ca:	2602           	movel %d2,%d3
 fef21cc:	2c3c 0000 0003 	movel #3,%d6
+
+; loop
 fef21d2:	0e95 3800      	movesl %d3,%a5@
 fef21d6:	5384           	subql #1,%d4
 fef21d8:	6f00 0014      	blew 0xfef21ee
+
 fef21dc:	dbfc 0000 2000 	addal #0x2000,%a5
 fef21e2:	e09b           	rorl #8,%d3
 fef21e4:	5386           	subql #1,%d6
-fef21e6:	6600 ffea      	bnew 0xfef21d2
+fef21e6:	6600 ffea      	bnew 0xfef21d2		; loop back
+
 fef21ea:	6000 ffde      	braw 0xfef21ca
+
 fef21ee:	2a7c 1000 0000 	moveal #0x10000000,%a5		; & PGMAP
 fef21f4:	283c 0000 0fff 	movel #0xfff,%d4
 fef21fa:	2602           	movel %d2,%d3
 fef21fc:	2c3c 0000 0003 	movel #3,%d6
+
+; loop
 fef2202:	0e95 0000      	movesl %a5@,%d0
 fef2206:	2203           	movel %d3,%d1
 fef2208:	0281 ff00 07ff 	andil #0xff0007ff,%d1
@@ -2821,42 +2835,57 @@ fef222e:	e09b           	rorl #8,%d3
 fef2230:	5384           	subql #1,%d4
 fef2232:	6f00 000c      	blew 0xfef2240
 fef2236:	5386           	subql #1,%d6
-fef2238:	6600 ffc8      	bnew 0xfef2202
+fef2238:	6600 ffc8      	bnew 0xfef2202		; loop back
+
 fef223c:	6000 ffbc      	braw 0xfef21fa
 fef2240:	4dfa 0006      	lea %pc@(0xfef2248),%fp
 fef2244:	6000 0b62      	braw 0xfef2da8				; Xcall	- Cleanup
 fef2248:	e09a           	rorl #8,%d2
 fef224a:	0c82 972c 5a5a 	cmpil #0x972c5a5a,%d2
 fef2250:	6600 ff64      	bnew 0xfef21b6
-fef2254:	3a3c 0fff      	movew #0xfff,%d5
 
+; **************************************************
+; This looks like PGMAP setup PAGE MAP setup
+
+fef2254:	3a3c 0fff      	movew #0xfff,%d5
 fef2258:	203c f000 0000 	movel #0xf0000000,%d0
 fef225e:	4bf9 1000 0000 	lea 0x10000000,%a5			; & PGMAP
 
+; Note the "sparse" addressing.  We increment by 0x2000,
+;  skipping the 13 bits in the page offset.
+
+; loop
 fef2264:	0e95 0800      	movesl %d0,%a5@
 fef2268:	5280           	addql #1,%d0
 fef226a:	dbfc 0000 2000 	addal #0x2000,%a5
 fef2270:	51cd fff2      	dbf %d5,0xfef2264
 
 fef2274:	2a7c 1000 0000 	moveal #0x10000000,%a5		; & PGMAP
+
 fef227a:	41f9 f400 0010 	lea 0xf4000010,%a0
 fef2280:	203c 0fff e000 	movel #0xfffe000,%d0			; serial A control
 fef2286:	0eb5 8800 0800 	movesl %a0,%a5@(0,%d0:l)
+
 fef228c:	41f9 f400 0050 	lea 0xf4000050,%a0
 fef2292:	203c 0fff 2000 	movel #0xfff2000,%d0
 fef2298:	0eb5 8800 0800 	movesl %a0,%a5@(0,%d0:l)
+
 fef229e:	41f9 f400 0040 	lea 0xf4000040,%a0
 fef22a4:	203c 0fff 4000 	movel #0xfff4000,%d0
 fef22aa:	0eb5 8800 0800 	movesl %a0,%a5@(0,%d0:l)
+
 fef22b0:	41f9 f400 00f0 	lea 0xf40000f0,%a0
 fef22b6:	203c 0fff 8000 	movel #0xfff8000,%d0
 fef22bc:	0eb5 8800 0800 	movesl %a0,%a5@(0,%d0:l)
+
 fef22c2:	41f9 f400 0030 	lea 0xf4000030,%a0
 fef22c8:	203c 0fff c000 	movel #0xfffc000,%d0			; keyboard ?
 fef22ce:	0eb5 8800 0800 	movesl %a0,%a5@(0,%d0:l)
+
 fef22d4:	41f9 f400 0020 	lea 0xf4000020,%a0
 fef22da:	203c 0fff 6000 	movel #0xfff6000,%d0
 fef22e0:	0eb5 8800 0800 	movesl %a0,%a5@(0,%d0:l)
+
 fef22e6:	2e7c 0000 0800 	moveal #0x800,%sp
 fef22ec:	41fa 0970      	lea %pc@(0xfef2c5e),%a0
 fef22f0:	21c8 000c      	movel %a0,0xc
