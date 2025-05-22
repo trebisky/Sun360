@@ -380,7 +380,7 @@ fef039e:	0000 0000      	orib #0,%d0
 ; =================================================
 ; VECTOR -- level 7 (NMI) handler
 fef03a2:	2f00           	movel %d0,%sp@-
-fef03a4:	1039 0fe0 8000 	moveb 0xfe08000,%d0
+fef03a4:	1039 0fe0 8000 	moveb 0xfe08000,%d0		; Mem error reg
 
 fef03aa:	0200 0080      	andib #0x80,%d0
 fef03ae:	670c           	beqs 0xfef03bc
@@ -1918,16 +1918,16 @@ fef16c4:	302e 0070      	movew %fp@(112),%d0
 fef16c8:	0240 0fff      	andiw #0xfff,%d0
 fef16cc:	0c40 0005      	cmpiw #5,%d0
 fef16d0:	6610           	bnes 0xfef16e2
-fef16d2:	21fc 0fe0 2000 	movel #0xfe02000,0xffffe2ba
+fef16d2:	21fc 0fe0 2000 	movel #0xfe02000,0xffffe2ba	; SCC
 fef16d8:	e2ba
-fef16da:	21fc 0fe0 2000 	movel #0xfe02000,0xffffe2be
+fef16da:	21fc 0fe0 2000 	movel #0xfe02000,0xffffe2be	; SCC
 fef16e0:	e2be
 fef16e2:	4878 0001      	pea 0x1
-fef16e6:	4879 0fe0 2000 	pea 0xfe02000
+fef16e6:	4879 0fe0 2000 	pea 0xfe02000	; SCC
 fef16ec:	6100 3882      	bsrw 0xfef4f70
 fef16f0:	504f           	addqw #8,%sp
 fef16f2:	42a7           	clrl %sp@-
-fef16f4:	4879 0fe0 2004 	pea 0xfe02004
+fef16f4:	4879 0fe0 2004 	pea 0xfe02004		; SCC
 fef16fa:	6100 3874      	bsrw 0xfef4f70
 fef16fe:	504f           	addqw #8,%sp
 fef1700:	0c39 0012 0fe0 	cmpib #0x12,0xfe04058
@@ -1940,7 +1940,7 @@ fef1716:	7200           	moveq #0,%d1
 fef1718:	1239 0fe0 405a 	moveb 0xfe0405a,%d1
 fef171e:	d081           	addl %d1,%d0
 fef1720:	2d40 fff8      	movel %d0,%fp@(-8)
-fef1724:	13fc 000c 0fe0 	moveb #0xc,0xfe02004
+fef1724:	13fc 000c 0fe0 	moveb #0xc,0xfe02004		; SCC
 fef172a:	2004
 
 fef172c:	7c20           	moveq #32,%d6				; Delay
@@ -1954,7 +1954,7 @@ fef173e:	eb80           	asll #5,%d0
 fef1740:	223c 004b 0000 	movel #0x4b0000,%d1
 fef1746:	4c40 1801      	divsll %d0,%d1,%d1
 fef174a:	5581           	subql #2,%d1
-fef174c:	13c1 0fe0 2004 	moveb %d1,0xfe02004
+fef174c:	13c1 0fe0 2004 	moveb %d1,0xfe02004		; SCC
 
 fef1752:	7c20           	moveq #32,%d6				; Delay
 fef1754:	2239 0fef c960 	movel 0xfefc960,%d1			; 3
@@ -1962,7 +1962,7 @@ fef175a:	e2a6           	asrl %d1,%d6
 fef175c:	5386           	subql #1,%d6
 fef175e:	6efc           	bgts 0xfef175c
 
-fef1760:	13fc 000d 0fe0 	moveb #0xd,0xfe02004
+fef1760:	13fc 000d 0fe0 	moveb #0xd,0xfe02004		; SCC
 fef1766:	2004
 
 fef1768:	7c20           	moveq #32,%d6				; Delay
@@ -1977,7 +1977,7 @@ fef177c:	223c 004b 0000 	movel #0x4b0000,%d1
 fef1782:	4c40 1801      	divsll %d0,%d1,%d1
 fef1786:	5581           	subql #2,%d1
 fef1788:	e081           	asrl #8,%d1
-fef178a:	13c1 0fe0 2004 	moveb %d1,0xfe02004
+fef178a:	13c1 0fe0 2004 	moveb %d1,0xfe02004		; SCC
 
 fef1790:	7c20           	moveq #32,%d6				; Delay
 fef1792:	2239 0fef c960 	movel 0xfefc960,%d1			; 3
@@ -1995,7 +1995,7 @@ fef17b4:	7200           	moveq #0,%d1
 fef17b6:	1239 0fe0 4062 	moveb 0xfe04062,%d1
 fef17bc:	d081           	addl %d1,%d0
 fef17be:	2d40 fff8      	movel %d0,%fp@(-8)
-fef17c2:	13fc 000c 0fe0 	moveb #0xc,0xfe02000
+fef17c2:	13fc 000c 0fe0 	moveb #0xc,0xfe02000	; SCC
 fef17c8:	2000
 
 fef17ca:	7c20           	moveq #32,%d6				; Delay
@@ -2009,7 +2009,7 @@ fef17dc:	eb80           	asll #5,%d0
 fef17de:	223c 004b 0000 	movel #0x4b0000,%d1
 fef17e4:	4c40 1801      	divsll %d0,%d1,%d1
 fef17e8:	5581           	subql #2,%d1
-fef17ea:	13c1 0fe0 2000 	moveb %d1,0xfe02000
+fef17ea:	13c1 0fe0 2000 	moveb %d1,0xfe02000	; SCC
 
 fef17f0:	7c20           	moveq #32,%d6				; Delay
 fef17f2:	2239 0fef c960 	movel 0xfefc960,%d1			; 3
@@ -2017,7 +2017,7 @@ fef17f8:	e2a6           	asrl %d1,%d6
 fef17fa:	5386           	subql #1,%d6
 fef17fc:	6efc           	bgts 0xfef17fa
 
-fef17fe:	13fc 000d 0fe0 	moveb #0xd,0xfe02000
+fef17fe:	13fc 000d 0fe0 	moveb #0xd,0xfe02000	; SCC
 fef1804:	2000
 
 fef1806:	7c20           	moveq #32,%d6				; Delay
@@ -2032,7 +2032,7 @@ fef181a:	223c 004b 0000 	movel #0x4b0000,%d1
 fef1820:	4c40 1801      	divsll %d0,%d1,%d1
 fef1824:	5581           	subql #2,%d1
 fef1826:	e081           	asrl #8,%d1
-fef1828:	13c1 0fe0 2000 	moveb %d1,0xfe02000
+fef1828:	13c1 0fe0 2000 	moveb %d1,0xfe02000	; SCC
 
 fef182e:	7c20           	moveq #32,%d6				; Delay
 fef1830:	2239 0fef c960 	movel 0xfefc960,%d1			; 3
@@ -2063,7 +2063,7 @@ fef187e:	2f38 e0ca      	movel 0xffffe0ca,%sp@-
 fef1882:	2f38 e0c6      	movel 0xffffe0c6,%sp@-
 fef1886:	6100 4d8c      	bsrw 0xfef6614
 fef188a:	504f           	addqw #8,%sp
-fef188c:	13fc 0050 0fe0 	moveb #0x50,0xfe08000
+fef188c:	13fc 0050 0fe0 	moveb #0x50,0xfe08000		; Mem error reg
 fef1892:	8000
 fef1894:	302e 0070      	movew %fp@(112),%d0
 fef1898:	0240 0fff      	andiw #0xfff,%d0
@@ -2109,10 +2109,10 @@ fef192c:	0240 0fff      	andiw #0xfff,%d0
 fef1930:	0c40 0002      	cmpiw #2,%d0
 fef1934:	6600 0096      	bnew 0xfef19cc
 fef1938:	4878 0001      	pea 0x1
-fef193c:	4879 0fe0 0000 	pea 0xfe00000
+fef193c:	4879 0fe0 0000 	pea 0xfe00000					; KB
 fef1942:	6100 362c      	bsrw 0xfef4f70
 fef1946:	504f           	addqw #8,%sp
-fef1948:	21fc 0fe0 0004 	movel #0xfe00004,0xffffe24e
+fef1948:	21fc 0fe0 0004 	movel #0xfe00004,0xffffe24e		; KB
 fef194e:	e24e
 fef1950:	21fc ffff e25f 	movel #0xffffe25f,0xffffe256
 fef1956:	e256
@@ -4595,7 +4595,7 @@ fef3740:	e9f9 0001 0fe0 	bfextu 0xfe08004,0,1,%d0
 fef3746:	8004
 fef3748:	2f00           	movel %d0,%sp@-
 fef374a:	7000           	moveq #0,%d0
-fef374c:	1039 0fe0 8000 	moveb 0xfe08000,%d0
+fef374c:	1039 0fe0 8000 	moveb 0xfe08000,%d0		; Mem error reg
 fef3752:	2f00           	movel %d0,%sp@-
 fef3754:	4879 0fef d5d3 	pea 0xfefd5d3
 ; 0xfefd5d3 \nMEMORY ERROR!  Status %x, DVMA-BIT %x, Context %x,
@@ -5314,7 +5314,7 @@ fef4050:	6100 c186      	bsrw 0xfef01d8
 fef4054:	6100 c4e4      	bsrw 0xfef053a			; RESET!
 
 fef4058:	4878 0001      	pea 0x1
-fef405c:	4879 0fe0 0000 	pea 0xfe00000
+fef405c:	4879 0fe0 0000 	pea 0xfe00000			; KB
 fef4062:	6100 0f0c      	bsrw 0xfef4f70
 fef4066:	504f           	addqw #8,%sp
 
@@ -5322,7 +5322,7 @@ fef4068:	42a7           	clrl %sp@-
 fef406a:	6100 c492      	bsrw 0xfef04fe			; write_enable
 fef406e:	584f           	addqw #4,%sp
 
-fef4070:	4239 0fe0 8000 	clrb 0xfe08000
+fef4070:	4239 0fe0 8000 	clrb 0xfe08000		; Mem error reg
 fef4076:	2d7c 0fe1 2014 	movel #0xfe12014,%fp@(-196)
 fef407c:	ff3c
 fef407e:	203c 0fe1 2014 	movel #0xfe12014,%d0
@@ -5462,7 +5462,7 @@ fef423e:	ce86           	andl %d6,%d7
 fef4240:	7c59           	moveq #89,%d6
 fef4242:	be86           	cmpl %d6,%d7
 fef4244:	6600 034e      	bnew 0xfef4594
-fef4248:	2d7c 0fe0 4000 	movel #0xfe04000,%fp@(-112)
+fef4248:	2d7c 0fe0 4000 	movel #0xfe04000,%fp@(-112)	; TOD
 fef424e:	ff90
 fef4250:	42ae ff80      	clrl %fp@(-128)
 fef4254:	42a7           	clrl %sp@-
@@ -5487,9 +5487,9 @@ fef428a:	6c00 0308      	bgew 0xfef4594
 fef428e:	60c4           	bras 0xfef4254
 fef4290:	42b8 e0fe      	clrl 0xffffe0fe
 fef4294:	6100 11bc      	bsrw 0xfef5452
-fef4298:	0680 0fe0 4000 	addil #0xfe04000,%d0
+fef4298:	0680 0fe0 4000 	addil #0xfe04000,%d0	; TOD
 fef429e:	2a00           	movel %d0,%d5
-fef42a0:	0c85 0fe0 4000 	cmpil #0xfe04000,%d5
+fef42a0:	0c85 0fe0 4000 	cmpil #0xfe04000,%d5	; TOD
 fef42a6:	6d00 02ec      	bltw 0xfef4594
 fef42aa:	0c85 0fe0 4800 	cmpil #0xfe04800,%d5
 fef42b0:	6c00 02e2      	bgew 0xfef4594
@@ -6165,7 +6165,7 @@ fef4aa0:	48d7 3ce0      	moveml %d5-%d7/%a2-%a5,%sp@
 fef4aa4:	2a6e 0008      	moveal %fp@(8),%a5
 fef4aa8:	42ae fff0      	clrl %fp@(-16)
 fef4aac:	534d           	subqw #1,%a5
-fef4aae:	bbfc 0fe0 400f 	cmpal #0xfe0400f,%a5
+fef4aae:	bbfc 0fe0 400f 	cmpal #0xfe0400f,%a5	; TOD
 fef4ab4:	6328           	blss 0xfef4ade
 fef4ab6:	bbfc 0fe0 4500 	cmpal #0xfe04500,%a5
 fef4abc:	6420           	bccs 0xfef4ade
@@ -6173,8 +6173,8 @@ fef4abe:	2d7c 0fe0 4010 	movel #0xfe04010,%fp@(-4)
 fef4ac4:	fffc
 fef4ac6:	2d7c 0fe0 4500 	movel #0xfe04500,%fp@(-8)
 fef4acc:	fff8
-fef4ace:	287c 0fe0 400c 	moveal #0xfe0400c,%a4
-fef4ad4:	267c 0fe0 4004 	moveal #0xfe04004,%a3
+fef4ace:	287c 0fe0 400c 	moveal #0xfe0400c,%a4	; TOD
+fef4ad4:	267c 0fe0 4004 	moveal #0xfe04004,%a3	; TOD
 fef4ada:	6000 008e      	braw 0xfef4b6a
 fef4ade:	bbfc 0fe0 450b 	cmpal #0xfe0450b,%a5
 fef4ae4:	6326           	blss 0xfef4b0c
@@ -6671,12 +6671,12 @@ fef4f86:	267c 0fef db12 	moveal #0xfefdb12,%a3
 fef4f8c:	0c39 0012 0fe0 	cmpib #0x12,0xfe0405b
 fef4f92:	405b
 fef4f94:	6608           	bnes 0xfef4f9e
-fef4f96:	bbfc 0fe0 2004 	cmpal #0xfe02004,%a5
+fef4f96:	bbfc 0fe0 2004 	cmpal #0xfe02004,%a5		; SCC
 fef4f9c:	6712           	beqs 0xfef4fb0
 fef4f9e:	0c39 0012 0fe0 	cmpib #0x12,0xfe04063
 fef4fa4:	4063
 fef4fa6:	661e           	bnes 0xfef4fc6
-fef4fa8:	bbfc 0fe0 2000 	cmpal #0xfe02000,%a5
+fef4fa8:	bbfc 0fe0 2000 	cmpal #0xfe02000,%a5	; SCC
 fef4fae:	6616           	bnes 0xfef4fc6
 fef4fb0:	6100 b532      	bsrw 0xfef04e4			; read_enable
 fef4fb4:	0800 0000      	btst #0,%d0
@@ -6704,7 +6704,7 @@ fef4ff2:	6efc           	bgts 0xfef4ff0
 
 fef4ff4:	b9cb           	cmpal %a3,%a4
 fef4ff6:	65d6           	bcss 0xfef4fce
-fef4ff8:	bbfc 0fe0 2000 	cmpal #0xfe02000,%a5
+fef4ff8:	bbfc 0fe0 2000 	cmpal #0xfe02000,%a5	; SCC
 fef4ffe:	6660           	bnes 0xfef5060
 fef5000:	6100 b4e2      	bsrw 0xfef04e4			; read_enable
 fef5004:	0800 0000      	btst #0,%d0
@@ -12482,28 +12482,28 @@ fef90de:	7051           	moveq #81,%d0
 fef90e0:	6000 0318      	braw 0xfef93fa
 fef90e4:	0c2e 0041 ffdb 	cmpib #0x41,%fp@(-37)
 fef90ea:	6612           	bnes 0xfef90fe
-fef90ec:	2d7c 0fe0 2004 	movel #0xfe02004,%fp@(-32)
+fef90ec:	2d7c 0fe0 2004 	movel #0xfe02004,%fp@(-32)		; SCC
 fef90f2:	ffe0
-fef90f4:	2d7c 0fe0 2006 	movel #0xfe02006,%fp@(-36)
+fef90f4:	2d7c 0fe0 2006 	movel #0xfe02006,%fp@(-36)		; SCC
 fef90fa:	ffdc
 fef90fc:	6044           	bras 0xfef9142
 fef90fe:	0c2e 0042 ffdb 	cmpib #0x42,%fp@(-37)
 fef9104:	6612           	bnes 0xfef9118
-fef9106:	2d7c 0fe0 2000 	movel #0xfe02000,%fp@(-32)
+fef9106:	2d7c 0fe0 2000 	movel #0xfe02000,%fp@(-32)	; SCC
 fef910c:	ffe0
-fef910e:	2d7c 0fe0 2002 	movel #0xfe02002,%fp@(-36)
+fef910e:	2d7c 0fe0 2002 	movel #0xfe02002,%fp@(-36)	; SCC
 fef9114:	ffdc
 fef9116:	602a           	bras 0xfef9142
 fef9118:	0c2e 004b ffdb 	cmpib #0x4b,%fp@(-37)
 fef911e:	6612           	bnes 0xfef9132
-fef9120:	2d7c 0fe0 0004 	movel #0xfe00004,%fp@(-32)
+fef9120:	2d7c 0fe0 0004 	movel #0xfe00004,%fp@(-32)			; KB
 fef9126:	ffe0
-fef9128:	2d7c 0fe0 0006 	movel #0xfe00006,%fp@(-36)
+fef9128:	2d7c 0fe0 0006 	movel #0xfe00006,%fp@(-36)			; KB
 fef912e:	ffdc
 fef9130:	6010           	bras 0xfef9142
-fef9132:	2d7c 0fe0 0000 	movel #0xfe00000,%fp@(-32)
+fef9132:	2d7c 0fe0 0000 	movel #0xfe00000,%fp@(-32)			; KB
 fef9138:	ffe0
-fef913a:	2d7c 0fe0 0002 	movel #0xfe00002,%fp@(-36)
+fef913a:	2d7c 0fe0 0002 	movel #0xfe00002,%fp@(-36)			; KB
 fef9140:	ffdc
 fef9142:	42a7           	clrl %sp@-
 fef9144:	2f2e ffe0      	movel %fp@(-32),%sp@-
@@ -12940,10 +12940,10 @@ fef9668:	4a38 e015      	tstb 0xffffe015
 fef966c:	6700 00d0      	beqw 0xfef973e
 fef9670:	0c38 0001 e015 	cmpib #1,0xffffe015
 fef9676:	660a           	bnes 0xfef9682
-fef9678:	2d7c 0fe0 2004 	movel #0xfe02004,%fp@(-8)
+fef9678:	2d7c 0fe0 2004 	movel #0xfe02004,%fp@(-8)		; SCC
 fef967e:	fff8
 fef9680:	6008           	bras 0xfef968a
-fef9682:	2d7c 0fe0 2000 	movel #0xfe02000,%fp@(-8)
+fef9682:	2d7c 0fe0 2000 	movel #0xfe02000,%fp@(-8)	; SCC
 fef9688:	fff8
 
 fef968a:	7000           	moveq #0,%d0
