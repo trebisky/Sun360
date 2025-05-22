@@ -219,7 +219,7 @@ fef01d6:	6004           	bras 0xfef01dc
 fef01d8:	3e3c 0001      	movew #1,%d7
 fef01dc:	4eba 035c      	jsr %pc@(0xfef053a)			; RESET!
 
-fef01e0:	4239 0fe0 a000 	clrb 0xfe0a000
+fef01e0:	4239 0fe0 a000 	clrb 0xfe0a000	; Interrupt register
 fef01e6:	2c38 e17a      	movel 0xffffe17a,%d6
 fef01ea:	303c 0003      	movew #3,%d0
 fef01ee:	4e7b 0001      	movec %d0,%dfc
@@ -394,9 +394,9 @@ fef03b8:	6000 fe9e      	braw 0xfef0258
 fef03bc:	1039 0fe0 6010 	moveb 0xfe06010,%d0
 fef03c2:	67f2           	beqs 0xfef03b6
 
-fef03c4:	0239 ff7f 0fe0 	andib #0x7f,0xfe0a000
+fef03c4:	0239 ff7f 0fe0 	andib #0x7f,0xfe0a000	; Interrupt register
 fef03ca:	a000
-fef03cc:	0039 0080 0fe0 	orib #0x80,0xfe0a000
+fef03cc:	0039 0080 0fe0 	orib #0x80,0xfe0a000	; Interrupt register
 fef03d2:	a000
 fef03d4:	1039 0fe0 6010 	moveb 0xfe06010,%d0
 fef03da:	2f01           	movel %d1,%sp@-
@@ -2073,13 +2073,13 @@ fef18a2:	6100 4a74      	bsrw 0xfef6318
 fef18a6:	13fc 001c 0fe0 	moveb #0x1c,0xfe06011
 fef18ac:	6011
 fef18ae:	42b8 e0b2      	clrl 0xffffe0b2
-fef18b2:	0239 005f 0fe0 	andib #0x5f,0xfe0a000
+fef18b2:	0239 005f 0fe0 	andib #0x5f,0xfe0a000	; Interrupt register
 fef18b8:	a000
 fef18ba:	4239 0fe0 6010 	clrb 0xfe06010
 fef18c0:	7000           	moveq #0,%d0
 fef18c2:	1039 0fe0 6010 	moveb 0xfe06010,%d0
 fef18c8:	2d40 fffc      	movel %d0,%fp@(-4)
-fef18cc:	0039 0080 0fe0 	orib #0x80,0xfe0a000
+fef18cc:	0039 0080 0fe0 	orib #0x80,0xfe0a000	; Interrupt register
 fef18d2:	a000
 fef18d4:	13fc 0002 0fe0 	moveb #2,0xfe06010
 fef18da:	6010
@@ -2180,7 +2180,7 @@ fef1a00:	4878 007c      	pea 0x7c
 fef1a04:	6100 ebd6      	bsrw 0xfef05dc		; install_vec
 fef1a08:	504f           	addqw #8,%sp
 
-fef1a0a:	0039 0001 0fe0 	orib #1,0xfe0a000
+fef1a0a:	0039 0001 0fe0 	orib #1,0xfe0a000	; Interrupt register
 fef1a10:	a000
 fef1a12:	302e 0070      	movew %fp@(112),%d0
 fef1a16:	0240 0fff      	andiw #0xfff,%d0
@@ -2453,17 +2453,17 @@ fef1d82:	4e7b 1001      	movec %d1,%dfc
 fef1d86:	4e75           	rts
 
 ; Subroutine -- mmu-11, only in call table
-fef1d88:	1039 0fe0 a000 	moveb 0xfe0a000,%d0
+fef1d88:	1039 0fe0 a000 	moveb 0xfe0a000,%d0	; Interrupt register
 fef1d8e:	2f00           	movel %d0,%sp@-
 fef1d90:	0200 fffe      	andib #-2,%d0
-fef1d94:	13c0 0fe0 a000 	moveb %d0,0xfe0a000
+fef1d94:	13c0 0fe0 a000 	moveb %d0,0xfe0a000	; Interrupt register
 fef1d9a:	2f2f 0010      	movel %sp@(16),%sp@-
 fef1d9e:	2f2f 0010      	movel %sp@(16),%sp@-
 fef1da2:	2f2f 0010      	movel %sp@(16),%sp@-
 fef1da6:	610e           	bsrs 0xfef1db6			; mmu-10 (below)
 fef1da8:	4fef 000c      	lea %sp@(12),%sp
 fef1dac:	201f           	movel %sp@+,%d0
-fef1dae:	13c0 0fe0 a000 	moveb %d0,0xfe0a000
+fef1dae:	13c0 0fe0 a000 	moveb %d0,0xfe0a000	; Interrupt register
 fef1db4:	4e75           	rts
 
 ; -----------------------------------------------------------------
@@ -2854,6 +2854,9 @@ fef225e:	4bf9 1000 0000 	lea 0x10000000,%a5			; & PGMAP
 ; Note the "sparse" addressing.  We increment by 0x2000,
 ;  skipping the 13 bits in the page offset.
 
+; First we have a loop for RAM, we set up mapping
+; for 4096 pages (32M)
+
 ; loop
 fef2264:	0e95 0800      	movesl %d0,%a5@
 fef2268:	5280           	addql #1,%d0
@@ -2862,26 +2865,38 @@ fef2270:	51cd fff2      	dbf %d5,0xfef2264
 
 fef2274:	2a7c 1000 0000 	moveal #0x10000000,%a5		; & PGMAP
 
+; Note that the 0xf4 in the following is
+; f = 1111 vwsx (valid, writeable, system, no cache)
+; 4 = 0100 = 01 is type 01 for IO  00 is for accessed/modified
+
+; In this case the 010 offset gets shifted left by 13 so
+;  the physical address is 0x10 << 13 = 0x20000 (serial port uart)
 fef227a:	41f9 f400 0010 	lea 0xf4000010,%a0
 fef2280:	203c 0fff e000 	movel #0xfffe000,%d0			; serial A control
 fef2286:	0eb5 8800 0800 	movesl %a0,%a5@(0,%d0:l)
 
+; 0x50 << 13 = A0000, interrupt register
 fef228c:	41f9 f400 0050 	lea 0xf4000050,%a0
 fef2292:	203c 0fff 2000 	movel #0xfff2000,%d0
 fef2298:	0eb5 8800 0800 	movesl %a0,%a5@(0,%d0:l)
 
+; 0x40 << 13 = 80000, memory error regs
 fef229e:	41f9 f400 0040 	lea 0xf4000040,%a0
 fef22a4:	203c 0fff 4000 	movel #0xfff4000,%d0
 fef22aa:	0eb5 8800 0800 	movesl %a0,%a5@(0,%d0:l)
 
+; What the heck is this?  I never see this referenced
+; 0xf0 << 13 = 1e0000
 fef22b0:	41f9 f400 00f0 	lea 0xf40000f0,%a0
 fef22b6:	203c 0fff 8000 	movel #0xfff8000,%d0
 fef22bc:	0eb5 8800 0800 	movesl %a0,%a5@(0,%d0:l)
 
+; 0x30 << 13 = 60000, TOD clock
 fef22c2:	41f9 f400 0030 	lea 0xf4000030,%a0
-fef22c8:	203c 0fff c000 	movel #0xfffc000,%d0			; keyboard ?
+fef22c8:	203c 0fff c000 	movel #0xfffc000,%d0
 fef22ce:	0eb5 8800 0800 	movesl %a0,%a5@(0,%d0:l)
 
+; 0x20 << 13 = 40000, EEPROM
 fef22d4:	41f9 f400 0020 	lea 0xf4000020,%a0
 fef22da:	203c 0fff 6000 	movel #0xfff6000,%d0
 fef22e0:	0eb5 8800 0800 	movesl %a0,%a5@(0,%d0:l)
@@ -2964,6 +2979,8 @@ fef23e8:	4dfa 0006      	lea %pc@(0xfef23f0),%fp
 fef23ec:	6000 0986      	braw 0xfef2d74				; Xcall - Error
 fef23f0:	4dfa 0006      	lea %pc@(0xfef23f8),%fp
 fef23f4:	6000 09b2      	braw 0xfef2da8				; Xcall	- Cleanup
+
+; +++++++++++++++
 fef23f8:	41fa 0864      	lea %pc@(0xfef2c5e),%a0
 fef23fc:	21c8 0008      	movel %a0,0x8
 fef2400:	1e3c fff6      	moveb #0xf6,%d7
@@ -2984,8 +3001,12 @@ fef242c:	4e71           	nop
 fef242e:	4e71           	nop
 fef2430:	4e71           	nop
 
-; Whatever this is, the expectation is that it will generate an interrupt
-fef2432:	13fc 0003 0fff 	moveb #3,0xfff2000
+; Write to the interrupt register.
+; 0x01 is the overall enable bit
+; 0x20 is the level 1 interrupt bit
+; This write should yield a level 1 interrupt.
+; Software should clear the bit
+fef2432:	13fc 0003 0fff 	moveb #3,0xfff2000		; Interrupt register
 fef2438:	2000
 
 fef243a:	383c ffff      	movew #-1,%d4			; delay
@@ -2998,10 +3019,16 @@ fef244c:	6000 0926      	braw 0xfef2d74				; Xcall - Error
 
 ; Set SR back to 2700, disables interrupts
 fef2450:	46fc 2700      	movew #0x2700,%sr
-fef2454:	13fc 0000 0fff 	moveb #0,0xfff2000
+
+; Clear the interrupt register
+fef2454:	13fc 0000 0fff 	moveb #0,0xfff2000		; Interrupt register
 fef245a:	2000
+
 fef245c:	4dfa 0006      	lea %pc@(0xfef2464),%fp
 fef2460:	6000 0946      	braw 0xfef2da8				; Xcall	- Cleanup
+
+; +++++++++++++++
+
 fef2464:	1e3c fff5      	moveb #0xf5,%d7
 fef2468:	49f9 0fef cc26 	lea 0xfefcc26,%a4
 ; 0xfefcc26 \r\nTOD Clock Interrupt Test
@@ -3009,7 +3036,13 @@ fef246e:	4dfa 0006      	lea %pc@(0xfef2476),%fp
 fef2472:	6000 08d2      	braw 0xfef2d46				; Xcall - start_test
 fef2476:	4dfa 0006      	lea %pc@(0xfef247e),%fp
 fef247a:	6000 08ec      	braw 0xfef2d68				; Xcall - set_stack
+
 fef247e:	4ff8 0800      	lea 0x800,%sp
+
+; Let's assume we have vectors at address 0
+; This would set the level 5 vector,
+; which is correct for the TOD clock
+; (it interrupts on both 5 and 7)
 fef2482:	41f8 0074      	lea 0x74,%a0
 fef2486:	43fa 0060      	lea %pc@(0xfef24e8),%a1
 fef248a:	2089           	movel %a1,%a0@
@@ -3017,19 +3050,38 @@ fef248a:	2089           	movel %a1,%a0@
 ; enable interrupts
 fef248c:	46fc 2000      	movew #0x2000,%sr
 
-; What are these registers?
-fef2490:	13fc 0000 0fff 	moveb #0,0xfff2000
+; Clear the interrupt register (disable interrupts)
+fef2490:	13fc 0000 0fff 	moveb #0,0xfff2000		; Interrupt register
 fef2496:	2000
+
+; The base address for the 7170 TOD clock is 0xfffc000
+; Note the useless reads, as if this chip demands that
+; reads and writes alternate.
+
+; Offset 0x10 is the interrupt status and mask register
+; Offset 0x11 is the command register.
+
 fef2498:	13fc 0000 0fff 	moveb #0,0xfffc010
 fef249e:	c010
 fef24a0:	1039 0fff c010 	moveb 0xfffc010,%d0
+
+; write 0x2 to the interrupt mask register
+; This gates on the 100 Mhz interrupt
 fef24a6:	13fc 0002 0fff 	moveb #2,0xfffc010
 fef24ac:	c010
 fef24ae:	4e71           	nop
 fef24b0:	4e71           	nop
 fef24b2:	1039 0fff c010 	moveb 0xfffc010,%d0
-fef24b8:	13fc 0021 0fff 	moveb #0x21,0xfff2000
+
+; enable interrupts, and trigger level 5 interrupt
+fef24b8:	13fc 0021 0fff 	moveb #0x21,0xfff2000		; Interrupt register
 fef24be:	2000
+
+; write 0x1c to the command register = 0001 1100
+; enable interrupts (0001 0000)
+; put it in run (0000 1000)
+; set it to 24 hour mode (0000 0100)
+; The two low bits 00 indicate it has a 32768 Hz crystal
 fef24c0:	1039 0fff c010 	moveb 0xfffc010,%d0
 fef24c6:	13fc 001c 0fff 	moveb #0x1c,0xfffc011
 fef24cc:	c011
@@ -3043,15 +3095,22 @@ fef24da:	49f9 0fef cc41 	lea 0xfefcc41,%a4
 fef24e0:	4dfa 0006      	lea %pc@(0xfef24e8),%fp
 fef24e4:	6000 088e      	braw 0xfef2d74				; Xcall - Error
 
+; An actual interrupt will come here
 ; disable interrupts
 fef24e8:	46fc 2700      	movew #0x2700,%sr
 
+; Write to TOD clock command register, disable interrupts
 fef24ec:	13fc 000c 0fff 	moveb #0xc,0xfffc011
 fef24f2:	c011
-fef24f4:	13fc 0000 0fff 	moveb #0,0xfff2000
+
+; clear interrupt register
+fef24f4:	13fc 0000 0fff 	moveb #0,0xfff2000		; Interrupt register
 fef24fa:	2000
 fef24fc:	4dfa 0006      	lea %pc@(0xfef2504),%fp
 fef2500:	6000 08a6      	braw 0xfef2da8				; Xcall	- Cleanup
+
+; +++++++++++++++
+
 fef2504:	43fa 07e6      	lea %pc@(0xfef2cec),%a1
 fef2508:	41f8 0074      	lea 0x74,%a0
 fef250c:	2089           	movel %a1,%a0@
@@ -3182,7 +3241,8 @@ fef270a:	13fc 0000 0fff 	moveb #0,0xfff4004
 fef2710:	4004
 fef2712:	4e71           	nop
 
-fef2714:	13fc 0001 0fff 	moveb #1,0xfff2000
+; Enable interrupts (global bit)
+fef2714:	13fc 0001 0fff 	moveb #1,0xfff2000		; Interrupt register
 fef271a:	2000
 fef271c:	4e71           	nop
 
@@ -3190,7 +3250,7 @@ fef271c:	4e71           	nop
 fef271e:	46fc 2000      	movew #0x2000,%sr
 fef2722:	4e71           	nop
 
-fef2724:	13fc 0040 0fff 	moveb #0x40,0xfff4000
+fef2724:	13fc 0040 0fff 	moveb #0x40,0xfff4000		; mem error register
 fef272a:	4000
 fef272c:	4e71           	nop
 
@@ -3200,7 +3260,7 @@ fef2732:	2415           	movel %a5@,%d2
 fef2734:	4280           	clrl %d0
 fef2736:	4e71           	nop
 fef2738:	4e71           	nop
-fef273a:	1039 0fff 4000 	moveb 0xfff4000,%d0
+fef273a:	1039 0fff 4000 	moveb 0xfff4000,%d0		; mem error register
 fef2740:	0200 00f0      	andib #0xf0,%d0
 fef2744:	b200           	cmpb %d0,%d1
 fef2746:	6700 002e      	beqw 0xfef2776
@@ -3210,7 +3270,7 @@ fef2754:	6000 061e      	braw 0xfef2d74				; Xcall ?? - Error
 fef2758:	6000 001c      	braw 0xfef2776
 fef275c:	2e7c 0000 0800 	moveal #0x800,%sp
 fef2762:	4280           	clrl %d0
-fef2764:	1039 0fff 4000 	moveb 0xfff4000,%d0
+fef2764:	1039 0fff 4000 	moveb 0xfff4000,%d0		; mem error register
 fef276a:	49fa 0550      	lea %pc@(0xfef2cbc),%a4
 fef276e:	4dfa 0006      	lea %pc@(0xfef2776),%fp
 fef2772:	6000 0600      	braw 0xfef2d74				; Xcall ? - Error
@@ -3231,25 +3291,25 @@ fef27a6:	7601           	moveq #1,%d3
 fef27a8:	4dfa 0006      	lea %pc@(0xfef27b0),%fp
 fef27ac:	6000 05ba      	braw 0xfef2d68				; Xcall - set_stack
 fef27b0:	4ff8 0800      	lea 0x800,%sp
-fef27b4:	13fc 0000 0fff 	moveb #0,0xfff4000
+fef27b4:	13fc 0000 0fff 	moveb #0,0xfff4000		; mem error register
 fef27ba:	4000
 fef27bc:	13fc 0000 0fff 	moveb #0,0xfff4004
 fef27c2:	4004
-fef27c4:	13fc 0020 0fff 	moveb #0x20,0xfff4000
+fef27c4:	13fc 0020 0fff 	moveb #0x20,0xfff4000		; mem error register
 fef27ca:	4000
 fef27cc:	1a83           	moveb %d3,%a5@
-fef27ce:	13fc 0050 0fff 	moveb #0x50,0xfff4000
+fef27ce:	13fc 0050 0fff 	moveb #0x50,0xfff4000		; mem error register
 fef27d4:	4000
 fef27d6:	1415           	moveb %a5@,%d2
 fef27d8:	4280           	clrl %d0
-fef27da:	1039 0fff 4000 	moveb 0xfff4000,%d0
+fef27da:	1039 0fff 4000 	moveb 0xfff4000,%d0		; mem error register
 fef27e0:	4e71           	nop
 fef27e2:	4e71           	nop
 fef27e4:	49f9 0fef cd92 	lea 0xfefcd92,%a4
 fef27ea:	4dfa 0024      	lea %pc@(0xfef2810),%fp
 fef27ee:	6000 0584      	braw 0xfef2d74				; Xcall - Error
 fef27f2:	0001 00d0      	orib #0xd0,%d1
-fef27f6:	1039 0fff 4000 	moveb 0xfff4000,%d0
+fef27f6:	1039 0fff 4000 	moveb 0xfff4000,%d0		; mem error register
 fef27fc:	b200           	cmpb %d0,%d1
 fef27fe:	6700 0010      	beqw 0xfef2810
 fef2802:	49f9 0fef cdb8 	lea 0xfefcdb8,%a4
@@ -3261,14 +3321,14 @@ fef2818:	4dfa 0006      	lea %pc@(0xfef2820),%fp
 fef281c:	6000 058a      	braw 0xfef2da8				; Xcall	- Cleanup
 fef2820:	e303           	aslb #1,%d3
 fef2822:	6600 ff8c      	bnew 0xfef27b0
-fef2826:	13fc 0000 0fff 	moveb #0,0xfff4000
+fef2826:	13fc 0000 0fff 	moveb #0,0xfff4000		; mem error register
 fef282c:	4000
 fef282e:	1abc 0000      	moveb #0,%a5@
 fef2832:	528d           	addql #1,%a5
 fef2834:	0201 000f      	andib #0xf,%d1
 fef2838:	e241           	asrw #1,%d1
 fef283a:	6600 ff6a      	bnew 0xfef27a6
-fef283e:	13fc 0000 0fff 	moveb #0,0xfff4000
+fef283e:	13fc 0000 0fff 	moveb #0,0xfff4000		; mem error register
 fef2844:	4000
 fef2846:	13fc 0000 0fff 	moveb #0,0xfff4004
 fef284c:	4004
@@ -3327,7 +3387,7 @@ fef2910:	4dfa 0006      	lea %pc@(0xfef2918),%fp
 fef2914:	6000 0430      	braw 0xfef2d46				; Xcall - start_test
 fef2918:	41fa 007a      	lea %pc@(0xfef2994),%a0
 fef291c:	21c8 007c      	movel %a0,0x7c
-fef2920:	13fc 0050 0fff 	moveb #0x50,0xfff4000
+fef2920:	13fc 0050 0fff 	moveb #0x50,0xfff4000		; mem error register
 fef2926:	4000
 fef2928:	49f9 0fef d069 	lea 0xfefd069,%a4
 ; 0xfefd069  Testing
@@ -3364,7 +3424,7 @@ fef298a:	49f9 0fef cb1c 	lea 0xfefcb1c,%a4
 fef2990:	6000 002e      	braw 0xfef29c0
 fef2994:	2e7c 0000 0800 	moveal #0x800,%sp
 fef299a:	4282           	clrl %d2
-fef299c:	1439 0fff 4000 	moveb 0xfff4000,%d2
+fef299c:	1439 0fff 4000 	moveb 0xfff4000,%d2		; mem error register
 fef29a2:	23fc 0000 0000 	movel #0,0xfff4004
 fef29a8:	0fff 4004
 fef29ac:	49f9 0fef ce38 	lea 0xfefce38,%a4
@@ -3444,8 +3504,11 @@ fef2ab0:	203c ffff ffff 	movel #-1,%d0
 fef2ab6:	2ac0           	movel %d0,%a5@+
 fef2ab8:	bbc1           	cmpal %d1,%a5
 fef2aba:	6600 fffa      	bnew 0xfef2ab6
-fef2abe:	13fc 0000 0fff 	moveb #0,0xfff2000
+
+; disable all interrupts
+fef2abe:	13fc 0000 0fff 	moveb #0,0xfff2000		; Interrupt register
 fef2ac4:	2000
+
 fef2ac6:	363c 0000      	movew #0,%d3
 fef2aca:	4281           	clrl %d1
 fef2acc:	0e39 1000 4000 	movesb 0x40000000,%d1	; SYSTEM_ENAB
@@ -3628,7 +3691,7 @@ fef2cc8:	49f9 0fef ce86 	lea 0xfefce86,%a4
 fef2cce:	4dfa 0012      	lea %pc@(0xfef2ce2),%fp
 fef2cd2:	202f 0002      	movel %sp@(2),%d0
 fef2cd6:	4285           	clrl %d5
-fef2cd8:	1a39 0fff 4000 	moveb 0xfff4000,%d5
+fef2cd8:	1a39 0fff 4000 	moveb 0xfff4000,%d5		; mem error register
 fef2cde:	6000 0238      	braw 0xfef2f18				; Xprintf
 fef2ce2:	13fc 0000 0fff 	moveb #0,0xfff4004
 fef2ce8:	4004
@@ -3756,6 +3819,8 @@ fef2e06:	0680 0000 0001 	addil #1,%d0
 fef2e0c:	dbfc 0002 0000 	addal #0x20000,%a5
 fef2e12:	51cc ffee      	dbf %d4,0xfef2e02
 
+; Set up RAM mapping in PGMAP
+
 fef2e16:	203c f000 0000 	movel #0xf0000000,%d0
 fef2e1c:	2a7c 1000 0000 	moveal #0x10000000,%a5		; PGMAP
 fef2e22:	283c 0000 0fff 	movel #0xfff,%d4
@@ -3767,12 +3832,17 @@ fef2e32:	dbfc 0000 2000 	addal #0x2000,%a5
 fef2e38:	51cc ffee      	dbf %d4,0xfef2e28
 
 fef2e3c:	2a7c 1000 0000 	moveal #0x10000000,%a5		; PGMAP
+
+; load SCC-A address
+; Set up mapping in PGMAP
 fef2e42:	41f9 f400 0010 	lea 0xf4000010,%a0
 fef2e48:	203c 0fff e000 	movel #0xfffe000,%d0		; SCC-A control
 fef2e4e:	0eb5 8800 0800 	movesl %a0,%a5@(0,%d0:l)
 
+; load interrupt register address
+; fiddle with PGMAP
 fef2e54:	41f9 f400 0050 	lea 0xf4000050,%a0
-fef2e5a:	203c 0fff 2000 	movel #0xfff2000,%d0
+fef2e5a:	203c 0fff 2000 	movel #0xfff2000,%d0		; Interrupt register
 fef2e60:	0eb5 8800 0800 	movesl %a0,%a5@(0,%d0:l)
 
 fef2e66:	4dfa 0006      	lea %pc@(0xfef2e6e),%fp
@@ -4566,9 +4636,9 @@ fef37c2:	2f00           	movel %d0,%sp@-
 fef37c4:	6100 cd38      	bsrw 0xfef04fe			; write_enable
 fef37c8:	584f           	addqw #4,%sp
 
-fef37ca:	0239 007f 0fe0 	andib #0x7f,0xfe0a000
+fef37ca:	0239 007f 0fe0 	andib #0x7f,0xfe0a000	; Interrupt register
 fef37d0:	a000
-fef37d2:	0039 0080 0fe0 	orib #0x80,0xfe0a000
+fef37d2:	0039 0080 0fe0 	orib #0x80,0xfe0a000	; Interrupt register
 fef37d8:	a000
 fef37da:	7000           	moveq #0,%d0
 fef37dc:	1039 0fe0 6010 	moveb 0xfe06010,%d0
@@ -5224,7 +5294,7 @@ fef4008:	00b0 00b0 00b0 	oril #0xb000b0,%a0@(ffffffffffffffa8,%d0:w)
 fef400e:	00a8
 fef4010:	6100 c528      	bsrw 0xfef053a			; RESET!
 
-fef4014:	0039 0081 0fe0 	orib #0x81,0xfe0a000
+fef4014:	0039 0081 0fe0 	orib #0x81,0xfe0a000	; Interrupt register
 fef401a:	a000
 fef401c:	2f38 e0ca      	movel 0xffffe0ca,%sp@-
 fef4020:	2f38 e0c6      	movel 0xffffe0c6,%sp@-
@@ -9365,12 +9435,14 @@ fef6c2e:	6100 00c0      	bsrw 0xfef6cf0
 fef6c32:	584f           	addqw #4,%sp
 fef6c34:	4a78 e082      	tstw 0xffffe082
 fef6c38:	663c           	bnes 0xfef6c76
+
 fef6c3a:	42a7           	clrl %sp@-
 fef6c3c:	4878 fc00      	pea 0xfffffc00
 fef6c40:	4878 0080      	pea 0x80
 fef6c44:	4879 0fd0 0000 	pea 0xfd00000
 fef6c4a:	6100 300c      	bsrw 0xfef9c58
 fef6c4e:	4fef 0010      	lea %sp@(16),%sp
+
 fef6c52:	31fc 0001 e082 	movew #1,0xffffe082
 fef6c58:	2d7c 0fd0 0000 	movel #0xfd00000,%fp@(-4)
 fef6c5e:	fffc
@@ -12553,7 +12625,7 @@ fef92a2:	5387           	subql #1,%d7
 fef92a4:	6efc           	bgts 0xfef92a2
 
 fef92a6:	42b8 e0a2      	clrl 0xffffe0a2
-fef92aa:	0239 007f 0fe0 	andib #0x7f,0xfe0a000
+fef92aa:	0239 007f 0fe0 	andib #0x7f,0xfe0a000	; Interrupt register
 fef92b0:	a000
 fef92b2:	4239 0fe0 6010 	clrb 0xfe06010
 fef92b8:	7000           	moveq #0,%d0
@@ -12595,7 +12667,7 @@ fef9326:	e2a7           	asrl %d1,%d7
 fef9328:	5387           	subql #1,%d7
 fef932a:	6efc           	bgts 0xfef9328
 
-fef932c:	0039 0081 0fe0 	orib #0x81,0xfe0a000
+fef932c:	0039 0081 0fe0 	orib #0x81,0xfe0a000	; Interrupt register
 fef9332:	a000
 fef9334:	13fc 0002 0fe0 	moveb #2,0xfe06010
 fef933a:	6010
@@ -12664,7 +12736,7 @@ fef9402:	4e75           	rts
 fef9404:	4e56 fff0      	linkw %fp,#-16
 fef9408:	2e87           	movel %d7,%sp@
 fef940a:	42ae fffc      	clrl %fp@(-4)
-fef940e:	0239 007f 0fe0 	andib #0x7f,0xfe0a000
+fef940e:	0239 007f 0fe0 	andib #0x7f,0xfe0a000	; Interrupt register
 fef9414:	a000
 fef9416:	4239 0fe0 6010 	clrb 0xfe06010
 fef941c:	7000           	moveq #0,%d0
@@ -12744,7 +12816,7 @@ fef950a:	21c0 e0a2      	movel %d0,0xffffe0a2
 fef950e:	4ab8 e0a2      	tstl 0xffffe0a2
 fef9512:	6704           	beqs 0xfef9518
 fef9514:	52b8 e0a6      	addql #1,0xffffe0a6
-fef9518:	0039 0081 0fe0 	orib #0x81,0xfe0a000
+fef9518:	0039 0081 0fe0 	orib #0x81,0xfe0a000	; Interrupt register
 fef951e:	a000
 fef9520:	13fc 0002 0fe0 	moveb #2,0xfe06010
 fef9526:	6010
