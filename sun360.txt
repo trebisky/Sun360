@@ -28,6 +28,9 @@
 
 ; The rest of these are a "jump table" into various
 ;  places in the ROM
+; There is a file in the SunOS source sunromvec.h
+;  that defines a structure to access this table.
+; It has been very useful to put names on things.
 ;
 ; Note the entries that begin with ffffxxxx.
 ; These are actually locations in RAM, not
@@ -37,68 +40,76 @@
 ; These are data structures that are intended
 ;  to be publicly visible and accessed.
 
-0fef0008:  0fef2d34
-0fef000c:  0fef00e4
-0fef0010:  ffffe172
-0fef0014:  0fef576e
+0fef0008:  0fef2d34		; buserror handler for diagnostics
+0fef000c:  0fef00e4		; bootparam
+0fef0010:  ffffe172		; memory size in bytes
+0fef0014:  0fef576e		; getchar
 0fef0018:  fef5680		; putchar
-0fef001c:  0fef5798		; Annie
-0fef0020:  0fef56ae		; putchar2
-0fef0024:  ffffe01a
-0fef0028:  ffffe015
-0fef002c:  ffffe016
-0fef0030:  0fef5a68
-0fef0034:  0fef5a48
-0fef0038:  ffffe182
-0fef003c:  ffffe012
-0fef0040:  ffffe0c6
-0fef0044:  ffffe0ca
-0fef0048:  ffffe252
-0fef004c:  0fefd0c8
-0fef0050:  0fef6d3c		; putcharX
-0fef0054:  ffffe2c6
-0fef0058:  ffffe08a
-0fef005c:  0fef6d50		; putcharY
-0fef0060:  0fef49f8
-0fef0064:  ffffe028		; Merlin2
-0fef0068:  ffffe020		; Merlin
-0fef006c:  ffffe0b6
-0fef0070:  0fef536c
-0fef0074:  0fef5408		; Hokey
-0fef0078:  0fef542e
-0fef007c:  ffffe01b
-0fef0080:  0fef5452
-0fef0084:  0fef54e4			; printf
-0fef0088:  0fef5636		; to_hex2
-0fef008c:  ffffe00e		; XX-e
-0fef0090:  0fef051a
+0fef001c:  0fef5798		; mayget
+0fef0020:  0fef56ae		; mayput
+0fef0024:  ffffe01a		; should "getchar" perform echo
+0fef0028:  ffffe015		; current input source
+0fef002c:  ffffe016		; current output source
+0fef0030:  0fef5a68		; getkey
+0fef0034:  0fef5a48		; init_getkey
+0fef0038:  ffffe182		; keyboard translation selector
+0fef003c:  ffffe012		; keyboard ID byte
+0fef0040:  ffffe0c6		; screen X pos
+0fef0044:  ffffe0ca		; screen Y pos
+0fef0048:  ffffe252		; up/down keyboard buffer
+0fef004c:  0fefd0c8		; rom revision level
+0fef0050:  0fef6d3c		; fb_putchar - write character to frame buffer
+0fef0054:  ffffe2c6		; address of frame buffer
+0fef0058:  ffffe08a		; font table for frame buffer
+0fef005c:  0fef6d50		; fb_puts
+0fef0060:  0fef49f8		; boot_me ( "xy()vmunix" )
+0fef0064:  ffffe028		; Command line buffer
+0fef0068:  ffffe020		; p_cmdline - pointer into the above
+0fef006c:  ffffe0b6		; length of current command line
+0fef0070:  0fef536c		; getline - get line from user
+0fef0074:  0fef5408		; getone = get next character from command line buffer
+0fef0078:  0fef542e		; peek_char
+0fef007c:  ffffe01b		; fb_exists - 1 = yes there is a frame buffer
+0fef0080:  0fef5452		; getnum - grab hex number from command line
+0fef0084:  0fef54e4		; printf
+0fef0088:  0fef5636		; print_hex
+0fef008c:  ffffe00e		; led_RAM - RAM copy of LED (diag) register value
+0fef0090:  0fef051a		; set_LEDS
 0fef0094:  0fef03a2		; NMI handler
-0fef0098:  0fef04ac
-0fef009c:  ffffe0b2
-0fef00a0:  ffffe0f6
-0fef00a4:  00000002
-0fef00a8:  ffffe000		; XX-0
-0fef00ac:  ffffe24e
-0fef00b0:  ffffe0ba
-0fef00b4:  ffffe013
-0fef00b8:  ffffe176
-0fef00bc:  ffffe146
-0fef00c0:  ffffe14e
-0fef00c4:  0fef0248			; restart
-0fef00c8:  ffffe01c
-0fef00cc:  0fef1d88			; mmu-11
-0fef00d0:  ffffe24a
-0fef00d4:  00000000
+0fef0098:  0fef04ac		; kb_abort
+0fef009c:  ffffe0b2		; NMI clock (counts in milliseconds)
+0fef00a0:  ffffe0f6		; Frame buffer type
+0fef00a4:  00000002		; romvec version
+0fef00a8:  ffffe000		; Global - area for ROM global variables
+0fef00ac:  ffffe24e		; Address of keyboard in use (kbzscc)
+0fef00b0:  ffffe0ba		; ms before keyboard repeat
+0fef00b4:  ffffe013		; ms between kb repeats
+0fef00b8:  ffffe176		; size of usable main memory (memory_avail)
+0fef00bc:  ffffe146		; where to jump on reset trap
+0fef00c0:  ffffe14e		; resetmap - PGMAP entry for the above
+0fef00c4:  0fef0248		; exit_to_monitor
+0fef00c8:  ffffe01c		; memory bit map
+0fef00cc:  0fef1d88		; mmu-11
+0fef00d0:  ffffe24a		; handler for "w" (vector)
+0fef00d4:  00000000		; ends with 4 dummy entries
 0fef00d8:  00000000
 0fef00dc:  00000000
 0fef00e0:  00000000
-0fef00e4:  ffffe1b0
-0fef00e8:  2e3c7777
-0fef00ec:  0000
+
+; pointed to by the abovem, but not part of the vectors
+0fef00e4:  ffffe1b0			; bootparam
+
+; ----------------------------------
+; Subroutine - total_restart
+; Falls into processor reset code, but note that
+; this sets the mysterious value of d7 that gets
+; checked for below.
+
+0fef00e8:  2e3c 7777 0000 	movel #0x77770000,%d7
 
 ; ==================================
 ; ==================================
-; The show starts here.
+; The show starts here when a processor reset happens
 ; interestingly the sp is used here as a scratch register
 ;
 ; Notice that the ROM code mostly runs with dfc/sfc = 3
@@ -179,6 +190,7 @@ fef015c:	203c c400 0080 	movel #0xc4000080,%d0
 fef0162:	0eb9 0800 1000 	movesl %d0,0x10000000	; PGMAP
 fef0168:	0000
 
+; jump to the following address.  Hmmm
 fef016a:	4ef9 0fef 0170 	jmp 0xfef0170
 
 fef0170:	203c c000 0000 	movel #0xc0000000,%d0
@@ -200,7 +212,7 @@ fef019a:	0000
 fef019c:	2e7c 0fe6 0c00 	moveal #0xfe60c00,%sp
 fef01a2:	4e7b f801      	movec %sp,%vbr				; VBR
 
-fef01a6:	23fc 0fef 0248 	movel #0xfef0248,0xfe60bfc	; restart
+fef01a6:	23fc 0fef 0248 	movel #0xfef0248,0xfe60bfc	; exit_to_mon
 fef01ac:	0fe6 0bfc
 fef01b0:	4ff9 0fe6 0bfa 	lea 0xfe60bfa,%sp
 fef01b6:	4878 2000      	pea 0x2000
@@ -255,9 +267,10 @@ fef023e:	33c7 0fe6 0bfa 	movew %d7,0xfe60bfa
 fef0244:	6000 ff44      	braw 0xfef018a			; jump way back
 
 ;  -----------------------------------------
-; Subroutine !? restart
+; Subroutine -- exit_to_monitor
 ; this is called from several places below, as if to restart
-; I doubt that it ever returns
+; This can be called by user program to exit to monitor
+
 fef0248:	487a fffe      	pea %pc@(0xfef0248)
 fef024c:	3f3c 00b8      	movew #0xb8,%sp@-
 fef0250:	487a fff6      	pea %pc@(0xfef0248)
@@ -413,13 +426,13 @@ fef03f4:	4e7a 1001      	movec %dfc,%d1		; save dfc
 fef03f8:	7003           	moveq #3,%d0
 fef03fa:	4e7b 0001      	movec %d0,%dfc
 
-; flip bit 0x20 in XX-e
+; flip bit 0x20 in led_RAM
 ; Also copy to DIAG
 ; This blinks the LED that interferes with my
 ; bare metal LED demo
-fef03fe:	1038 e00e      	moveb 0xffffe00e,%d0		; XX-e
+fef03fe:	1038 e00e      	moveb 0xffffe00e,%d0		; led_RAM
 fef0402:	0a00 0020      	eorib #0x20,%d0
-fef0406:	11c0 e00e      	moveb %d0,0xffffe00e		; XX-e
+fef0406:	11c0 e00e      	moveb %d0,0xffffe00e		; led_RAM
 
 fef040a:	0e39 0800 7000 	movesb %d0,0x70000000		; DIAG
 fef0410:	0000
@@ -496,7 +509,9 @@ fef04a6:	4e73           	rte
 ; joins unexpected interrupt code
 fef04a8:	221f           	movel %sp@+,%d1
 fef04aa:	201f           	movel %sp@+,%d0
-fef04ac:	3f7c 007d 0006 	movew #0x7d,%sp@(6)
+
+; Entry - kb_abort
+fef04ac:	3f7c 007d 0006 	movew #0x7d,%sp@(6)		
 fef04b2:	6000 fda4      	braw 0xfef0258
 
 ; --------------------------------------------
@@ -540,18 +555,18 @@ fef0512:	0000
 fef0514:	4e7b 8001      	movec %a0,%dfc
 fef0518:	4e75           	rts
 
-; Subroutine - write the DIAG register
+; Subroutine - set_LEDS -- write the DIAG register
 ; -- the DIAG register is 8 bits and controls the 8 LED,
 ; -- so this is an output only register.
 ; -- for no reason that I can see, the value is
-; -- also placed into the XXX-e location (ffffe00e)
+; -- also placed into the led_RAM location (ffffe00e)
 ; -- only one call
 
 fef051a:	4e7a 8001      	movec %dfc,%a0
 fef051e:	7203           	moveq #3,%d1
 fef0520:	4e7b 1001      	movec %d1,%dfc			; select control space
 fef0524:	102f 0007      	moveb %sp@(7),%d0
-fef0528:	11c0 e00e      	moveb %d0,0xffffe00e		; XX-e
+fef0528:	11c0 e00e      	moveb %d0,0xffffe00e		; led_RAM
 fef052c:	0e39 0800 7000 	movesb %d0,0x70000000		; DIAG
 fef0532:	0000
 fef0534:	4e7b 8001      	movec %a0,%dfc
@@ -763,7 +778,7 @@ fef0786:	720d           	moveq #13,%d1
 fef0788:	e2a8           	lsrl %d1,%d0
 fef078a:	0480 3000 0002 	subil #0x30000002,%d0
 fef0790:	2f00           	movel %d0,%sp@-
-fef0792:	4878 e000      	pea 0xffffe000		; XX-0-A
+fef0792:	4878 e000      	pea 0xffffe000				; Global
 fef0796:	6100 152e      	bsrw 0xfef1cc6
 fef079a:	504f           	addqw #8,%sp
 fef079c:	2007           	movel %d7,%d0
@@ -818,7 +833,7 @@ fef083c:	0c2e 0057 ffe3 	cmpib #0x57,%fp@(-29)
 fef0842:	6700 00ae      	beqw 0xfef08f2
 fef0846:	61ff 0000 9324 	bsrl 0xfef9b6c
 fef084c:	42ae ffe4      	clrl %fp@(-28)
-fef0850:	4a38 e003      	tstb 0xffffe003			; XX-0
+fef0850:	4a38 e003      	tstb 0xffffe003			; Global+3
 fef0854:	6724           	beqs 0xfef087a
 fef0856:	2d7c 0fe2 0000 	movel #0xfe20000,%fp@(-4)
 fef085c:	fffc
@@ -860,29 +875,29 @@ fef08e8:	0c2e 0041 ffe3 	cmpib #0x41,%fp@(-29)
 fef08ee:	6600 ff38      	bnew 0xfef0828
 fef08f2:	1d6e ffe3 ffe2 	moveb %fp@(-29),%fp@(-30)
 fef08f8:	61ff 0000 4b44 	bsrl 0xfef543e
-fef08fe:	61ff 0000 4b2e 	bsrl 0xfef542e
+fef08fe:	61ff 0000 4b2e 	bsrl 0xfef542e			; peek_char
 fef0904:	720d           	moveq #13,%d1
 fef0906:	b081           	cmpl %d1,%d0
 fef0908:	6732           	beqs 0xfef093c
-fef090a:	61ff 0000 4b46 	bsrl 0xfef5452
+fef090a:	61ff 0000 4b46 	bsrl 0xfef5452			; getnum (hex)
 fef0910:	d0ae ffe8      	addl %fp@(-24),%d0
 fef0914:	2d40 fffc      	movel %d0,%fp@(-4)
 fef0918:	61ff 0000 4b24 	bsrl 0xfef543e
-fef091e:	61ff 0000 4b32 	bsrl 0xfef5452
+fef091e:	61ff 0000 4b32 	bsrl 0xfef5452			; getnum (hex)
 fef0924:	d0ae ffe8      	addl %fp@(-24),%d0
 fef0928:	2d40 fff8      	movel %d0,%fp@(-8)
 fef092c:	61ff 0000 4b10 	bsrl 0xfef543e
-fef0932:	61ff 0000 4b1e 	bsrl 0xfef5452
+fef0932:	61ff 0000 4b1e 	bsrl 0xfef5452			; getnum (hex)
 fef0938:	2d40 fff4      	movel %d0,%fp@(-12)
 fef093c:	61ff 0000 9132 	bsrl 0xfef9a70
-fef0942:	0c38 0051 e002 	cmpib #81,0xffffe002			; XX-0
+fef0942:	0c38 0051 e002 	cmpib #81,0xffffe002			; Global+2
 fef0948:	660a           	bnes 0xfef0954
 fef094a:	4238 e019      	clrb 0xffffe019
 fef094e:	7051           	moveq #81,%d0
 fef0950:	6000 013c      	braw 0xfef0a8e
 fef0954:	2f2e fff8      	movel %fp@(-8),%sp@-
 fef0958:	2f2e fffc      	movel %fp@(-4),%sp@-
-fef095c:	0c38 0001 e003 	cmpib #1,0xffffe003			; XX-0
+fef095c:	0c38 0001 e003 	cmpib #1,0xffffe003			; Global+3
 fef0962:	6608           	bnes 0xfef096c
 fef0964:	203c 0fef c603 	movel #0xfefc603,%d0
 fef096a:	6006           	bras 0xfef0972
@@ -893,18 +908,18 @@ fef097a:	61ff 0000 4b68 	bsrl 0xfef54e4			; printf
 fef0980:	4fef 0010      	lea %sp@(16),%sp
 fef0984:	72fc           	moveq #-4,%d1
 fef0986:	c3ae fff8      	andl %d1,%fp@(-8)
-fef098a:	0c38 0046 e002 	cmpib #70,0xffffe002			; XX-0
+fef098a:	0c38 0046 e002 	cmpib #70,0xffffe002			; Global+2
 fef0990:	6710           	beqs 0xfef09a2
-fef0992:	0c38 004c e002 	cmpib #76,0xffffe002			; XX-0
+fef0992:	0c38 004c e002 	cmpib #76,0xffffe002			; Global+2
 fef0998:	6708           	beqs 0xfef09a2
-fef099a:	0c38 004e e002 	cmpib #78,0xffffe002			; XX-0
+fef099a:	0c38 004e e002 	cmpib #78,0xffffe002			; Global+2
 fef09a0:	6606           	bnes 0xfef09a8
 fef09a2:	11fc 0001 e019 	moveb #1,0xffffe019
 fef09a8:	42b8 e0a2      	clrl 0xffffe0a2
 fef09ac:	202e fffc      	movel %fp@(-4),%d0
 fef09b0:	0280 ff80 0000 	andil #0xff800000,%d0
 fef09b6:	2d40 ffdc      	movel %d0,%fp@(-36)
-fef09ba:	4a38 e003      	tstb 0xffffe003			; XX-0
+fef09ba:	4a38 e003      	tstb 0xffffe003			; Global+3
 fef09be:	6620           	bnes 0xfef09e0
 fef09c0:	6014           	bras 0xfef09d6
 fef09c2:	202e ffdc      	movel %fp@(-36),%d0
@@ -1060,7 +1075,7 @@ fef0b8e:	4eb9 0fef 0d7c 	jsr 0xfef0d7c
 fef0b94:	4fef 000c      	lea %sp@(12),%sp
 fef0b98:	4a80           	tstl %d0
 fef0b9a:	670a           	beqs 0xfef0ba6
-fef0b9c:	0c38 004c e002 	cmpib #76,0xffffe002			; XX-0
+fef0b9c:	0c38 004c e002 	cmpib #76,0xffffe002			; Global+2
 fef0ba2:	6602           	bnes 0xfef0ba6
 fef0ba4:	5984           	subql #4,%d4
 fef0ba6:	2004           	movel %d4,%d0
@@ -1107,7 +1122,7 @@ fef0c16:	4eb9 0fef 0d7c 	jsr 0xfef0d7c
 fef0c1c:	4fef 000c      	lea %sp@(12),%sp
 fef0c20:	4a80           	tstl %d0
 fef0c22:	670a           	beqs 0xfef0c2e
-fef0c24:	0c38 004c e002 	cmpib #76,0xffffe002			; XX-0
+fef0c24:	0c38 004c e002 	cmpib #76,0xffffe002			; Global+2
 fef0c2a:	6602           	bnes 0xfef0c2e
 fef0c2c:	5982           	subql #4,%d2
 fef0c2e:	2002           	movel %d2,%d0
@@ -1149,7 +1164,7 @@ fef0c8e:	4eb9 0fef 0d7c 	jsr 0xfef0d7c
 fef0c94:	4fef 000c      	lea %sp@(12),%sp
 fef0c98:	4a80           	tstl %d0
 fef0c9a:	670a           	beqs 0xfef0ca6
-fef0c9c:	0c38 004c e002 	cmpib #76,0xffffe002			; XX-0
+fef0c9c:	0c38 004c e002 	cmpib #76,0xffffe002			; Global+2
 fef0ca2:	6602           	bnes 0xfef0ca6
 fef0ca4:	5982           	subql #4,%d2
 fef0ca6:	2002           	movel %d2,%d0
@@ -1203,9 +1218,9 @@ fef0d2a:	4e75           	rts
 fef0d2c:	4e56 fffc      	linkw %fp,#-4
 fef0d30:	2e8d           	movel %a5,%sp@
 fef0d32:	2a7c 0fef c610 	moveal #0xfefc610,%a5
-fef0d38:	4a38 e003      	tstb 0xffffe003			; XX-0
+fef0d38:	4a38 e003      	tstb 0xffffe003			; Global+3
 fef0d3c:	6636           	bnes 0xfef0d74
-fef0d3e:	0c38 004e e002 	cmpib #78,0xffffe002			; XX-0
+fef0d3e:	0c38 004e e002 	cmpib #78,0xffffe002			; Global+2
 fef0d44:	672e           	beqs 0xfef0d74
 fef0d46:	2038 e0aa      	movel 0xffffe0aa,%d0
 fef0d4a:	52b8 e0aa      	addql #1,0xffffe0aa
@@ -1233,9 +1248,9 @@ fef0d80:	48d7 00e0      	moveml %d5-%d7,%sp@
 fef0d84:	2e2e 0008      	movel %fp@(8),%d7
 fef0d88:	2c2e 000c      	movel %fp@(12),%d6
 fef0d8c:	2a2e 0010      	movel %fp@(16),%d5
-fef0d90:	4a38 e003      	tstb 0xffffe003			; XX-0
+fef0d90:	4a38 e003      	tstb 0xffffe003			; Global+3
 fef0d94:	6600 0094      	bnew 0xfef0e2a
-fef0d98:	0c38 004e e002 	cmpib #78,0xffffe002			; XX-0
+fef0d98:	0c38 004e e002 	cmpib #78,0xffffe002			; Global+2
 fef0d9e:	6700 008a      	beqw 0xfef0e2a
 fef0da2:	0c87 0010 0000 	cmpil #0x100000,%d7
 fef0da8:	6d08           	blts 0xfef0db2
@@ -1265,7 +1280,7 @@ fef0dec:	4879 0fef c637 	pea 0xfefc637
 fef0df2:	61ff 0000 46f0 	bsrl 0xfef54e4			; printf
 fef0df8:	4fef 0010      	lea %sp@(16),%sp
 fef0dfc:	52b8 e0a6      	addql #1,0xffffe0a6
-fef0e00:	0c38 0048 e002 	cmpib #72,0xffffe002			; XX-0
+fef0e00:	0c38 0048 e002 	cmpib #72,0xffffe002			; Global+2
 fef0e06:	6622           	bnes 0xfef0e2a
 fef0e08:	4879 0fef c65e 	pea 0xfefc65e
 ; 0xfefc65e Halted on error => 
@@ -1278,7 +1293,7 @@ fef0e22:	584f           	addqw #4,%sp
 fef0e24:	61ff 0000 4948 	bsrl 0xfef576e
 fef0e2a:	4ab8 e0a2      	tstl 0xffffe0a2
 fef0e2e:	6718           	beqs 0xfef0e48
-fef0e30:	0c38 004c e002 	cmpib #76,0xffffe002			; XX-0
+fef0e30:	0c38 004c e002 	cmpib #76,0xffffe002			; Global+2
 fef0e36:	6610           	bnes 0xfef0e48
 fef0e38:	4879 0fef c68c 	pea 0xfefc68c
 ; 0xfefc68c Looping on error ...\n
@@ -1434,10 +1449,10 @@ fef1026:	4879 0fef c7ef 	pea 0xfefc7ef
 fef102c:	61ff 0000 44b6 	bsrl 0xfef54e4			; printf
 fef1032:	584f           	addqw #4,%sp
 fef1034:	4878 0001      	pea 0x1
-fef1038:	61ff 0000 4332 	bsrl 0xfef536c
+fef1038:	61ff 0000 4332 	bsrl 0xfef536c			; getline
 fef103e:	584f           	addqw #4,%sp
 fef1040:	61ff 0000 43fc 	bsrl 0xfef543e
-fef1046:	61ff 0000 43c0 	bsrl 0xfef5408		; Hokey
+fef1046:	61ff 0000 43c0 	bsrl 0xfef5408			; getone
 fef104c:	0200 005f      	andib #0x5f,%d0
 fef1050:	1d40 ffd7      	moveb %d0,%fp@(-41)
 fef1054:	0c00 0051      	cmpib #0x51,%d0
@@ -1460,19 +1475,19 @@ fef108c:	42ae ffe0      	clrl %fp@(-32)
 fef1090:	61ff 0000 8ada 	bsrl 0xfef9b6c
 fef1096:	6060           	bras 0xfef10f8
 fef1098:	61ff 0000 43a4 	bsrl 0xfef543e
-fef109e:	61ff 0000 438e 	bsrl 0xfef542e
+fef109e:	61ff 0000 438e 	bsrl 0xfef542e			; peek_char
 fef10a4:	7e0d           	moveq #13,%d7
 fef10a6:	b087           	cmpl %d7,%d0
 fef10a8:	6756           	beqs 0xfef1100
-fef10aa:	61ff 0000 43a6 	bsrl 0xfef5452
+fef10aa:	61ff 0000 43a6 	bsrl 0xfef5452			; getnum (hex)
 fef10b0:	d0ae ffe4      	addl %fp@(-28),%d0
 fef10b4:	2d40 fffc      	movel %d0,%fp@(-4)
 fef10b8:	61ff 0000 4384 	bsrl 0xfef543e
-fef10be:	61ff 0000 4392 	bsrl 0xfef5452
+fef10be:	61ff 0000 4392 	bsrl 0xfef5452			; getnum (hex)
 fef10c4:	d0ae ffe4      	addl %fp@(-28),%d0
 fef10c8:	2d40 fff8      	movel %d0,%fp@(-8)
 fef10cc:	61ff 0000 4370 	bsrl 0xfef543e
-fef10d2:	61ff 0000 437e 	bsrl 0xfef5452
+fef10d2:	61ff 0000 437e 	bsrl 0xfef5452			; getnum (hex)
 fef10d8:	2d40 ffec      	movel %d0,%fp@(-20)
 fef10dc:	202e fff8      	movel %fp@(-8),%d0
 fef10e0:	b0ae fffc      	cmpl %fp@(-4),%d0
@@ -1484,7 +1499,7 @@ fef10f4:	6d00 fd7e      	bltw 0xfef0e74
 fef10f8:	4aae ffe0      	tstl %fp@(-32)
 fef10fc:	6700 fd8c      	beqw 0xfef0e8a
 fef1100:	61ff 0000 896e 	bsrl 0xfef9a70
-fef1106:	0c38 0051 e002 	cmpib #81,0xffffe002			; XX-0
+fef1106:	0c38 0051 e002 	cmpib #81,0xffffe002			; Global+2
 fef110c:	6700 fe88      	beqw 0xfef0f96
 fef1110:	2f2e ffcc      	movel %fp@(-52),%sp@-
 fef1114:	4879 0fef c81a 	pea 0xfefc81a
@@ -1493,7 +1508,7 @@ fef111a:	61ff 0000 43c8 	bsrl 0xfef54e4			; printf
 fef1120:	504f           	addqw #8,%sp
 fef1122:	4878 0008      	pea 0x8
 fef1126:	2f2e fffc      	movel %fp@(-4),%sp@-
-fef112a:	61ff 0000 450a 	bsrl 0xfef5636			; to_hex2
+fef112a:	61ff 0000 450a 	bsrl 0xfef5636			; print_hex
 fef1130:	504f           	addqw #8,%sp
 fef1132:	4879 0fef c833 	pea 0xfefc833
 ; 0xfefc833  to 0x
@@ -1501,7 +1516,7 @@ fef1138:	61ff 0000 43aa 	bsrl 0xfef54e4			; printf
 fef113e:	584f           	addqw #4,%sp
 fef1140:	4878 0008      	pea 0x8
 fef1144:	2f2e fff8      	movel %fp@(-8),%sp@-
-fef1148:	61ff 0000 44ec 	bsrl 0xfef5636			; to_hex2
+fef1148:	61ff 0000 44ec 	bsrl 0xfef5636			; print_hex
 fef114e:	504f           	addqw #8,%sp
 fef1150:	4879 0fef c83a 	pea 0xfefc83a
 ; 0xfefc83a .\n\n
@@ -1515,11 +1530,11 @@ fef116a:	42b8 e0a2      	clrl 0xffffe0a2
 fef116e:	42b8 e0a6      	clrl 0xffffe0a6
 fef1172:	42ae ffdc      	clrl %fp@(-36)
 fef1176:	42ae ffd8      	clrl %fp@(-40)
-fef117a:	0c38 0046 e002 	cmpib #70,0xffffe002			; XX-0
+fef117a:	0c38 0046 e002 	cmpib #70,0xffffe002			; Global+2
 fef1180:	6710           	beqs 0xfef1192
-fef1182:	0c38 004c e002 	cmpib #76,0xffffe002			; XX-0
+fef1182:	0c38 004c e002 	cmpib #76,0xffffe002			; Global+2
 fef1188:	6708           	beqs 0xfef1192
-fef118a:	0c38 004e e002 	cmpib #78,0xffffe002			; XX-0
+fef118a:	0c38 004e e002 	cmpib #78,0xffffe002			; Global+2
 fef1190:	6606           	bnes 0xfef1198
 fef1192:	11fc 0001 e019 	moveb #1,0xffffe019
 fef1198:	0c2e 0052 ffd7 	cmpib #0x52,%fp@(-41)
@@ -1555,7 +1570,7 @@ fef1206:	b0ae ffec      	cmpl %fp@(-20),%d0
 fef120a:	6700 011e      	beqw 0xfef132a
 fef120e:	0c2e 0053 ffd7 	cmpib #0x53,%fp@(-41)
 fef1214:	6700 0114      	beqw 0xfef132a
-fef1218:	0c38 004e e002 	cmpib #78,0xffffe002			; XX-0
+fef1218:	0c38 004e e002 	cmpib #78,0xffffe002			; Global+2
 fef121e:	6700 010a      	beqw 0xfef132a
 fef1222:	52b8 e0a6      	addql #1,0xffffe0a6
 fef1226:	2f38 e0a6      	movel 0xffffe0a6,%sp@-
@@ -1571,7 +1586,7 @@ fef1246:	4878 0008      	pea 0x8
 fef124a:	2007           	movel %d7,%d0
 fef124c:	90ae ffe4      	subl %fp@(-28),%d0
 fef1250:	2f00           	movel %d0,%sp@-
-fef1252:	61ff 0000 43e2 	bsrl 0xfef5636			; to_hex2
+fef1252:	61ff 0000 43e2 	bsrl 0xfef5636			; print_hex
 fef1258:	504f           	addqw #8,%sp
 fef125a:	4879 0fef c864 	pea 0xfefc864
 ; 0xfefc864 , exp = 0x
@@ -1579,7 +1594,7 @@ fef1260:	61ff 0000 4282 	bsrl 0xfef54e4			; printf
 fef1266:	584f           	addqw #4,%sp
 fef1268:	4878 0008      	pea 0x8
 fef126c:	2f2e ffec      	movel %fp@(-20),%sp@-
-fef1270:	61ff 0000 43c4 	bsrl 0xfef5636			; to_hex2
+fef1270:	61ff 0000 43c4 	bsrl 0xfef5636			; print_hex
 fef1276:	504f           	addqw #8,%sp
 fef1278:	4879 0fef c86f 	pea 0xfefc86f
 ; 0xfefc86f , obs = 0x
@@ -1587,7 +1602,7 @@ fef127e:	61ff 0000 4264 	bsrl 0xfef54e4			; printf
 fef1284:	584f           	addqw #4,%sp
 fef1286:	4878 0008      	pea 0x8
 fef128a:	2f2e ffe8      	movel %fp@(-24),%sp@-
-fef128e:	61ff 0000 43a6 	bsrl 0xfef5636			; to_hex2
+fef128e:	61ff 0000 43a6 	bsrl 0xfef5636			; print_hex
 fef1294:	504f           	addqw #8,%sp
 fef1296:	4879 0fef c87a 	pea 0xfefc87a
 ; 0xfefc87a , xor = 0x
@@ -1598,7 +1613,7 @@ fef12a8:	202e ffec      	movel %fp@(-20),%d0
 fef12ac:	222e ffe8      	movel %fp@(-24),%d1
 fef12b0:	b380           	eorl %d1,%d0
 fef12b2:	2f00           	movel %d0,%sp@-
-fef12b4:	61ff 0000 4380 	bsrl 0xfef5636			; to_hex2
+fef12b4:	61ff 0000 4380 	bsrl 0xfef5636			; print_hex
 fef12ba:	504f           	addqw #8,%sp
 fef12bc:	4879 0fef c885 	pea 0xfefc885
 ; 0xfefc885 .\n
@@ -1618,7 +1633,7 @@ fef12ec:	4879 0fef c888 	pea 0xfefc888
 ; 0xfefc888    Bad SIMM Module # = %d\n
 fef12f2:	61ff 0000 41f0 	bsrl 0xfef54e4			; printf
 fef12f8:	504f           	addqw #8,%sp
-fef12fa:	0c38 0048 e002 	cmpib #72,0xffffe002			; XX-0
+fef12fa:	0c38 0048 e002 	cmpib #72,0xffffe002			; Global+2
 fef1300:	6622           	bnes 0xfef1324
 fef1302:	4879 0fef c8a3 	pea 0xfefc8a3
 ; 0xfefc8a3 Halted on error =>
@@ -1633,7 +1648,7 @@ fef1324:	7201           	moveq #1,%d1
 fef1326:	21c1 e0a2      	movel %d1,0xffffe0a2
 fef132a:	4ab8 e0a2      	tstl 0xffffe0a2
 fef132e:	6718           	beqs 0xfef1348
-fef1330:	0c38 004c e002 	cmpib #76,0xffffe002			; XX-0
+fef1330:	0c38 004c e002 	cmpib #76,0xffffe002			; Global+2
 fef1336:	6610           	bnes 0xfef1348
 fef1338:	4879 0fef c8d1 	pea 0xfefc8d1
 ; 0xfefc8d1 Looping on error ...\n
@@ -1652,7 +1667,7 @@ fef135e:	6c02           	bges 0xfef1362
 fef1360:	4480           	negl %d0
 fef1362:	4a80           	tstl %d0
 fef1364:	663a           	bnes 0xfef13a0
-fef1366:	0c38 004e e002 	cmpib #78,0xffffe002			; XX-0
+fef1366:	0c38 004e e002 	cmpib #78,0xffffe002			; Global+2
 fef136c:	6732           	beqs 0xfef13a0
 fef136e:	202e ffd8      	movel %fp@(-40),%d0
 fef1372:	52ae ffd8      	addql #1,%fp@(-40)
@@ -1675,7 +1690,7 @@ fef139e:	504f           	addqw #8,%sp
 fef13a0:	5887           	addql #4,%d7
 fef13a2:	beae fff4      	cmpl %fp@(-12),%d7
 fef13a6:	6f00 fe40      	blew 0xfef11e8
-fef13aa:	0c38 004e e002 	cmpib #78,0xffffe002			; XX-0
+fef13aa:	0c38 004e e002 	cmpib #78,0xffffe002			; Global+2
 fef13b0:	6760           	beqs 0xfef1412
 fef13b2:	0cae 0000 0001 	cmpil #1,%fp@(12)
 fef13b8:	000c
@@ -1693,7 +1708,7 @@ fef13de:	6712           	beqs 0xfef13f2
 fef13e0:	4878 0001      	pea 0x1
 fef13e4:	4879 0fef c8eb 	pea 0xfefc8eb
 ; 0xfefc8eb ~
-fef13ea:	61ff 0000 5964 	bsrl 0xfef6d50		; putcharY
+fef13ea:	61ff 0000 5964 	bsrl 0xfef6d50		; fb_puts
 fef13f0:	504f           	addqw #8,%sp
 fef13f2:	2f38 e0a6      	movel 0xffffe0a6,%sp@-
 fef13f6:	52ae ffdc      	addql #1,%fp@(-36)
@@ -1798,7 +1813,9 @@ fef153c:	4879 0fef c939 	pea 0xfefc939
 ; 0xfefc939  Exp = 0x%x, Obs = 0x%x, Xor = 0x%x!\n
 fef1542:	61ff 0000 3fa0 	bsrl 0xfef54e4			; printf
 fef1548:	4fef 0010      	lea %sp@(16),%sp
-fef154c:	61ff ffff ecfa 	bsrl 0xfef0248			; restart
+fef154c:	61ff ffff ecfa 	bsrl 0xfef0248			; exit_to_mon
+; ------------ Never returns
+
 fef1552:	06ae 0010 0000 	addil #0x100000,%fp@(-20)
 fef1558:	ffec
 fef155a:	bcae ffec      	cmpl %fp@(-20),%d6
@@ -1895,13 +1912,13 @@ fef1674:	53ae fffc      	subql #1,%fp@(-4)
 fef1678:	66f4           	bnes 0xfef166e
 
 fef167a:	2a7c 0fe6 0c00 	moveal #0xfe60c00,%a5
-fef1680:	2afc ffff e000 	movel #0xffffe000,%a5@+		; stack for reset
+fef1680:	2afc ffff e000 	movel #0xffffe000,%a5@+		; Global - stack for reset
 fef1686:	2afc 0fef 0000 	movel #0xfef0000,%a5@+		; PC for reset
 fef168c:	2afc 0fef 0324 	movel #0xfef0324,%a5@+		; buserr
 fef1692:	2afc 0fef 0324 	movel #0xfef0324,%a5@+		; addr error
 
 ; install handler for offset 0x7c (level 7 NMI)
-fef1698:	4879 0fef 03a2 	pea 0xfef03a2
+fef1698:	4879 0fef 03a2 	pea 0xfef03a2		; NMI_handler
 fef169e:	4878 007c      	pea 0x7c
 fef16a2:	6100 ef38      	bsrw 0xfef05dc		; install_vec
 fef16a6:	504f           	addqw #8,%sp
@@ -1918,18 +1935,22 @@ fef16c4:	302e 0070      	movew %fp@(112),%d0
 fef16c8:	0240 0fff      	andiw #0xfff,%d0
 fef16cc:	0c40 0005      	cmpiw #5,%d0
 fef16d0:	6610           	bnes 0xfef16e2
-fef16d2:	21fc 0fe0 2000 	movel #0xfe02000,0xffffe2ba	; SCC
+
+fef16d2:	21fc 0fe0 2000 	movel #0xfe02000,0xffffe2ba	; SCC - A
 fef16d8:	e2ba
-fef16da:	21fc 0fe0 2000 	movel #0xfe02000,0xffffe2be	; SCC
+fef16da:	21fc 0fe0 2000 	movel #0xfe02000,0xffffe2be	; SCC - A
 fef16e0:	e2be
+
 fef16e2:	4878 0001      	pea 0x1
-fef16e6:	4879 0fe0 2000 	pea 0xfe02000	; SCC
+fef16e6:	4879 0fe0 2000 	pea 0xfe02000				; SCC - A
 fef16ec:	6100 3882      	bsrw 0xfef4f70
 fef16f0:	504f           	addqw #8,%sp
+
 fef16f2:	42a7           	clrl %sp@-
-fef16f4:	4879 0fe0 2004 	pea 0xfe02004		; SCC
+fef16f4:	4879 0fe0 2004 	pea 0xfe02004				; SCC - B
 fef16fa:	6100 3874      	bsrw 0xfef4f70
 fef16fe:	504f           	addqw #8,%sp
+
 fef1700:	0c39 0012 0fe0 	cmpib #0x12,0xfe04058
 fef1706:	4058
 fef1708:	6600 0094      	bnew 0xfef179e
@@ -1940,7 +1961,7 @@ fef1716:	7200           	moveq #0,%d1
 fef1718:	1239 0fe0 405a 	moveb 0xfe0405a,%d1
 fef171e:	d081           	addl %d1,%d0
 fef1720:	2d40 fff8      	movel %d0,%fp@(-8)
-fef1724:	13fc 000c 0fe0 	moveb #0xc,0xfe02004		; SCC
+fef1724:	13fc 000c 0fe0 	moveb #0xc,0xfe02004		; SCC - B
 fef172a:	2004
 
 fef172c:	7c20           	moveq #32,%d6				; Delay
@@ -1954,7 +1975,7 @@ fef173e:	eb80           	asll #5,%d0
 fef1740:	223c 004b 0000 	movel #0x4b0000,%d1
 fef1746:	4c40 1801      	divsll %d0,%d1,%d1
 fef174a:	5581           	subql #2,%d1
-fef174c:	13c1 0fe0 2004 	moveb %d1,0xfe02004		; SCC
+fef174c:	13c1 0fe0 2004 	moveb %d1,0xfe02004		; SCC - B
 
 fef1752:	7c20           	moveq #32,%d6				; Delay
 fef1754:	2239 0fef c960 	movel 0xfefc960,%d1			; 3
@@ -1962,7 +1983,7 @@ fef175a:	e2a6           	asrl %d1,%d6
 fef175c:	5386           	subql #1,%d6
 fef175e:	6efc           	bgts 0xfef175c
 
-fef1760:	13fc 000d 0fe0 	moveb #0xd,0xfe02004		; SCC
+fef1760:	13fc 000d 0fe0 	moveb #0xd,0xfe02004		; SCC - B
 fef1766:	2004
 
 fef1768:	7c20           	moveq #32,%d6				; Delay
@@ -1977,7 +1998,7 @@ fef177c:	223c 004b 0000 	movel #0x4b0000,%d1
 fef1782:	4c40 1801      	divsll %d0,%d1,%d1
 fef1786:	5581           	subql #2,%d1
 fef1788:	e081           	asrl #8,%d1
-fef178a:	13c1 0fe0 2004 	moveb %d1,0xfe02004		; SCC
+fef178a:	13c1 0fe0 2004 	moveb %d1,0xfe02004		; SCC - B
 
 fef1790:	7c20           	moveq #32,%d6				; Delay
 fef1792:	2239 0fef c960 	movel 0xfefc960,%d1			; 3
@@ -1995,7 +2016,7 @@ fef17b4:	7200           	moveq #0,%d1
 fef17b6:	1239 0fe0 4062 	moveb 0xfe04062,%d1
 fef17bc:	d081           	addl %d1,%d0
 fef17be:	2d40 fff8      	movel %d0,%fp@(-8)
-fef17c2:	13fc 000c 0fe0 	moveb #0xc,0xfe02000	; SCC
+fef17c2:	13fc 000c 0fe0 	moveb #0xc,0xfe02000	; SCC - A
 fef17c8:	2000
 
 fef17ca:	7c20           	moveq #32,%d6				; Delay
@@ -2009,7 +2030,7 @@ fef17dc:	eb80           	asll #5,%d0
 fef17de:	223c 004b 0000 	movel #0x4b0000,%d1
 fef17e4:	4c40 1801      	divsll %d0,%d1,%d1
 fef17e8:	5581           	subql #2,%d1
-fef17ea:	13c1 0fe0 2000 	moveb %d1,0xfe02000	; SCC
+fef17ea:	13c1 0fe0 2000 	moveb %d1,0xfe02000	; SCC - A
 
 fef17f0:	7c20           	moveq #32,%d6				; Delay
 fef17f2:	2239 0fef c960 	movel 0xfefc960,%d1			; 3
@@ -2017,7 +2038,7 @@ fef17f8:	e2a6           	asrl %d1,%d6
 fef17fa:	5386           	subql #1,%d6
 fef17fc:	6efc           	bgts 0xfef17fa
 
-fef17fe:	13fc 000d 0fe0 	moveb #0xd,0xfe02000	; SCC
+fef17fe:	13fc 000d 0fe0 	moveb #0xd,0xfe02000	; SCC - A
 fef1804:	2000
 
 fef1806:	7c20           	moveq #32,%d6				; Delay
@@ -2032,7 +2053,7 @@ fef181a:	223c 004b 0000 	movel #0x4b0000,%d1
 fef1820:	4c40 1801      	divsll %d0,%d1,%d1
 fef1824:	5581           	subql #2,%d1
 fef1826:	e081           	asrl #8,%d1
-fef1828:	13c1 0fe0 2000 	moveb %d1,0xfe02000	; SCC
+fef1828:	13c1 0fe0 2000 	moveb %d1,0xfe02000	; SCC - A
 
 fef182e:	7c20           	moveq #32,%d6				; Delay
 fef1830:	2239 0fef c960 	movel 0xfefc960,%d1			; 3
@@ -2108,10 +2129,12 @@ fef1928:	302e 0070      	movew %fp@(112),%d0
 fef192c:	0240 0fff      	andiw #0xfff,%d0
 fef1930:	0c40 0002      	cmpiw #2,%d0
 fef1934:	6600 0096      	bnew 0xfef19cc
+
 fef1938:	4878 0001      	pea 0x1
 fef193c:	4879 0fe0 0000 	pea 0xfe00000					; KB
 fef1942:	6100 362c      	bsrw 0xfef4f70
 fef1946:	504f           	addqw #8,%sp
+
 fef1948:	21fc 0fe0 0004 	movel #0xfe00004,0xffffe24e		; KB
 fef194e:	e24e
 fef1950:	21fc ffff e25f 	movel #0xffffe25f,0xffffe256
@@ -2120,10 +2143,12 @@ fef1958:	21f8 e256 e252 	movel 0xffffe256,0xffffe252
 fef195e:	21fc ffff e2b9 	movel #0xffffe2b9,0xffffe25a
 fef1964:	e25a
 fef1966:	4238 e25e      	clrb 0xffffe25e
+
 fef196a:	42a7           	clrl %sp@-
-fef196c:	2f38 e24e      	movel 0xffffe24e,%sp@-
+fef196c:	2f38 e24e      	movel 0xffffe24e,%sp@-			; KB
 fef1970:	6100 35fe      	bsrw 0xfef4f70
 fef1974:	504f           	addqw #8,%sp
+
 fef1976:	2078 e24e      	moveal 0xffffe24e,%a0
 fef197a:	10bc 000c      	moveb #0xc,%a0@
 
@@ -2175,7 +2200,7 @@ fef19f2:	4238 e015      	clrb 0xffffe015
 fef19f6:	4238 e016      	clrb 0xffffe016
 
 ; install NMI handler
-fef19fa:	4879 0fef 03a2 	pea 0xfef03a2
+fef19fa:	4879 0fef 03a2 	pea 0xfef03a2		; NMI_handler
 fef1a00:	4878 007c      	pea 0x7c
 fef1a04:	6100 ebd6      	bsrw 0xfef05dc		; install_vec
 fef1a08:	504f           	addqw #8,%sp
@@ -2224,11 +2249,11 @@ fef1a8e:	4238 e016      	clrb 0xffffe016
 fef1a92:	4878 0001      	pea 0x1
 fef1a96:	4879 0fef c978 	pea 0xfefc978
 ; 0xfefc978 ~
-fef1a9c:	6100 52b2      	bsrw 0xfef6d50		; putcharY
+fef1a9c:	6100 52b2      	bsrw 0xfef6d50		; fb_puts
 fef1aa0:	504f           	addqw #8,%sp
 fef1aa2:	6006           	bras 0xfef1aaa
 fef1aa4:	11fc 0001 e016 	moveb #1,0xffffe016
-fef1aaa:	6100 3f9c      	bsrw 0xfef5a48
+fef1aaa:	6100 3f9c      	bsrw 0xfef5a48			; init_getkey
 fef1aae:	302e 0070      	movew %fp@(112),%d0
 fef1ab2:	0240 0fff      	andiw #0xfff,%d0
 fef1ab6:	0c40 0005      	cmpiw #5,%d0
@@ -2243,7 +2268,7 @@ fef1ad2:	6100 3a10      	bsrw 0xfef54e4			; printf
 fef1ad6:	584f           	addqw #4,%sp
 fef1ad8:	11fc 0001 e015 	moveb #1,0xffffe015
 fef1ade:	11f8 e015 e016 	moveb 0xffffe015,0xffffe016
-fef1ae4:	11fc 0001 e001 	moveb #1,0xffffe001			; XX-0-B
+fef1ae4:	11fc 0001 e001 	moveb #1,0xffffe001			; Global+1
 fef1aea:	6100 00a8      	bsrw 0xfef1b94
 fef1aee:	6070           	bras 0xfef1b60
 fef1af0:	0c39 0011 0fe0 	cmpib #0x11,0xfe0401f
@@ -2256,7 +2281,7 @@ fef1b04:	6100 39de      	bsrw 0xfef54e4			; printf
 fef1b08:	584f           	addqw #4,%sp
 fef1b0a:	11fc 0002 e015 	moveb #2,0xffffe015
 fef1b10:	11f8 e015 e016 	moveb 0xffffe015,0xffffe016
-fef1b16:	11fc 0002 e001 	moveb #2,0xffffe001			; XX-0-B
+fef1b16:	11fc 0002 e001 	moveb #2,0xffffe001			; Global+1
 fef1b1c:	6176           	bsrs 0xfef1b94
 fef1b1e:	6040           	bras 0xfef1b60
 fef1b20:	0c38 00de e012 	cmpib #0xde,0xffffe012
@@ -2271,17 +2296,17 @@ fef1b3c:	6022           	bras 0xfef1b60
 fef1b3e:	4238 e015      	clrb 0xffffe015
 fef1b42:	6150           	bsrs 0xfef1b94
 fef1b44:	601a           	bras 0xfef1b60
-fef1b46:	0c38 0012 e004 	cmpib #18,0xffffe004			; XX-0
+fef1b46:	0c38 0012 e004 	cmpib #18,0xffffe004			; Global+4
 fef1b4c:	6606           	bnes 0xfef1b54
 fef1b4e:	4238 e015      	clrb 0xffffe015
 fef1b52:	600c           	bras 0xfef1b60
-fef1b54:	11f8 e001 e015 	moveb 0xffffe001,0xffffe015			; XX-0-B
-fef1b5a:	11f8 e001 e016 	moveb 0xffffe001,0xffffe016			; XX-0-B
+fef1b54:	11f8 e001 e015 	moveb 0xffffe001,0xffffe015			; Global+1
+fef1b5a:	11f8 e001 e016 	moveb 0xffffe001,0xffffe016			; Global+1
 fef1b60:	302e 0070      	movew %fp@(112),%d0
 fef1b64:	0240 0fff      	andiw #0xfff,%d0
 fef1b68:	0c40 0003      	cmpiw #3,%d0
 fef1b6c:	6606           	bnes 0xfef1b74
-fef1b6e:	6100 3ed8      	bsrw 0xfef5a48
+fef1b6e:	6100 3ed8      	bsrw 0xfef5a48			; init_getkey
 fef1b72:	6016           	bras 0xfef1b8a
 fef1b74:	2d78 e172 004c 	movel 0xffffe172,%fp@(76)
 fef1b7a:	21fc 0fef 4a28 	movel #0xfef4a28,0xffffe24a
@@ -2362,8 +2387,9 @@ fef1c6e:	0000
 fef1c70:	2000
 fef1c72:	0000
 
- fef1c74:	202f 0004      	movel %sp@(4),%d0
- fef1c78:	0280 0fff e000 	andil #268427264,%d0
+; Subroutine
+fef1c74:	202f 0004      	movel %sp@(4),%d0
+fef1c78:	0280 0fff e000 	andil #268427264,%d0
 fef1c7e:	0680 1000 0000 	addil #0x10000000,%d0
 fef1c84:	2040           	moveal %d0,%a0
 fef1c86:	4e7a 1000      	movec %sfc,%d1
@@ -2373,6 +2399,7 @@ fef1c92:	0e90 0000      	movesl %a0@,%d0
 fef1c96:	4e7b 1000      	movec %d1,%sfc
 fef1c9a:	4e75           	rts
 
+; Subroutine
 fef1c9c:	202f 0004      	movel %sp@(4),%d0
 fef1ca0:	0280 0fff e000 	andil #0xfffe000,%d0
 fef1ca6:	0680 2000 0000 	addil #0x20000000,%d0	; SEGMAP
@@ -2506,9 +2533,12 @@ fef1e1e:	241f           	movel %sp@+,%d2
 fef1e20:	4e75           	rts
 fef1e22:	0000
 
-; -----------------------------------------------------------------
+; ====================================================================
+; ====================================================================
+
 ; some kind of big initial routine
 ; "Molly" -- 3 "calls"
+; It never expects to return, it just gets branched to.
 
 fef1e24:	2e3c 7777 0000 	movel #0x77770000,%d7
 
@@ -2527,7 +2557,9 @@ fef1e34:	7003           	moveq #3,%d0
 fef1e36:	4e7b 0000      	movec %d0,%sfc
 fef1e3a:	4e7b 0001      	movec %d0,%dfc
 
-; turn off all LED
+; LED light show
+; this is only an 8 bit register, but d0 gets manipulated
+; in a loop
 fef1e3e:	303c 7fff      	movew #0x7fff,%d0
 fef1e42:	0e39 0800 7000 	movesb %d0,0x70000000		; DIAG
 fef1e48:	0000
@@ -2537,17 +2569,24 @@ fef1e50:	51c9 fffe      	dbf %d1,0xfef1e50
 
 fef1e54:	e358           	rolw #1,%d0
 fef1e56:	0c00 00ff      	cmpib #-1,%d0
-fef1e5a:	6b00 ffe6      	bmiw 0xfef1e42
+fef1e5a:	6b00 ffe6      	bmiw 0xfef1e42		; Loop
+
+; d7 gets bits set all along as this runs,
+;  it never gets used in this code, but it
+;  is used in "start_test" to display on the LEDs
+
 fef1e5e:	08c7 000e      	bset #0xe,%d7
 fef1e62:	08c7 000a      	bset #0xa,%d7
 fef1e66:	1e3c ffff      	moveb #-1,%d7
+
 fef1e6a:	4dfa 0006      	lea %pc@(0xfef1e72),%fp
 fef1e6e:	6000 0ed6      	braw 0xfef2d46				; Xcall - start_test
+
 fef1e72:	207c 2ffe 0000 	moveal #0x2ffe0000,%a0
 fef1e78:	227c 1fff e000 	moveal #0x1fffe000,%a1
 fef1e7e:	7201           	moveq #1,%d1
 fef1e80:	4dfa 0006      	lea %pc@(0xfef1e88),%fp
-fef1e84:	6000 0ee2      	braw 0xfef2d68				; Xcall - set_stack
+fef1e84:	6000 0ee2      	braw 0xfef2d68				; Xcall - set_stack (setjmp)
 fef1e88:	7003           	moveq #3,%d0
 fef1e8a:	4e7b 0000      	movec %d0,%sfc
 fef1e8e:	4e7b 0001      	movec %d0,%dfc
@@ -2583,12 +2622,15 @@ fef1ef4:	6000 0eb2      	braw 0xfef2da8				; Xcall	- Cleanup
 
 fef1ef8:	e301           	aslb #1,%d1
 fef1efa:	6600 ff84      	bnew 0xfef1e80
+
 fef1efe:	0887 000e      	bclr #0xe,%d7
 fef1f02:	0887 000a      	bclr #0xa,%d7
+
 fef1f06:	0e39 0000 4000 	movesb 0x40000000,%d0	; SYSTEM_ENAB
 fef1f0c:	0000
 fef1f0e:	0800 0000      	btst #0,%d0
 fef1f12:	6600 0006      	bnew 0xfef1f1a
+
 fef1f16:	08c7 000e      	bset #0xe,%d7
 
 fef1f1a:	4dfa 0006      	lea %pc@(0xfef1f22),%fp
@@ -2600,12 +2642,13 @@ fef1f28:	4dfa 0006      	lea %pc@(0xfef1f30),%fp
 fef1f2c:	6000 0fea      	braw 0xfef2f18				; Xprintf
 
 fef1f30:	1e3c fffe      	moveb #-2,%d7
+
 fef1f34:	49f9 0fef ca6c 	lea 0xfefca6c,%a4
 ; 0xfefca6c \r\nPROM Checksum Test
 fef1f3a:	4dfa 0006      	lea %pc@(0xfef1f42),%fp
 fef1f3e:	6000 0e06      	braw 0xfef2d46				; Xcall - start_test
 fef1f42:	4dfa 0006      	lea %pc@(0xfef1f4a),%fp
-fef1f46:	6000 0e20      	braw 0xfef2d68				; Xcall - set_stack
+fef1f46:	6000 0e20      	braw 0xfef2d68				; Xcall - set_stack (setjmp)
 fef1f4a:	9bcd           	subal %a5,%a5
 fef1f4c:	7006           	moveq #6,%d0
 fef1f4e:	4e7b 0000      	movec %d0,%sfc
@@ -2630,13 +2673,14 @@ fef1f8e:	4dfa 0006      	lea %pc@(0xfef1f96),%fp
 fef1f92:	6000 0e14      	braw 0xfef2da8				; Xcall	- Cleanup
 
 fef1f96:	1e3c fffc      	moveb #-4,%d7
+
 fef1f9a:	49f9 0fef cb55 	lea 0xfefcb55,%a4
 ; 0xfefcb55 \r\nContext Reg Test
 fef1fa0:	4dfa 0006      	lea %pc@(0xfef1fa8),%fp
 fef1fa4:	6000 0da0      	braw 0xfef2d46				; Xcall - start_test
 fef1fa8:	7207           	moveq #7,%d1
 fef1faa:	4dfa 0006      	lea %pc@(0xfef1fb2),%fp
-fef1fae:	6000 0db8      	braw 0xfef2d68				; Xcall - set_stack
+fef1fae:	6000 0db8      	braw 0xfef2d68				; Xcall - set_stack (setjmp)
 fef1fb2:	4280           	clrl %d0
 fef1fb4:	0e39 1800 3000 	movesb %d1,0x30000000		; CONTEXT
 fef1fba:	0000
@@ -2664,17 +2708,23 @@ fef1ff6:	6000 0db0      	braw 0xfef2da8				; Xcall	- Cleanup
 fef1ffa:	51c9 ffae      	dbf %d1,0xfef1faa		; delay
 
 fef1ffe:	1e3c fffb      	moveb #-5,%d7
+
 fef2002:	49f9 0fef cb68 	lea 0xfefcb68,%a4
 ; 0xfefcb68 \r\nSegment Map Wr/Rd Test
 fef2008:	4dfa 0006      	lea %pc@(0xfef2010),%fp
 fef200c:	6000 0d38      	braw 0xfef2d46				; Xcall - start_test
+
 fef2010:	7807           	moveq #7,%d4
+
+; Loop - Y
 fef2012:	2a7c 2000 0000 	moveal #0x20000000,%a5		; SEGMAP
 fef2018:	2a3c 0000 07fe 	movel #0x7fe,%d5
+
+; Loop - Z
 fef201e:	7201           	moveq #1,%d1
 fef2020:	4dfa 0006      	lea %pc@(0xfef2028),%fp
-fef2024:	6000 0d42      	braw 0xfef2d68				; Xcall - set_stack
-fef2028:	0e39 4800 3000 	movesb %d4,0x30000000		; CONTEXT
+fef2024:	6000 0d42      	braw 0xfef2d68				; Xcall - set_stack (setjmp)
+fef2028:	0e39 4800 3000 	movesb %d4,0x30000000		; CONTEXT = 7
 fef202e:	0000
 fef2030:	4280           	clrl %d0
 fef2032:	0e15 1800      	movesb %d1,%a5@
@@ -2683,14 +2733,16 @@ fef203a:	0280 0000 00ff 	andil #0xff,%d0
 fef2040:	2400           	movel %d0,%d2
 fef2042:	b302           	eorb %d1,%d2
 fef2044:	6700 001a      	beqw 0xfef2060
+
 fef2048:	4283           	clrl %d3
-fef204a:	0e39 3800 3000 	movesb %d3,0x30000000		; CONTEXT
+fef204a:	0e39 3800 3000 	movesb %d3,0x30000000		; CONTEXT = 0
 fef2050:	0000
 
 fef2052:	49f9 0fef cae6 	lea 0xfefcae6,%a4
 ; 0xfefcae6 \r\n Err 2: Addr 0x%a5, Exp 0x%d1, Obs 0x%d0, Xor 0x%d2
 fef2058:	4dfa 0006      	lea %pc@(0xfef2060),%fp
 fef205c:	6000 0d16      	braw 0xfef2d74				; Xcall - Error
+
 fef2060:	4dfa 000e      	lea %pc@(0xfef2070),%fp
 
 fef2064:	0e39 3800 3000 	movesb %d3,0x30000000		; CONTEXT
@@ -2700,25 +2752,33 @@ fef206c:	6000 0d3a      	braw 0xfef2da8				; Xcall	- Cleanup
 fef2070:	e301           	aslb #1,%d1
 fef2072:	6600 ffac      	bnew 0xfef2020
 fef2076:	dbfc 0002 0000 	addal #0x20000,%a5
-fef207c:	51cd ffa0      	dbf %d5,0xfef201e
-fef2080:	51cc ff90      	dbf %d4,0xfef2012
+fef207c:	51cd ffa0      	dbf %d5,0xfef201e	; Loop - Z
+fef2080:	51cc ff90      	dbf %d4,0xfef2012	; Loop - Y
+
 fef2084:	4283           	clrl %d3
 fef2086:	0e39 3800 3000 	movesb %d3,0x30000000		; CONTEXT
 fef208c:	0000
 fef208e:	1e3c fffa      	moveb #-6,%d7
+
 fef2092:	49f9 0fef cb81 	lea 0xfefcb81,%a4
 ; 0xfefcb81 \r\nSegment Map Address Test
 fef2098:	4dfa 0006      	lea %pc@(0xfef20a0),%fp
 fef209c:	6000 0ca8      	braw 0xfef2d46				; Xcall - start_test
 fef20a0:	243c 5a97 2c5a 	movel #0x5a972c5a,%d2
 fef20a6:	4dfa 0006      	lea %pc@(0xfef20ae),%fp
-fef20aa:	6000 0cbc      	braw 0xfef2d68				; Xcall - set_stack
-fef20ae:	7807           	moveq #7,%d4
+fef20aa:	6000 0cbc      	braw 0xfef2d68				; Xcall - set_stack (setjmp)
+
+
+fef20ae:	7807           	moveq #7,%d4	; context value
 fef20b0:	7601           	moveq #1,%d3
+
+; Loop A
 fef20b2:	0e39 4800 3000 	movesb %d4,0x30000000		; CONTEXT
 fef20b8:	0000
 fef20ba:	2a7c 2000 0000 	moveal #0x20000000,%a5		; SEGMAP
 fef20c0:	2a3c 0000 07fe 	movel #0x7fe,%d5
+
+; Loop B
 fef20c6:	e099           	rorl #8,%d1
 fef20c8:	5383           	subql #1,%d3
 fef20ca:	6600 0006      	bnew 0xfef20d2
@@ -2726,25 +2786,33 @@ fef20ce:	2202           	movel %d2,%d1
 fef20d0:	7603           	moveq #3,%d3
 fef20d2:	0e15 1800      	movesb %d1,%a5@
 fef20d6:	dbfc 0002 0000 	addal #0x20000,%a5
-fef20dc:	51cd ffe8      	dbf %d5,0xfef20c6
-fef20e0:	51cc ffd0      	dbf %d4,0xfef20b2
+fef20dc:	51cd ffe8      	dbf %d5,0xfef20c6	; Loop B
+fef20e0:	51cc ffd0      	dbf %d4,0xfef20b2	; Loop A
+
 fef20e4:	7601           	moveq #1,%d3
-fef20e6:	7807           	moveq #7,%d4
+fef20e6:	7807           	moveq #7,%d4		; context value
+
+; Loop C
 fef20e8:	0e39 4800 3000 	movesb %d4,0x30000000		; CONTEXT
 fef20ee:	0000
 fef20f0:	2a7c 2000 0000 	moveal #0x20000000,%a5	; SEGMAP
 fef20f6:	2a3c 0000 07fe 	movel #0x7fe,%d5
+
+; Loop D
 fef20fc:	e099           	rorl #8,%d1
 fef20fe:	5383           	subql #1,%d3
 fef2100:	6600 0006      	bnew 0xfef2108
+
 fef2104:	2202           	movel %d2,%d1
 fef2106:	7603           	moveq #3,%d3
+
 fef2108:	4280           	clrl %d0
 fef210a:	0e39 4800 3000 	movesb %d4,0x30000000		; CONTEXT
 fef2110:	0000
 fef2112:	0e15 0000      	movesb %a5@,%d0
 fef2116:	b200           	cmpb %d0,%d1
 fef2118:	6700 0026      	beqw 0xfef2140
+
 fef211c:	2c01           	movel %d1,%d6
 fef211e:	0281 0000 00ff 	andil #0xff,%d1
 fef2124:	e09b           	rorl #8,%d3
@@ -2759,8 +2827,9 @@ fef213a:	6000 0c38      	braw 0xfef2d74				; Xcall - Error
 
 fef213e:	2206           	movel %d6,%d1
 fef2140:	dbfc 0002 0000 	addal #0x20000,%a5
-fef2146:	51cd ffb4      	dbf %d5,0xfef20fc
-fef214a:	51cc ff9c      	dbf %d4,0xfef20e8
+fef2146:	51cd ffb4      	dbf %d5,0xfef20fc	; Loop D
+fef214a:	51cc ff9c      	dbf %d4,0xfef20e8	; Loop C
+
 fef214e:	4dfa 0012      	lea %pc@(0xfef2162),%fp
 fef2152:	e09b           	rorl #8,%d3
 fef2154:	0e39 3800 3000 	movesb %d3,0x30000000		; CONTEXT
@@ -2776,6 +2845,7 @@ fef2174:	0e39 0800 3000 	movesb %d0,0x30000000		; CONTEXT
 fef217a:	0000
 
 fef217c:	1e3c fff9      	moveb #-7,%d7				; LED pattern
+
 fef2180:	49f9 0fef cb9c 	lea 0xfefcb9c,%a4
 ; 0xfefcb9c \r\nPage Map Test
 fef2186:	4dfa 0006      	lea %pc@(0xfef218e),%fp
@@ -2793,7 +2863,7 @@ fef21ac:	51ce fff4      	dbf %d6,0xfef21a2
 
 fef21b0:	243c 5a97 2c5a 	movel #0x5a972c5a,%d2
 fef21b6:	4dfa 0006      	lea %pc@(0xfef21be),%fp
-fef21ba:	6000 0bac      	braw 0xfef2d68				; Xcall - set_stack
+fef21ba:	6000 0bac      	braw 0xfef2d68				; Xcall - set_stack (setjmp)
 
 fef21be:	283c 0000 0fff 	movel #0xfff,%d4
 fef21c4:	2a7c 1000 0000 	moveal #0x10000000,%a5		; & PGMAP
@@ -2845,7 +2915,7 @@ fef224a:	0c82 972c 5a5a 	cmpil #0x972c5a5a,%d2
 fef2250:	6600 ff64      	bnew 0xfef21b6
 
 ; **************************************************
-; This looks like PGMAP setup PAGE MAP setup
+; This looks like PGMAP (PAGE MAP) setup
 
 fef2254:	3a3c 0fff      	movew #0xfff,%d5
 fef2258:	203c f000 0000 	movel #0xf0000000,%d0
@@ -2917,7 +2987,7 @@ fef2314:	6000 0a30      	braw 0xfef2d46				; Xcall - start_test
 fef2318:	4bf8 0400      	lea 0x400,%a5
 fef231c:	7201           	moveq #1,%d1
 fef231e:	4dfa 0006      	lea %pc@(0xfef2326),%fp
-fef2322:	6000 0a44      	braw 0xfef2d68				; Xcall - set_stack
+fef2322:	6000 0a44      	braw 0xfef2d68				; Xcall - set_stack (setjmp)
 fef2326:	4280           	clrl %d0
 fef2328:	2ac1           	movel %d1,%a5@+
 fef232a:	4681           	notl %d1
@@ -2947,7 +3017,7 @@ fef236a:	49f9 0fef cbc4 	lea 0xfefcbc4,%a4
 fef2370:	4dfa 0006      	lea %pc@(0xfef2378),%fp
 fef2374:	6000 09d0      	braw 0xfef2d46				; Xcall - start_test
 fef2378:	4dfa 0006      	lea %pc@(0xfef2380),%fp
-fef237c:	6000 09ea      	braw 0xfef2d68				; Xcall - set_stack
+fef237c:	6000 09ea      	braw 0xfef2d68				; Xcall - set_stack (setjmp)
 fef2380:	4ff8 0800      	lea 0x800,%sp
 fef2384:	41fa 003c      	lea %pc@(0xfef23c2),%a0
 fef2388:	21c8 0008      	movel %a0,0x8
@@ -2989,7 +3059,7 @@ fef2404:	49f9 0fef cbf5 	lea 0xfefcbf5,%a4
 fef240a:	4dfa 0006      	lea %pc@(0xfef2412),%fp
 fef240e:	6000 0936      	braw 0xfef2d46				; Xcall - start_test
 fef2412:	4dfa 0006      	lea %pc@(0xfef241a),%fp
-fef2416:	6000 0950      	braw 0xfef2d68				; Xcall - set_stack
+fef2416:	6000 0950      	braw 0xfef2d68				; Xcall - set_stack (setjmp)
 fef241a:	4ff8 0800      	lea 0x800,%sp
 fef241e:	41f8 0064      	lea 0x64,%a0
 fef2422:	43fa 002c      	lea %pc@(0xfef2450),%a1
@@ -3035,7 +3105,7 @@ fef2468:	49f9 0fef cc26 	lea 0xfefcc26,%a4
 fef246e:	4dfa 0006      	lea %pc@(0xfef2476),%fp
 fef2472:	6000 08d2      	braw 0xfef2d46				; Xcall - start_test
 fef2476:	4dfa 0006      	lea %pc@(0xfef247e),%fp
-fef247a:	6000 08ec      	braw 0xfef2d68				; Xcall - set_stack
+fef247a:	6000 08ec      	braw 0xfef2d68				; Xcall - set_stack (setjmp)
 
 fef247e:	4ff8 0800      	lea 0x800,%sp
 
@@ -3120,7 +3190,7 @@ fef2512:	49f9 0fef cc65 	lea 0xfefcc65,%a4
 fef2518:	4dfa 0006      	lea %pc@(0xfef2520),%fp
 fef251c:	6000 0828      	braw 0xfef2d46				; Xcall - start_test
 fef2520:	4dfa 0006      	lea %pc@(0xfef2528),%fp
-fef2524:	6000 0842      	braw 0xfef2d68				; Xcall - set_stack
+fef2524:	6000 0842      	braw 0xfef2d68				; Xcall - set_stack (setjmp)
 fef2528:	263c f000 0001 	movel #0xf0000001,%d3
 fef252e:	4bf8 2000      	lea 0x2000,%a5
 fef2532:	283c 1000 0000 	movel #0x10000000,%d4		; PGMAP
@@ -3142,7 +3212,7 @@ fef256e:	49f9 0fef cc7b 	lea 0xfefcc7b,%a4
 fef2574:	4dfa 0006      	lea %pc@(0xfef257c),%fp
 fef2578:	6000 07cc      	braw 0xfef2d46				; Xcall - start_test
 fef257c:	4dfa 0006      	lea %pc@(0xfef2584),%fp
-fef2580:	6000 07e6      	braw 0xfef2d68				; Xcall - set_stack
+fef2580:	6000 07e6      	braw 0xfef2d68				; Xcall - set_stack (setjmp)
 fef2584:	263c f000 0001 	movel #0xf0000001,%d3
 fef258a:	4bf8 2000      	lea 0x2000,%a5
 fef258e:	283c 1000 0000 	movel #0x10000000,%d4		; PGMAP
@@ -3166,7 +3236,7 @@ fef25d4:	6000 0770      	braw 0xfef2d46				; Xcall - start_test
 fef25d8:	41fa 0034      	lea %pc@(0xfef260e),%a0
 fef25dc:	21c8 0008      	movel %a0,0x8
 fef25e0:	4dfa 0006      	lea %pc@(0xfef25e8),%fp
-fef25e4:	6000 0782      	braw 0xfef2d68				; Xcall - set_stack
+fef25e4:	6000 0782      	braw 0xfef2d68				; Xcall - set_stack (setjmp)
 fef25e8:	263c 0000 0001 	movel #1,%d3
 fef25ee:	4bf8 2000      	lea 0x2000,%a5
 fef25f2:	283c 1000 0000 	movel #0x10000000,%d4		; PGMAP
@@ -3197,7 +3267,7 @@ fef2654:	6000 06f0      	braw 0xfef2d46				; Xcall - start_test
 fef2658:	41fa 0038      	lea %pc@(0xfef2692),%a0
 fef265c:	21c8 0008      	movel %a0,0x8
 fef2660:	4dfa 0006      	lea %pc@(0xfef2668),%fp
-fef2664:	6000 0702      	braw 0xfef2d68				; Xcall - set_stack
+fef2664:	6000 0702      	braw 0xfef2d68				; Xcall - set_stack (setjmp)
 fef2668:	263c 8000 0001 	movel #0x80000001,%d3
 fef266e:	4bf8 2000      	lea 0x2000,%a5
 fef2672:	283c 1000 0000 	movel #0x10000000,%d4		; PGMAP
@@ -3234,7 +3304,7 @@ fef26f0:	21c8 007c      	movel %a0,0x7c
 fef26f4:	7601           	moveq #1,%d3
 fef26f6:	4bf8 1000      	lea 0x1000,%a5
 fef26fa:	4dfa 0006      	lea %pc@(0xfef2702),%fp
-fef26fe:	6000 0668      	braw 0xfef2d68				; Xcall - set_stack
+fef26fe:	6000 0668      	braw 0xfef2d68				; Xcall - set_stack (setjmp)
 fef2702:	4ff8 0800      	lea 0x800,%sp
 fef2706:	123c 0040      	moveb #0x40,%d1
 fef270a:	13fc 0000 0fff 	moveb #0,0xfff4004
@@ -3289,7 +3359,7 @@ fef27a0:	4bf8 1000      	lea 0x1000,%a5
 fef27a4:	7208           	moveq #8,%d1
 fef27a6:	7601           	moveq #1,%d3
 fef27a8:	4dfa 0006      	lea %pc@(0xfef27b0),%fp
-fef27ac:	6000 05ba      	braw 0xfef2d68				; Xcall - set_stack
+fef27ac:	6000 05ba      	braw 0xfef2d68				; Xcall - set_stack (setjmp)
 fef27b0:	4ff8 0800      	lea 0x800,%sp
 fef27b4:	13fc 0000 0fff 	moveb #0,0xfff4000		; mem error register
 fef27ba:	4000
@@ -3338,6 +3408,8 @@ fef2856:	49f9 0fef ce09 	lea 0xfefce09,%a4
 ; 0xfefce09 \r\nMemory Size
 fef285c:	4dfa 0006      	lea %pc@(0xfef2864),%fp
 fef2860:	6000 06b6      	braw 0xfef2f18				; Xprintf
+
+; also branch here from far below
 fef2864:	41fa 001e      	lea %pc@(0xfef2884),%a0
 fef2868:	21c8 0008      	movel %a0,0x8
 fef286c:	2a7c 0020 0000 	moveal #0x200000,%a5
@@ -3396,7 +3468,7 @@ fef2932:	6000 05e4      	braw 0xfef2f18				; Xprintf
 fef2936:	207c 5a97 2c5a 	moveal #0x5a972c5a,%a0
 fef293c:	21c8 081c      	movel %a0,0x81c
 fef2940:	4dfa 0006      	lea %pc@(0xfef2948),%fp
-fef2944:	6000 0422      	braw 0xfef2d68				; Xcall - set_stack
+fef2944:	6000 0422      	braw 0xfef2d68				; Xcall - set_stack (setjmp)
 fef2948:	4bf8 1000      	lea 0x1000,%a5
 fef294c:	2608           	movel %a0,%d3
 fef294e:	2ac3           	movel %d3,%a5@+
@@ -3596,16 +3668,16 @@ fef2bae:	0e39 0800 7000 	movesb %d0,0x70000000		; DIAG
 fef2bb4:	0000
 
 ; set 1 to use RS232-A
-fef2bb6:	11fc 0001 e001 	moveb #1,0xffffe001			; XX-0-B
+fef2bb6:	11fc 0001 e001 	moveb #1,0xffffe001			; Global+1
 fef2bbc:	0807 0009      	btst #9,%d7
 fef2bc0:	6700 0008      	beqw 0xfef2bca
-fef2bc4:	11fc 0012 e000 	moveb #18,0xffffe000		; XX-0-A
+fef2bc4:	11fc 0012 e000 	moveb #18,0xffffe000		; Global
 fef2bca:	0803 001f      	btst #0x1f,%d3
 
 fef2bce:	6700 0008      	beqw 0xfef2bd8
 
 ; set 2 to use RS232-B
-fef2bd2:	11fc 0002 e001 	moveb #2,0xffffe001			; XX-0-B
+fef2bd2:	11fc 0002 e001 	moveb #2,0xffffe001			; Global+1
 
 fef2bd8:	33c3 0fe6 0bfa 	movew %d3,0xfe60bfa
 fef2bde:	2c4d           	moveal %a5,%fp
@@ -3678,6 +3750,9 @@ fef2ca2:	4dfa 0006      	lea %pc@(0xfef2caa),%fp
 fef2ca6:	6000 0270      	braw 0xfef2f18				; Xprintf
 fef2caa:	2e7c 0000 0800 	moveal #0x800,%sp
 
+; Return to address that was stashed in the M stack
+; longjmp
+
 fef2cb0:	46fc 3700      	movew #14080,%sr		; set M bit (master)
 fef2cb4:	204f           	moveal %sp,%a0			; fetch the master stack
 fef2cb6:	46fc 2700      	movew #9984,%sr			; clear M bit
@@ -3715,6 +3790,9 @@ fef2d1a:	4dfa 0006      	lea %pc@(0xfef2d22),%fp
 fef2d1e:	6000 01f8      	braw 0xfef2f18				; Xprintf
 fef2d22:	2e7c 0000 0800 	moveal #0x800,%sp
 
+; Return to address that was stashed in the M stack
+; longjmp
+
 fef2d28:	46fc 3700      	movew #14080,%sr		; set M bit
 fef2d2c:	204f           	moveal %sp,%a0			; fetch the master stack
 fef2d2e:	46fc 2700      	movew #9984,%sr			; clear M bit
@@ -3750,6 +3828,7 @@ fef2d64:	6000 01b2      	braw 0xfef2f18			; tail call to Xprintf
 ; We set the M bit in the SR, then we copy fp to the Master sp
 ; Then we revert back to the normal (interrupt) sp
 ; This gets called after every call to "start_test"
+; Essentiall this is an interesting flavor of "setjmp"
 
 ; Xsubroutine - set_stack
 fef2d68:	46fc 3700      	movew #0x3700,%sr
@@ -3776,6 +3855,7 @@ fef2da2:	6000 0174      	braw 0xfef2f18			; Xprintf
 
 fef2da6:	4ed6           	jmp %fp@		; never reached
 
+; ----------------------------------------------------------------
 ; Xsubroutine (BIG)  --  Cleanup
 ; every call to "Error" above is followed by a call to this.
 ; Cleanup may not be a good name, but it will do for now.
@@ -3806,18 +3886,22 @@ fef2de4:	6600 00a4      	bnew 0xfef2e8a
 ; Yes it is!
 fef2de8:	0887 000b      	bclr #0xb,%d7
 
+; We now get into an abbreviated MMU setup
+; apparently enough to handle the user abort
+
 fef2dec:	4280           	clrl %d0
 fef2dee:	0e39 0800 3000 	movesb %d0,0x30000000		; CONTEXT = 0
 fef2df4:	0000
 
 fef2df6:	2a7c 2000 0000 	moveal #0x20000000,%a5		; SEGMAP
-fef2dfc:	283c 0000 00ff 	movel #0xff,%d4
 
-; loop
+fef2dfc:	283c 0000 00ff 	movel #0xff,%d4		; count
+
+; loop - SEG
 fef2e02:	0e15 0800      	movesb %d0,%a5@
 fef2e06:	0680 0000 0001 	addil #1,%d0
 fef2e0c:	dbfc 0002 0000 	addal #0x20000,%a5
-fef2e12:	51cc ffee      	dbf %d4,0xfef2e02
+fef2e12:	51cc ffee      	dbf %d4,0xfef2e02		; loop - SEG
 
 ; Set up RAM mapping in PGMAP
 
@@ -3825,11 +3909,13 @@ fef2e16:	203c f000 0000 	movel #0xf0000000,%d0
 fef2e1c:	2a7c 1000 0000 	moveal #0x10000000,%a5		; PGMAP
 fef2e22:	283c 0000 0fff 	movel #0xfff,%d4
 
-; loop
+; loop - PG
 fef2e28:	0e95 0800      	movesl %d0,%a5@
 fef2e2c:	0680 0000 0001 	addil #1,%d0
 fef2e32:	dbfc 0000 2000 	addal #0x2000,%a5
-fef2e38:	51cc ffee      	dbf %d4,0xfef2e28
+fef2e38:	51cc ffee      	dbf %d4,0xfef2e28	; loop - PG
+
+; now load "special" entries
 
 fef2e3c:	2a7c 1000 0000 	moveal #0x10000000,%a5		; PGMAP
 
@@ -3855,54 +3941,74 @@ fef2e78:	6000 009e      	braw 0xfef2f18				; Xprintf
 
 fef2e7c:	42b8 0838      	clrl 0x838
 fef2e80:	11fc 001b 0838 	moveb #0x1b,0x838
-fef2e86:	6000 f9dc      	braw 0xfef2864
+fef2e86:	6000 f9dc      	braw 0xfef2864		; way above
 
+; -----------------------
+; Here from above when we do NOT see an ESC
 fef2e8a:	0c00 0020      	cmpib #0x20,%d0
 fef2e8e:	6600 000a      	bnew 0xfef2e9a
 fef2e92:	08c7 0007      	bset #7,%d7
 fef2e96:	6000 0062      	braw 0xfef2efa
-fef2e9a:	0c00 0073      	cmpib #0x73,%d0
-fef2e9e:	6600 0006      	bnew 0xfef2ea6
+
+fef2e9a:	0c00 0073      	cmpib #0x73,%d0			; 's'
+fef2e9e:	6600 0006      	bnew 0xfef2ea6			; just below
 fef2ea2:	6000 ef80      	braw 0xfef1e24			; Molly
-fef2ea6:	0c00 006e      	cmpib #0x6e,%d0
+
+; -----------------------
+;
+; all kinds of contortions testing and modifying d7
+; with some testing of a character in d0 thrown in.
+
+fef2ea6:	0c00 006e      	cmpib #0x6e,%d0			; 'n'
 fef2eaa:	6600 0016      	bnew 0xfef2ec2
 fef2eae:	0807 000e      	btst #0xe,%d7
 fef2eb2:	6700 000a      	beqw 0xfef2ebe
 fef2eb6:	0887 000e      	bclr #0xe,%d7
 fef2eba:	6000 0006      	braw 0xfef2ec2
+
 fef2ebe:	08c7 000e      	bset #0xe,%d7
-fef2ec2:	0c00 0062      	cmpib #0x62,%d0
+fef2ec2:	0c00 0062      	cmpib #0x62,%d0			; 'b'
 fef2ec6:	6600 0016      	bnew 0xfef2ede
 fef2eca:	0807 000b      	btst #0xb,%d7
 fef2ece:	6700 000a      	beqw 0xfef2eda
 fef2ed2:	0887 000b      	bclr #0xb,%d7
 fef2ed6:	6000 0006      	braw 0xfef2ede
+
 fef2eda:	08c7 000b      	bset #0xb,%d7
-fef2ede:	0c00 0070      	cmpib #0x70,%d0
+fef2ede:	0c00 0070      	cmpib #0x70,%d0			; 'p'
 fef2ee2:	6600 0016      	bnew 0xfef2efa
 fef2ee6:	0807 000c      	btst #0xc,%d7
 fef2eea:	6700 000a      	beqw 0xfef2ef6
 fef2eee:	08c7 000c      	bset #0xc,%d7
 fef2ef2:	6000 0006      	braw 0xfef2efa
+
 fef2ef6:	0887 000c      	bclr #0xc,%d7
 fef2efa:	0807 000c      	btst #0xc,%d7
 fef2efe:	6600 0016      	bnew 0xfef2f16
 fef2f02:	0807 0007      	btst #7,%d7
 fef2f06:	6600 000e      	bnew 0xfef2f16
 
+; This is interesting.  Apparently a return address was
+; stashed in the M stack, we fetch it and jump to it
+; The stashing is done in set_stack()
+; (the value of %fp is done, so essentially this is
+; like setjmp/longjmp
+; there are many setjmp calls,
+;  but only 3 longjmp locations
+
+; longjmp
 fef2f0a:	46fc 3700      	movew #14080,%sr		; set M bit
 fef2f0e:	204f           	moveal %sp,%a0			; fetch the master stack
 fef2f10:	46fc 2700      	movew #9984,%sr			; clear M bit
-
 fef2f14:	4ed0           	jmp %a0@
 
+; regular Xcall return
 fef2f16:	4ed6           	jmp %fp@
 
-; Xsubroutine (BIG)
+; Xsubroutine (BIG) -- Xprintf
 ; This is branched at the tail of some routines
 ;  as well as being independently Xcalled
 ; It gets a string to print in a4
-; Subroutine Xprintf
 
 fef2f18:	2040           	moveal %d0,%a0
 fef2f1a:	2241           	moveal %d1,%a1
@@ -4268,7 +4374,7 @@ fef332e:	4e56 0000      	linkw %fp,#0
 fef3332:	4878 0001      	pea 0x1
 fef3336:	4879 0fef d202 	pea 0xfefd202
 ; 0xfefd202 ~
-fef333c:	6100 3a12      	bsrw 0xfef6d50		; putcharY
+fef333c:	6100 3a12      	bsrw 0xfef6d50		; fb_puts
 fef3340:	504f           	addqw #8,%sp
 fef3342:	4879 0fef d204 	pea 0xfefd204
 ; 0xfefd204 Boot PROM Monitor Commands\n\n
@@ -4517,7 +4623,7 @@ fef364e:	584f           	addqw #4,%sp
 ; This is only an 8 bit register, but this will make it all ones.
 
 fef3650:	4878 ffff      	pea 0xffffffff
-fef3654:	6100 cec4      	bsrw 0xfef051a		; write_DIAG
+fef3654:	6100 cec4      	bsrw 0xfef051a		; set_LEDS
 fef3658:	584f           	addqw #4,%sp
 
 fef365a:	7000           	moveq #0,%d0
@@ -4554,7 +4660,7 @@ fef36c6:	6100 138c      	bsrw 0xfef4a54
 fef36ca:	6000 0462      	braw 0xfef3b2e
 fef36ce:	6100 1384      	bsrw 0xfef4a54
 
-fef36d2:	2f38 e020      	movel 0xffffe020,%sp@-		; Merlin
+fef36d2:	2f38 e020      	movel 0xffffe020,%sp@-		; p_cmdline
 fef36d6:	6100 2580      	bsrw 0xfef5c58				; huge_boot
 fef36da:	584f           	addqw #4,%sp
 
@@ -4566,7 +4672,9 @@ fef36e6:	6000 074a      	braw 0xfef3e32
 fef36ea:	0c39 0012 0fe0 	cmpib #0x12,0xfe04017
 fef36f0:	4017
 fef36f2:	6604           	bnes 0xfef36f8
-fef36f4:	6100 c9f2      	bsrw 0xfef00e8
+fef36f4:	6100 c9f2      	bsrw 0xfef00e8			; total_restart
+; Does not return
+
 fef36f8:	4879 0fef d5a0 	pea 0xfefd5a0
 ; 0xfefd5a0 \nWatchdog reset!\n
 fef36fe:	6100 1de4      	bsrw 0xfef54e4			; printf
@@ -4577,7 +4685,7 @@ fef3708:	4879 0fef d5b2 	pea 0xfefd5b2
 fef370e:	6100 1dd4      	bsrw 0xfef54e4			; printf
 fef3712:	584f           	addqw #4,%sp
 
-fef3714:	21fc ffff e028 	movel #0xffffe028,0xffffe020		; Merlin
+fef3714:	21fc ffff e028 	movel #0xffffe028,0xffffe020		; p_cmdline
 fef371a:	e020
 
 fef371c:	4238 e028      	clrb 0xffffe028
@@ -4712,7 +4820,7 @@ fef38c2:	206e 006c      	moveal %fp@(108),%a0
 fef38c6:	3010           	movew %a0@,%d0
 fef38c8:	48c0           	extl %d0
 fef38ca:	2f00           	movel %d0,%sp@-
-fef38cc:	6100 1d68      	bsrw 0xfef5636			; to_hex2
+fef38cc:	6100 1d68      	bsrw 0xfef5636			; print_hex
 fef38d0:	504f           	addqw #8,%sp
 fef38d2:	6000 013a      	braw 0xfef3a0e
 fef38d6:	0838 0007 e1ae 	btst #7,0xffffe1ae
@@ -4844,7 +4952,7 @@ fef3a68:	6100 1a7a      	bsrw 0xfef54e4			; printf
 fef3a6c:	504f           	addqw #8,%sp
 
 fef3a6e:	42ae ff68      	clrl %fp@(-152)
-fef3a72:	6100 1d24      	bsrw 0xfef5798		; Annie
+fef3a72:	6100 1d24      	bsrw 0xfef5798		; mayget
 fef3a76:	7eff           	moveq #-1,%d7
 fef3a78:	b087           	cmpl %d7,%d0
 fef3a7a:	670e           	beqs 0xfef3a8a
@@ -4864,15 +4972,15 @@ fef3a9c:	52ae ff68      	addql #1,%fp@(-152)
 fef3aa0:	0cae 0000 0005 	cmpil #5,%fp@(-152)
 fef3aa6:	ff68
 fef3aa8:	6dc8           	blts 0xfef3a72
-fef3aaa:	21fc ffff e028 	movel #0xffffe028,0xffffe020		; Merlin
+fef3aaa:	21fc ffff e028 	movel #0xffffe028,0xffffe020		; p_cmdline
 fef3ab0:	e020
-fef3ab2:	2078 e020      	moveal 0xffffe020,%a0		; Merlin
+fef3ab2:	2078 e020      	moveal 0xffffe020,%a0				; p_cmdline
 fef3ab6:	4210           	clrb %a0@
-fef3ab8:	52b8 e020      	addql #1,0xffffe020		; Merlin
-fef3abc:	2078 e020      	moveal 0xffffe020,%a0		; Merlin
+fef3ab8:	52b8 e020      	addql #1,0xffffe020					; p_cmdline
+fef3abc:	2078 e020      	moveal 0xffffe020,%a0				; p_cmdline
 fef3ac0:	4210           	clrb %a0@
-fef3ac2:	52b8 e020      	addql #1,0xffffe020		; Merlin
-fef3ac6:	21fc ffff e028 	movel #0xffffe028,0xffffe020		; Merlin
+fef3ac2:	52b8 e020      	addql #1,0xffffe020					; p_cmdline
+fef3ac6:	21fc ffff e028 	movel #0xffffe028,0xffffe020		; p_cmdline
 fef3acc:	e020
 fef3ace:	6100 c702      	bsrw 0xfef01d2
 fef3ad2:	605a           	bras 0xfef3b2e
@@ -4928,12 +5036,12 @@ fef3b78:	302e 0070      	movew %fp@(112),%d0
 fef3b7c:	0240 0fff      	andiw #0xfff,%d0
 fef3b80:	0c40 0024      	cmpiw #0x24,%d0
 fef3b84:	6608           	bnes 0xfef3b8e
-fef3b86:	6100 1c10      	bsrw 0xfef5798		; Annie
+fef3b86:	6100 1c10      	bsrw 0xfef5798		; mayget
 fef3b8a:	4a80           	tstl %d0
 fef3b8c:	6d08           	blts 0xfef3b96
 fef3b8e:	42b8 e024      	clrl 0xffffe024
 fef3b92:	6000 0a00      	braw 0xfef4594
-fef3b96:	21f8 e024 e020 	movel 0xffffe024,0xffffe020		; Merlin
+fef3b96:	21f8 e024 e020 	movel 0xffffe024,0xffffe020		; p_cmdline
 fef3b9c:	6000 0a80      	braw 0xfef461e
 
 ; Jump table
@@ -4963,7 +5071,7 @@ fef3be0:	0b22           	btst %d5,%a2@-
 fef3be2:	003c 6100      	orib #0,%ccr
 fef3be6:	1858           	.short 0x1858
 
-fef3be8:	6100 181e      	bsrw 0xfef5408		; Hokey
+fef3be8:	6100 181e      	bsrw 0xfef5408		; getone
 fef3bec:	0200 005f      	andib #0x5f,%d0
 fef3bf0:	49c0           	extbl %d0
 fef3bf2:	7e43           	moveq #67,%d7
@@ -4976,7 +5084,7 @@ fef3c02:	7e54           	moveq #84,%d7
 fef3c04:	b087           	cmpl %d7,%d0
 fef3c06:	6600 098c      	bnew 0xfef4594
 fef3c0a:	6100 1832      	bsrw 0xfef543e
-fef3c0e:	6100 1842      	bsrw 0xfef5452
+fef3c0e:	6100 1842      	bsrw 0xfef5452			; getnum (hex)
 fef3c12:	2c00           	movel %d0,%d6
 fef3c14:	2f06           	movel %d6,%sp@-
 fef3c16:	6100 e05c      	bsrw 0xfef1c74
@@ -5065,13 +5173,13 @@ fef3d16:	6100 17cc      	bsrw 0xfef54e4			; printf
 fef3d1a:	504f           	addqw #8,%sp
 fef3d1c:	6000 0876      	braw 0xfef4594
 fef3d20:	6100 171c      	bsrw 0xfef543e
-fef3d24:	6100 172c      	bsrw 0xfef5452
+fef3d24:	6100 172c      	bsrw 0xfef5452			; getnum (hex)
 fef3d28:	2d40 ff44      	movel %d0,%fp@(-188)
 fef3d2c:	6100 1710      	bsrw 0xfef543e
-fef3d30:	6100 1720      	bsrw 0xfef5452
+fef3d30:	6100 1720      	bsrw 0xfef5452			; getnum (hex)
 fef3d34:	2d40 ff40      	movel %d0,%fp@(-192)
 fef3d38:	6100 1704      	bsrw 0xfef543e
-fef3d3c:	6100 1714      	bsrw 0xfef5452
+fef3d3c:	6100 1714      	bsrw 0xfef5452			; getnum (hex)
 fef3d40:	2d40 ffe8      	movel %d0,%fp@(-24)
 fef3d44:	202e ffe8      	movel %fp@(-24),%d0
 fef3d48:	53ae ffe8      	subql #1,%fp@(-24)
@@ -5116,18 +5224,18 @@ fef3dba:	486e 0028      	pea %fp@(40)
 fef3dbe:	6000 0556      	braw 0xfef4316
 fef3dc2:	2078 e0b6      	moveal 0xffffe0b6,%a0
 fef3dc6:	4228 e028      	clrb %a0@(-8152)
-fef3dca:	6100 1662      	bsrw 0xfef542e
+fef3dca:	6100 1662      	bsrw 0xfef542e			; peek_char
 fef3dce:	0c00 0021      	cmpib #0x21,%d0
 fef3dd2:	6616           	bnes 0xfef3dea
-fef3dd4:	6100 1632      	bsrw 0xfef5408		; Hokey
+fef3dd4:	6100 1632      	bsrw 0xfef5408		; getone
 
-fef3dd8:	2f38 e020      	movel 0xffffe020,%sp@-		; Merlin
+fef3dd8:	2f38 e020      	movel 0xffffe020,%sp@-		; p_cmdline
 fef3ddc:	6100 1e7a      	bsrw 0xfef5c58				; huge_boot
 fef3de0:	584f           	addqw #4,%sp
 
 fef3de2:	2d40 006c      	movel %d0,%fp@(108)
 fef3de6:	6000 07ac      	braw 0xfef4594
-fef3dea:	6100 1c5c      	bsrw 0xfef5a48
+fef3dea:	6100 1c5c      	bsrw 0xfef5a48			; init_getkey
 fef3dee:	2038 e256      	movel 0xffffe256,%d0
 fef3df2:	b0b8 e25a      	cmpl 0xffffe25a,%d0
 fef3df6:	6508           	bcss 0xfef3e00
@@ -5138,14 +5246,14 @@ fef3e04:	10bc 007f      	moveb #0x7f,%a0@
 fef3e08:	52b8 e256      	addql #1,0xffffe256
 fef3e0c:	6100 c3c4      	bsrw 0xfef01d2
 fef3e10:	6000 0782      	braw 0xfef4594
-fef3e14:	6100 1618      	bsrw 0xfef542e
+fef3e14:	6100 1618      	bsrw 0xfef542e			; peek_char
 fef3e18:	0280 0000 00ff 	andil #0xff,%d0
 fef3e1e:	2f00           	movel %d0,%sp@-
 fef3e20:	6100 166a      	bsrw 0xfef548c
 fef3e24:	584f           	addqw #4,%sp
 fef3e26:	4a80           	tstl %d0
 fef3e28:	6d08           	blts 0xfef3e32
-fef3e2a:	6100 1626      	bsrw 0xfef5452
+fef3e2a:	6100 1626      	bsrw 0xfef5452			; getnum (hex)
 fef3e2e:	2d40 006c      	movel %d0,%fp@(108)
 fef3e32:	2038 e086      	movel 0xffffe086,%d0
 fef3e36:	b0ae 006c      	cmpl %fp@(108),%d0
@@ -5177,11 +5285,11 @@ fef3e8e:	21c7 e0fa      	movel %d7,0xffffe0fa
 fef3e92:	4aae ff7c      	tstl %fp@(-132)
 fef3e96:	6604           	bnes 0xfef3e9c
 fef3e98:	44b8 e0fa      	negl 0xffffe0fa
-fef3e9c:	6100 15b4      	bsrw 0xfef5452
+fef3e9c:	6100 15b4      	bsrw 0xfef5452			; getnum (hex)
 fef3ea0:	2c00           	movel %d0,%d6
 fef3ea2:	4878 0008      	pea 0x8
 fef3ea6:	2f06           	movel %d6,%sp@-
-fef3ea8:	6100 178c      	bsrw 0xfef5636			; to_hex2
+fef3ea8:	6100 178c      	bsrw 0xfef5636			; print_hex
 fef3eac:	504f           	addqw #8,%sp
 fef3eae:	2f2e ff74      	movel %fp@(-140),%sp@-
 fef3eb2:	4878 0004      	pea 0x4
@@ -5193,16 +5301,16 @@ fef3ec2:	6700 06d0      	beqw 0xfef4594
 fef3ec6:	dcb8 e0fa      	addl 0xffffe0fa,%d6
 fef3eca:	60d6           	bras 0xfef3ea2
 fef3ecc:	6100 1570      	bsrw 0xfef543e
-fef3ed0:	6100 1580      	bsrw 0xfef5452
+fef3ed0:	6100 1580      	bsrw 0xfef5452			; getnum (hex)
 fef3ed4:	2d40 ff68      	movel %d0,%fp@(-152)
 fef3ed8:	6100 1564      	bsrw 0xfef543e
-fef3edc:	6100 1574      	bsrw 0xfef5452
+fef3edc:	6100 1574      	bsrw 0xfef5452			; getnum (hex)
 fef3ee0:	2d40 ff64      	movel %d0,%fp@(-156)
 fef3ee4:	6100 1558      	bsrw 0xfef543e
-fef3ee8:	6100 1568      	bsrw 0xfef5452
+fef3ee8:	6100 1568      	bsrw 0xfef5452			; getnum (hex)
 fef3eec:	2d40 ff60      	movel %d0,%fp@(-160)
 fef3ef0:	6100 154c      	bsrw 0xfef543e
-fef3ef4:	6100 1512      	bsrw 0xfef5408		; Hokey
+fef3ef4:	6100 1512      	bsrw 0xfef5408		; getone
 fef3ef8:	0280 0000 00ff 	andil #0xff,%d0
 fef3efe:	7e5f           	moveq #95,%d7
 fef3f00:	c087           	andl %d7,%d0
@@ -5256,14 +5364,14 @@ fef3f84:	6100 5e46      	bsrw 0xfef9dcc
 fef3f88:	4fef 000c      	lea %sp@(12),%sp
 fef3f8c:	5485           	addql #2,%d5
 fef3f8e:	60d8           	bras 0xfef3f68
-fef3f90:	6100 149c      	bsrw 0xfef542e
+fef3f90:	6100 149c      	bsrw 0xfef542e			; peek_char
 fef3f94:	0280 0000 00ff 	andil #0xff,%d0
 fef3f9a:	2f00           	movel %d0,%sp@-
 fef3f9c:	6100 14ee      	bsrw 0xfef548c
 fef3fa0:	584f           	addqw #4,%sp
 fef3fa2:	4a80           	tstl %d0
 fef3fa4:	6d0a           	blts 0xfef3fb0
-fef3fa6:	6100 14aa      	bsrw 0xfef5452
+fef3fa6:	6100 14aa      	bsrw 0xfef5452			; getnum (hex)
 fef3faa:	2d40 fff8      	movel %d0,%fp@(-8)
 fef3fae:	6006           	bras 0xfef3fb6
 fef3fb0:	2d6e 006c fff8 	movel %fp@(108),%fp@(-8)
@@ -5273,13 +5381,13 @@ fef3fbe:	6100 147e      	bsrw 0xfef543e
 fef3fc2:	0cae 0000 0008 	cmpil #8,%fp@(-8)
 fef3fc8:	fff8
 fef3fca:	6d00 059c      	bltw 0xfef4568
-fef3fce:	2f38 e020      	movel 0xffffe020,%sp@-		; Merlin
+fef3fce:	2f38 e020      	movel 0xffffe020,%sp@-		; p_cmdline
 fef3fd2:	206e fff8      	moveal %fp@(-8),%a0
 fef3fd6:	4e90           	jsr %a0@
 fef3fd8:	6000 05b8      	braw 0xfef4592
 fef3fdc:	6100 f350      	bsrw 0xfef332e
 fef3fe0:	6000 05b2      	braw 0xfef4594
-fef3fe4:	6100 146c      	bsrw 0xfef5452
+fef3fe4:	6100 146c      	bsrw 0xfef5452			; getnum (hex)
 fef3fe8:	7e0b           	moveq #11,%d7
 fef3fea:	b087           	cmpl %d7,%d0
 fef3fec:	6200 05a6      	bhiw 0xfef4594
@@ -5301,7 +5409,7 @@ fef4020:	2f38 e0c6      	movel 0xffffe0c6,%sp@-
 fef4024:	6100 25ee      	bsrw 0xfef6614
 fef4028:	504f           	addqw #8,%sp
 fef402a:	6000 0568      	braw 0xfef4594
-fef402e:	6100 1a18      	bsrw 0xfef5a48
+fef402e:	6100 1a18      	bsrw 0xfef5a48			; init_getkey
 fef4032:	2038 e256      	movel 0xffffe256,%d0
 fef4036:	b0b8 e25a      	cmpl 0xffffe25a,%d0
 fef403a:	6508           	bcss 0xfef4044
@@ -5335,7 +5443,9 @@ fef4090:	b087           	cmpl %d7,%d0
 fef4092:	6708           	beqs 0xfef409c
 fef4094:	206e ff3c      	moveal %fp@(-196),%a0
 fef4098:	4268 0004      	clrw %a0@(4)
-fef409c:	6100 c04a      	bsrw 0xfef00e8
+fef409c:	6100 c04a      	bsrw 0xfef00e8			; total_restart
+; Does not return
+
 fef40a0:	6100 f062      	bsrw 0xfef3104
 fef40a4:	6000 04ee      	braw 0xfef4594
 fef40a8:	6000 04ea      	braw 0xfef4594
@@ -5344,11 +5454,11 @@ fef40ae:	21c7 e0fa      	movel %d7,0xffffe0fa
 fef40b2:	4aae ff7c      	tstl %fp@(-132)
 fef40b6:	6604           	bnes 0xfef40bc
 fef40b8:	44b8 e0fa      	negl 0xffffe0fa
-fef40bc:	6100 1394      	bsrw 0xfef5452
+fef40bc:	6100 1394      	bsrw 0xfef5452			; getnum (hex)
 fef40c0:	2c00           	movel %d0,%d6
 fef40c2:	4878 0008      	pea 0x8
 fef40c6:	2f06           	movel %d6,%sp@-
-fef40c8:	6100 156c      	bsrw 0xfef5636			; to_hex2
+fef40c8:	6100 156c      	bsrw 0xfef5636			; print_hex
 fef40cc:	504f           	addqw #8,%sp
 fef40ce:	2f2e ff74      	movel %fp@(-140),%sp@-
 fef40d2:	4878 0008      	pea 0x8
@@ -5364,7 +5474,7 @@ fef40f2:	e0fa
 fef40f4:	4aae ff7c      	tstl %fp@(-132)
 fef40f8:	6604           	bnes 0xfef40fe
 fef40fa:	44b8 e0fa      	negl 0xffffe0fa
-fef40fe:	6100 1352      	bsrw 0xfef5452
+fef40fe:	6100 1352      	bsrw 0xfef5452			; getnum (hex)
 fef4102:	0280 0ffe 0000 	andil #0xffe0000,%d0
 fef4108:	2c00           	movel %d0,%d6
 fef410a:	0c86 1000 0000 	cmpil #0x10000000,%d6
@@ -5391,11 +5501,11 @@ fef4150:	21c7 e0fa      	movel %d7,0xffffe0fa
 fef4154:	4aae ff7c      	tstl %fp@(-132)
 fef4158:	6604           	bnes 0xfef415e
 fef415a:	44b8 e0fa      	negl 0xffffe0fa
-fef415e:	6100 12f2      	bsrw 0xfef5452
+fef415e:	6100 12f2      	bsrw 0xfef5452			; getnum (hex)
 fef4162:	2c00           	movel %d0,%d6
 fef4164:	4878 0008      	pea 0x8
 fef4168:	2f06           	movel %d6,%sp@-
-fef416a:	6100 14ca      	bsrw 0xfef5636			; to_hex2
+fef416a:	6100 14ca      	bsrw 0xfef5636			; print_hex
 fef416e:	504f           	addqw #8,%sp
 fef4170:	2f2e ff74      	movel %fp@(-140),%sp@-
 fef4174:	4878 0002      	pea 0x2
@@ -5411,7 +5521,7 @@ fef4194:	e0fa
 fef4196:	4aae ff7c      	tstl %fp@(-132)
 fef419a:	6604           	bnes 0xfef41a0
 fef419c:	44b8 e0fa      	negl 0xffffe0fa
-fef41a0:	6100 12b0      	bsrw 0xfef5452
+fef41a0:	6100 12b0      	bsrw 0xfef5452			; getnum (hex)
 fef41a4:	0280 0fff e000 	andil #0xfffe000,%d0
 fef41aa:	2c00           	movel %d0,%d6
 fef41ac:	0c86 1000 0000 	cmpil #0x10000000,%d6
@@ -5443,7 +5553,7 @@ fef4204:	21c7 e0fa      	movel %d7,0xffffe0fa
 fef4208:	4aae ff7c      	tstl %fp@(-132)
 fef420c:	6604           	bnes 0xfef4212
 fef420e:	44b8 e0fa      	negl 0xffffe0fa
-fef4212:	6100 121a      	bsrw 0xfef542e
+fef4212:	6100 121a      	bsrw 0xfef542e			; peek_char
 fef4216:	0c00 002a      	cmpib #0x2a,%d0
 fef421a:	6674           	bnes 0xfef4290
 fef421c:	4879 0fef d868 	pea 0xfefd868
@@ -5486,7 +5596,7 @@ fef4288:	ff80
 fef428a:	6c00 0308      	bgew 0xfef4594
 fef428e:	60c4           	bras 0xfef4254
 fef4290:	42b8 e0fe      	clrl 0xffffe0fe
-fef4294:	6100 11bc      	bsrw 0xfef5452
+fef4294:	6100 11bc      	bsrw 0xfef5452			; getnum (hex)
 fef4298:	0680 0fe0 4000 	addil #0xfe04000,%d0	; TOD
 fef429e:	2a00           	movel %d0,%d5
 fef42a0:	0c85 0fe0 4000 	cmpil #0xfe04000,%d5	; TOD
@@ -5532,7 +5642,7 @@ fef4320:	2f2e 0064      	movel %fp@(100),%sp@-
 fef4324:	6100 da44      	bsrw 0xfef1d6a			; set_context
 fef4328:	6000 0268      	braw 0xfef4592
 
-fef432c:	6100 1124      	bsrw 0xfef5452
+fef432c:	6100 1124      	bsrw 0xfef5452			; getnum (hex)
 fef4330:	2c00           	movel %d0,%d6
 fef4332:	670c           	beqs 0xfef4340
 fef4334:	7e07           	moveq #7,%d7
@@ -5545,7 +5655,7 @@ fef4344:	4879 0fef d8af 	pea 0xfefd8af
 fef434a:	6100 1198      	bsrw 0xfef54e4			; printf
 fef434e:	504f           	addqw #8,%sp
 fef4350:	6000 0242      	braw 0xfef4594
-fef4354:	6100 10b2      	bsrw 0xfef5408		; Hokey
+fef4354:	6100 10b2      	bsrw 0xfef5408		; getone
 fef4358:	0280 0000 00ff 	andil #0xff,%d0
 fef435e:	7e5f           	moveq #95,%d7
 fef4360:	c087           	andl %d7,%d0
@@ -5567,7 +5677,7 @@ fef4382:	4879 0fef d8c7 	pea 0xfefd8c7
 fef4388:	6100 115a      	bsrw 0xfef54e4			; printf
 fef438c:	6000 0204      	braw 0xfef4592
 
-fef4390:	2878 e020      	moveal 0xffffe020,%a4		; Merlin
+fef4390:	2878 e020      	moveal 0xffffe020,%a4		; p_cmdline
 fef4394:	21cc e024      	movel %a4,0xffffe024
 fef4398:	4a14           	tstb %a4@
 fef439a:	6710           	beqs 0xfef43ac
@@ -5592,16 +5702,16 @@ fef43d2:	6000 fa5e      	braw 0xfef3e32
 fef43d6:	6100 0c92      	bsrw 0xfef506a
 fef43da:	6000 01b8      	braw 0xfef4594
 fef43de:	6100 105e      	bsrw 0xfef543e
-fef43e2:	6100 106e      	bsrw 0xfef5452
+fef43e2:	6100 106e      	bsrw 0xfef5452			; getnum (hex)
 fef43e6:	7ef0           	moveq #-16,%d7
 fef43e8:	c087           	andl %d7,%d0
 fef43ea:	2d40 ff68      	movel %d0,%fp@(-152)
 fef43ee:	6100 104e      	bsrw 0xfef543e
-fef43f2:	6100 105e      	bsrw 0xfef5452
+fef43f2:	6100 105e      	bsrw 0xfef5452			; getnum (hex)
 fef43f6:	c087           	andl %d7,%d0
 fef43f8:	2d40 ff64      	movel %d0,%fp@(-156)
 fef43fc:	6100 1040      	bsrw 0xfef543e
-fef4400:	6100 1006      	bsrw 0xfef5408		; Hokey
+fef4400:	6100 1006      	bsrw 0xfef5408		; getone
 fef4404:	0280 0000 00ff 	andil #0xff,%d0
 fef440a:	7e5f           	moveq #95,%d7
 fef440c:	c087           	andl %d7,%d0
@@ -5657,7 +5767,7 @@ fef448e:	504f           	addqw #8,%sp
 fef4490:	2d40 ff54      	movel %d0,%fp@(-172)
 fef4494:	2f2e ff6c      	movel %fp@(-148),%sp@-
 fef4498:	2f2e ff54      	movel %fp@(-172),%sp@-
-fef449c:	6100 1198      	bsrw 0xfef5636			; to_hex2
+fef449c:	6100 1198      	bsrw 0xfef5636			; print_hex
 fef44a0:	504f           	addqw #8,%sp
 fef44a2:	4879 0fef d8d9 	pea 0xfefd8d9
 fef44a8:	6100 103a      	bsrw 0xfef54e4			; printf
@@ -5704,7 +5814,7 @@ fef4514:	4879 0fef d8e0 	pea 0xfefd8e0
 ; 0xfefd8e0 \n
 fef451a:	6100 0fc8      	bsrw 0xfef54e4			; printf
 fef451e:	584f           	addqw #4,%sp
-fef4520:	6100 1276      	bsrw 0xfef5798		; Annie
+fef4520:	6100 1276      	bsrw 0xfef5798		; mayget
 fef4524:	2d40 ff60      	movel %d0,%fp@(-160)
 fef4528:	0cae ffff ffff 	cmpil #-1,%fp@(-160)
 fef452e:	ff60
@@ -5719,12 +5829,12 @@ fef4548:	674a           	beqs 0xfef4594
 fef454a:	7e10           	moveq #16,%d7
 fef454c:	dfae ff5c      	addl %d7,%fp@(-164)
 fef4550:	6000 fee2      	braw 0xfef4434
-fef4554:	6100 0efc      	bsrw 0xfef5452
+fef4554:	6100 0efc      	bsrw 0xfef5452			; getnum (hex)
 fef4558:	2d40 fff8      	movel %d0,%fp@(-8)
 fef455c:	2078 e0b6      	moveal 0xffffe0b6,%a0
 fef4560:	4228 e028      	clrb %a0@(-8152)
 fef4564:	6100 0ed8      	bsrw 0xfef543e
-fef4568:	2f38 e020      	movel 0xffffe020,%sp@-		; Merlin
+fef4568:	2f38 e020      	movel 0xffffe020,%sp@-		; p_cmdline
 fef456c:	2f2e fff8      	movel %fp@(-8),%sp@-
 fef4570:	2078 e24a      	moveal 0xffffe24a,%a0
 fef4574:	4e90           	jsr %a0@
@@ -5732,7 +5842,7 @@ fef4576:	504f           	addqw #8,%sp
 fef4578:	601a           	bras 0xfef4594
 fef457a:	4a38 e015      	tstb 0xffffe015
 fef457e:	6606           	bnes 0xfef4586
-fef4580:	11fc 0012 e004 	moveb #18,0xffffe004			; XX-0
+fef4580:	11fc 0012 e004 	moveb #18,0xffffe004			; Global+4
 fef4586:	6100 bc44      	bsrw 0xfef01cc
 fef458a:	2f2e ff74      	movel %fp@(-140),%sp@-
 fef458e:	6100 03a2      	bsrw 0xfef4932
@@ -5741,11 +5851,11 @@ fef4594:	7e01           	moveq #1,%d7
 fef4596:	2d47 ff7c      	movel %d7,%fp@(-132)
 fef459a:	4ab8 e024      	tstl 0xffffe024
 fef459e:	6716           	beqs 0xfef45b6
-fef45a0:	52b8 e020      	addql #1,0xffffe020		; Merlin
-fef45a4:	2078 e020      	moveal 0xffffe020,%a0		; Merlin
+fef45a0:	52b8 e020      	addql #1,0xffffe020			; p_cmdline
+fef45a4:	2078 e020      	moveal 0xffffe020,%a0		; p_cmdline
 fef45a8:	4a10           	tstb %a0@
 fef45aa:	6672           	bnes 0xfef461e
-fef45ac:	6100 11ea      	bsrw 0xfef5798		; Annie
+fef45ac:	6100 11ea      	bsrw 0xfef5798		; mayget
 fef45b0:	4a80           	tstl %d0
 fef45b2:	6d00 f87e      	bltw 0xfef3e32
 fef45b6:	302e 0070      	movew %fp@(112),%d0
@@ -5760,7 +5870,7 @@ fef45d2:	4878 003e      	pea 0x3e
 fef45d6:	6100 10a8      	bsrw 0xfef5680			; putchar
 fef45da:	584f           	addqw #4,%sp
 fef45dc:	4878 0001      	pea 0x1
-fef45e0:	6100 0d8a      	bsrw 0xfef536c
+fef45e0:	6100 0d8a      	bsrw 0xfef536c			; getline
 fef45e4:	584f           	addqw #4,%sp
 fef45e6:	302e 0070      	movew %fp@(112),%d0
 fef45ea:	0240 0fff      	andiw #0xfff,%d0
@@ -5773,23 +5883,23 @@ fef4600:	6606           	bnes 0xfef4608
 fef4602:	026e f000 0070 	andiw #0xf000,%fp@(112)
 fef4608:	4a2e ff7b      	tstb %fp@(-133)
 fef460c:	670c           	beqs 0xfef461a
-fef460e:	6100 0e1e      	bsrw 0xfef542e
+fef460e:	6100 0e1e      	bsrw 0xfef542e			; peek_char
 fef4612:	0c00 000d      	cmpib #0xd,%d0
 fef4616:	6700 f81a      	beqw 0xfef3e32
 fef461a:	422e ff7b      	clrb %fp@(-133)
-fef461e:	6100 0de8      	bsrw 0xfef5408		; Hokey
+fef461e:	6100 0de8      	bsrw 0xfef5408		; getone
 fef4622:	1e00           	moveb %d0,%d7
 fef4624:	0c07 0021      	cmpib #0x21,%d7
 fef4628:	6626           	bnes 0xfef4650
 fef462a:	21ee ff84 e0b6 	movel %fp@(-124),0xffffe0b6
 fef4630:	41ee ff94      	lea %fp@(-108),%a0
-fef4634:	21c8 e020      	movel %a0,0xffffe020		; Merlin
+fef4634:	21c8 e020      	movel %a0,0xffffe020		; p_cmdline
 fef4638:	486e ff94      	pea %fp@(-108)
 fef463c:	4879 0fef d733 	pea 0xfefd733
 ; 0xfefd733 %s\n
 fef4642:	6100 0ea0      	bsrw 0xfef54e4			; printf
 fef4646:	504f           	addqw #8,%sp
-fef4648:	6100 0dbe      	bsrw 0xfef5408		; Hokey
+fef4648:	6100 0dbe      	bsrw 0xfef5408		; getone
 fef464c:	1e00           	moveb %d0,%d7
 fef464e:	6030           	bras 0xfef4680
 fef4650:	4a07           	tstb %d7
@@ -5819,7 +5929,7 @@ fef4698:	2d40 ff7c      	movel %d0,%fp@(-132)
 fef469c:	6006           	bras 0xfef46a4
 fef469e:	0c07 0030      	cmpib #0x30,%d7
 fef46a2:	6c0a           	bges 0xfef46ae
-fef46a4:	6100 0d62      	bsrw 0xfef5408		; Hokey
+fef46a4:	6100 0d62      	bsrw 0xfef5408		; getone
 fef46a8:	1e00           	moveb %d0,%d7
 fef46aa:	4a07           	tstb %d7
 fef46ac:	66f0           	bnes 0xfef469e
@@ -5844,8 +5954,8 @@ fef46e0:	4e75           	rts
 
 fef46e2:	4e56 fff4      	linkw %fp,#-12
 fef46e6:	6004           	bras 0xfef46ec
-fef46e8:	6100 0d1e      	bsrw 0xfef5408		; Hokey
-fef46ec:	6100 0d40      	bsrw 0xfef542e
+fef46e8:	6100 0d1e      	bsrw 0xfef5408		; getone
+fef46ec:	6100 0d40      	bsrw 0xfef542e			; peek_char
 fef46f0:	1d40 ffff      	moveb %d0,%fp@(-1)
 fef46f4:	0c00 0020      	cmpib #0x20,%d0
 fef46f8:	67ee           	beqs 0xfef46e8
@@ -5882,12 +5992,12 @@ fef4752:	504f           	addqw #8,%sp
 fef4754:	2d40 fff8      	movel %d0,%fp@(-8)
 fef4758:	2f2e 000c      	movel %fp@(12),%sp@-
 fef475c:	2f00           	movel %d0,%sp@-
-fef475e:	6100 0ed6      	bsrw 0xfef5636			; to_hex2
+fef475e:	6100 0ed6      	bsrw 0xfef5636			; print_hex
 fef4762:	504f           	addqw #8,%sp
 fef4764:	0c2e 000d ffff 	cmpib #0xd,%fp@(-1)
 fef476a:	673e           	beqs 0xfef47aa
-fef476c:	6100 0c9a      	bsrw 0xfef5408		; Hokey
-fef4770:	6100 0cbc      	bsrw 0xfef542e
+fef476c:	6100 0c9a      	bsrw 0xfef5408		; getone
+fef4770:	6100 0cbc      	bsrw 0xfef542e			; peek_char
 fef4774:	1d40 ffff      	moveb %d0,%fp@(-1)
 fef4778:	0c00 0020      	cmpib #0x20,%d0
 fef477c:	67ee           	beqs 0xfef476c
@@ -5910,9 +6020,9 @@ fef47aa:	4879 0fef d900 	pea 0xfefd900
 fef47b0:	6100 0d32      	bsrw 0xfef54e4			; printf
 fef47b4:	584f           	addqw #4,%sp
 fef47b6:	4878 0001      	pea 0x1
-fef47ba:	6100 0bb0      	bsrw 0xfef536c
+fef47ba:	6100 0bb0      	bsrw 0xfef536c			; getline
 fef47be:	584f           	addqw #4,%sp
-fef47c0:	6100 0c6c      	bsrw 0xfef542e
+fef47c0:	6100 0c6c      	bsrw 0xfef542e			; peek_char
 fef47c4:	1d40 ffff      	moveb %d0,%fp@(-1)
 fef47c8:	7000           	moveq #0,%d0
 fef47ca:	102e ffff      	moveb %fp@(-1),%d0
@@ -5934,7 +6044,7 @@ fef47f2:	6c0c           	bges 0xfef4800
 fef47f4:	0c2e 002b ffff 	cmpib #0x2b,%fp@(-1)
 fef47fa:	6604           	bnes 0xfef4800
 fef47fc:	44b8 e0fa      	negl 0xffffe0fa
-fef4800:	6100 0c06      	bsrw 0xfef5408		; Hokey
+fef4800:	6100 0c06      	bsrw 0xfef5408		; getone
 fef4804:	7001           	moveq #1,%d0
 fef4806:	6000 00c0      	braw 0xfef48c8
 fef480a:	7000           	moveq #0,%d0
@@ -5946,12 +6056,12 @@ fef4818:	4a80           	tstl %d0
 fef481a:	6c06           	bges 0xfef4822
 fef481c:	7000           	moveq #0,%d0
 fef481e:	6000 00a8      	braw 0xfef48c8
-fef4822:	6100 0c2e      	bsrw 0xfef5452
+fef4822:	6100 0c2e      	bsrw 0xfef5452			; getnum (hex)
 fef4826:	2d40 fff8      	movel %d0,%fp@(-8)
 fef482a:	7201           	moveq #1,%d1
 fef482c:	2d41 fff4      	movel %d1,%fp@(-12)
 fef4830:	6044           	bras 0xfef4876
-fef4832:	6100 0c1e      	bsrw 0xfef5452
+fef4832:	6100 0c1e      	bsrw 0xfef5452			; getnum (hex)
 fef4836:	2d40 fff8      	movel %d0,%fp@(-8)
 fef483a:	4879 0fef d903 	pea 0xfefd903
 ; 0xfefd903  ->
@@ -5959,13 +6069,13 @@ fef4840:	6100 0ca2      	bsrw 0xfef54e4			; printf
 fef4844:	584f           	addqw #4,%sp
 fef4846:	2f2e 000c      	movel %fp@(12),%sp@-
 fef484a:	2f2e fff8      	movel %fp@(-8),%sp@-
-fef484e:	6100 0de6      	bsrw 0xfef5636			; to_hex2
+fef484e:	6100 0de6      	bsrw 0xfef5636			; print_hex
 fef4852:	504f           	addqw #8,%sp
 fef4854:	4878 000a      	pea 0xa
 fef4858:	6100 0e26      	bsrw 0xfef5680			; putchar
 fef485c:	584f           	addqw #4,%sp
 fef485e:	6100 0bde      	bsrw 0xfef543e
-fef4862:	6100 0bca      	bsrw 0xfef542e
+fef4862:	6100 0bca      	bsrw 0xfef542e			; peek_char
 fef4866:	0c00 000d      	cmpib #0xd,%d0
 fef486a:	6604           	bnes 0xfef4870
 fef486c:	7000           	moveq #0,%d0
@@ -6004,7 +6114,7 @@ fef48cc:	4e56 fff4      	linkw %fp,#-12
 fef48d0:	48d7 3800      	moveml %a3-%a5,%sp@
 fef48d4:	2a6e 0008      	moveal %fp@(8),%a5
 fef48d8:	286e 000c      	moveal %fp@(12),%a4
-fef48dc:	6100 0b74      	bsrw 0xfef5452
+fef48dc:	6100 0b74      	bsrw 0xfef5452			; getnum (hex)
 fef48e0:	720f           	moveq #15,%d1
 fef48e2:	c081           	andl %d1,%d0
 fef48e4:	e580           	asll #2,%d0
@@ -6049,7 +6159,7 @@ fef494e:	504f           	addqw #8,%sp
 fef4950:	0c80 0000 4e41 	cmpil #0x4e41,%d0
 fef4956:	6702           	beqs 0xfef495a
 fef4958:	99cc           	subal %a4,%a4
-fef495a:	6100 0ad2      	bsrw 0xfef542e
+fef495a:	6100 0ad2      	bsrw 0xfef542e			; peek_char
 fef495e:	0c00 000d      	cmpib #0xd,%d0
 fef4962:	6610           	bnes 0xfef4974
 fef4964:	4854           	pea %a4@
@@ -6058,7 +6168,7 @@ fef4966:	4879 0fef d908 	pea 0xfefd908
 fef496c:	6100 0b76      	bsrw 0xfef54e4			; printf
 fef4970:	504f           	addqw #8,%sp
 fef4972:	607a           	bras 0xfef49ee
-fef4974:	6100 0adc      	bsrw 0xfef5452
+fef4974:	6100 0adc      	bsrw 0xfef5452			; getnum (hex)
 fef4978:	2a40           	moveal %d0,%a5
 fef497a:	4a8c           	tstl %a4
 fef497c:	6722           	beqs 0xfef49a0
@@ -6106,19 +6216,21 @@ fef49ee:	4cee 3080 fff4 	moveml %fp@(-12),%d7/%a4-%a5
 fef49f4:	4e5e           	unlk %fp
 fef49f6:	4e75           	rts
 
+; Subroutine boot_me -- boot_me ( "xy()vmunix" )
+; resets and reboots system -- no return
 fef49f8:	4e56 0000      	linkw %fp,#0
-fef49fc:	21fc ffff e028 	movel #0xffffe028,0xffffe020		; Merlin
+fef49fc:	21fc ffff e028 	movel #0xffffe028,0xffffe020		; p_cmdline
 fef4a02:	e020
 
 ; loop
-fef4a04:	2078 e020      	moveal 0xffffe020,%a0		; Merlin
-fef4a08:	52b8 e020      	addql #1,0xffffe020		; Merlin
-fef4a0c:	226e 0008      	moveal %fp@(8),%a1		; arg
+fef4a04:	2078 e020      	moveal 0xffffe020,%a0		; p_cmdline
+fef4a08:	52b8 e020      	addql #1,0xffffe020			; p_cmdline
+fef4a0c:	226e 0008      	moveal %fp@(8),%a1			; arg
 fef4a10:	52ae 0008      	addql #1,%fp@(8)
 fef4a14:	1091           	moveb %a1@,%a0@
 fef4a16:	66ec           	bnes 0xfef4a04
 
-fef4a18:	21fc ffff e028 	movel #0xffffe028,0xffffe020		; Merlin
+fef4a18:	21fc ffff e028 	movel #0xffffe028,0xffffe020		; p_cmdline
 fef4a1e:	e020
 fef4a20:	6100 b7b0      	bsrw 0xfef01d2
 fef4a24:	4e5e           	unlk %fp
@@ -6332,7 +6444,7 @@ fef4c9e:	6000 0140      	braw 0xfef4de0		; enter loop
 fef4ca2:	49c7           	extbl %d7
 fef4ca4:	2d47 fffc      	movel %d7,%fp@(-4)	; save
 
-fef4ca8:	6100 075e      	bsrw 0xfef5408		; Hokey Pokey
+fef4ca8:	6100 075e      	bsrw 0xfef5408		; getone
 fef4cac:	0200 005f      	andib #0x5f,%d0		; force lower case
 fef4cb0:	1200           	moveb %d0,%d1
 
@@ -6419,7 +6531,7 @@ fef4d1e:	584f           	addqw #4,%sp
 fef4d20:	6000 00be      	braw 0xfef4de0			; reenter loop
 
 ; ME
-fef4d24:	4238 e003      	clrb 0xffffe003			; XX-0
+fef4d24:	4238 e003      	clrb 0xffffe003			; Global+3
 fef4d28:	2f2e 0008      	movel %fp@(8),%sp@-
 fef4d2c:	6100 baee      	bsrw 0xfef081c			; etest_memory
 fef4d30:	584f           	addqw #4,%sp
@@ -6662,6 +6774,7 @@ fef4f66:	4cee 2080 ffec 	moveml %fp@(-20),%d7/%a5
 fef4f6c:	4e5e           	unlk %fp
 fef4f6e:	4e75           	rts
 
+; Initialize a serial port, or some wuch
 fef4f70:	4e56 ffec      	linkw %fp,#-20
 fef4f74:	48d7 38c0      	moveml %d6-%d7/%a3-%a5,%sp@
 fef4f78:	2a6e 0008      	moveal %fp@(8),%a5
@@ -6671,13 +6784,14 @@ fef4f86:	267c 0fef db12 	moveal #0xfefdb12,%a3
 fef4f8c:	0c39 0012 0fe0 	cmpib #0x12,0xfe0405b
 fef4f92:	405b
 fef4f94:	6608           	bnes 0xfef4f9e
-fef4f96:	bbfc 0fe0 2004 	cmpal #0xfe02004,%a5		; SCC
+fef4f96:	bbfc 0fe0 2004 	cmpal #0xfe02004,%a5		; SCC - B
 fef4f9c:	6712           	beqs 0xfef4fb0
 fef4f9e:	0c39 0012 0fe0 	cmpib #0x12,0xfe04063
 fef4fa4:	4063
 fef4fa6:	661e           	bnes 0xfef4fc6
-fef4fa8:	bbfc 0fe0 2000 	cmpal #0xfe02000,%a5	; SCC
+fef4fa8:	bbfc 0fe0 2000 	cmpal #0xfe02000,%a5		; SCC - A
 fef4fae:	6616           	bnes 0xfef4fc6
+
 fef4fb0:	6100 b532      	bsrw 0xfef04e4			; read_enable
 fef4fb4:	0800 0000      	btst #0,%d0
 fef4fb8:	660c           	bnes 0xfef4fc6
@@ -6704,11 +6818,13 @@ fef4ff2:	6efc           	bgts 0xfef4ff0
 
 fef4ff4:	b9cb           	cmpal %a3,%a4
 fef4ff6:	65d6           	bcss 0xfef4fce
-fef4ff8:	bbfc 0fe0 2000 	cmpal #0xfe02000,%a5	; SCC
-fef4ffe:	6660           	bnes 0xfef5060
+fef4ff8:	bbfc 0fe0 2000 	cmpal #0xfe02000,%a5	; SCC - A
+fef4ffe:	6660           	bnes 0xfef5060		; return
+
 fef5000:	6100 b4e2      	bsrw 0xfef04e4			; read_enable
 fef5004:	0800 0000      	btst #0,%d0
-fef5008:	6756           	beqs 0xfef5060
+fef5008:	6756           	beqs 0xfef5060		; return
+
 fef500a:	1abc 000c      	moveb #0xc,%a5@
 
 fef500e:	2c3c 0000 00a0 	movel #160,%d6				; Delay
@@ -6744,6 +6860,8 @@ fef505e:	6efc           	bgts 0xfef505c
 fef5060:	4cee 38c0 ffec 	moveml %fp@(-20),%d6-%d7/%a3-%a5
 fef5066:	4e5e           	unlk %fp
 fef5068:	4e75           	rts
+
+; -----------------------------
 
 fef506a:	4e56 ffe8      	linkw %fp,#-24
 fef506e:	48d7 20f8      	moveml %d3-%d7/%a5,%sp@
@@ -6794,7 +6912,7 @@ fef50ec:	6000 01e0      	braw 0xfef52ce
 fef50f0:	7a01           	moveq #1,%d5
 fef50f2:	7601           	moveq #1,%d3
 fef50f4:	1803           	moveb %d3,%d4
-fef50f6:	6100 0310      	bsrw 0xfef5408		; Hokey
+fef50f6:	6100 0310      	bsrw 0xfef5408		; getone
 fef50fa:	1e00           	moveb %d0,%d7
 fef50fc:	7c5f           	moveq #95,%d6
 fef50fe:	c086           	andl %d6,%d0
@@ -6858,7 +6976,7 @@ fef51a8:	6000 012c      	braw 0xfef52d6
 fef51ac:	4a04           	tstb %d4
 fef51ae:	6700 011e      	beqw 0xfef52ce
 fef51b2:	11c5 e015      	moveb %d5,0xffffe015
-fef51b6:	6100 0276      	bsrw 0xfef542e
+fef51b6:	6100 0276      	bsrw 0xfef542e			; peek_char
 fef51ba:	0280 0000 00ff 	andil #0xff,%d0
 fef51c0:	7e5f           	moveq #95,%d7
 fef51c2:	c087           	andl %d7,%d0
@@ -6869,7 +6987,7 @@ fef51cc:	6000 ff28      	braw 0xfef50f6
 fef51d0:	4a03           	tstb %d3
 fef51d2:	6700 00fa      	beqw 0xfef52ce
 fef51d6:	11c5 e016      	moveb %d5,0xffffe016
-fef51da:	6100 0252      	bsrw 0xfef542e
+fef51da:	6100 0252      	bsrw 0xfef542e			; peek_char
 fef51de:	0280 0000 00ff 	andil #0xff,%d0
 fef51e4:	7e5f           	moveq #95,%d7
 fef51e6:	c087           	andl %d7,%d0
@@ -6879,7 +6997,7 @@ fef51ec:	6600 00e8      	bnew 0xfef52d6
 fef51f0:	6000 ff04      	braw 0xfef50f6
 fef51f4:	0c45 00ff      	cmpiw #0xff,%d5
 fef51f8:	6600 00d4      	bnew 0xfef52ce
-fef51fc:	6100 020a      	bsrw 0xfef5408		; Hokey
+fef51fc:	6100 020a      	bsrw 0xfef5408		; getone
 fef5200:	0200 005f      	andib #0x5f,%d0
 fef5204:	0c00 0045      	cmpib #0x45,%d0
 fef5208:	6600 00c4      	bnew 0xfef52ce
@@ -6889,7 +7007,7 @@ fef5214:	0c45 00ff      	cmpiw #0xff,%d5
 fef5218:	6600 00b4      	bnew 0xfef52ce
 fef521c:	11fc 0001 e01a 	moveb #1,0xffffe01a
 fef5222:	6000 00b2      	braw 0xfef52d6
-fef5226:	6100 022a      	bsrw 0xfef5452
+fef5226:	6100 022a      	bsrw 0xfef5452			; getnum (hex)
 fef522a:	2c00           	movel %d0,%d6
 fef522c:	6700 00a8      	beqw 0xfef52d6
 fef5230:	21c6 e2ba      	movel %d6,0xffffe2ba
@@ -6909,8 +7027,8 @@ fef5256:	4870 1c00      	pea %a0@(0,%d1:l:4)
 fef525a:	6100 fd14      	bsrw 0xfef4f70
 fef525e:	504f           	addqw #8,%sp
 fef5260:	6074           	bras 0xfef52d6
-fef5262:	53b8 e020      	subql #1,0xffffe020			; Merlin
-fef5266:	6100 01ea      	bsrw 0xfef5452
+fef5262:	53b8 e020      	subql #1,0xffffe020			; p_cmdline
+fef5266:	6100 01ea      	bsrw 0xfef5452			; getnum (hex)
 fef526a:	2c00           	movel %d0,%d6
 fef526c:	2a7c 0fef da90 	moveal #0xfefda90,%a5
 fef5272:	6006           	bras 0xfef527a
@@ -6950,7 +7068,7 @@ fef52cc:	6008           	bras 0xfef52d6
 fef52ce:	4879 0fef db57 	pea 0xfefdb57
 ; 0xfefdb57 Invalid selection\n
 fef52d4:	600e           	bras 0xfef52e4
-fef52d6:	6100 0130      	bsrw 0xfef5408		; Hokey
+fef52d6:	6100 0130      	bsrw 0xfef5408		; getone
 fef52da:	4a00           	tstb %d0
 fef52dc:	670c           	beqs 0xfef52ea
 fef52de:	4879 0fef db6a 	pea 0xfefdb6a
@@ -7000,14 +7118,16 @@ fef5366:	4e5e           	unlk %fp
 fef5368:	4e75           	rts
 fef536a:	0000
 
- fef536c:	4e56 fff0      	linkw %fp,#-16
+; Subroutiine - getline
+; get line from user
+fef536c:	4e56 fff0      	linkw %fp,#-16
 fef5370:	48d7 20e0      	moveml %d5-%d7/%a5,%sp@
 fef5374:	2e2e 0008      	movel %fp@(8),%d7
 fef5378:	2a7c ffff e028 	moveal #0xffffe028,%a5
 fef537e:	7c00           	moveq #0,%d6
-fef5380:	21cd e020      	movel %a5,0xffffe020			; Merlin
+fef5380:	21cd e020      	movel %a5,0xffffe020			; p_cmdline
 fef5384:	42b8 e024      	clrl 0xffffe024
-fef5388:	6100 040e      	bsrw 0xfef5798		; Annie
+fef5388:	6100 040e      	bsrw 0xfef5798		; mayget
 fef538c:	2a00           	movel %d0,%d5
 fef538e:	6ff8           	bles 0xfef5388
 fef5390:	1a85           	moveb %d5,%a5@
@@ -7059,10 +7179,10 @@ fef53fe:	4cee 20e0 fff0 	moveml %fp@(-16),%d5-%d7/%a5
 fef5404:	4e5e           	unlk %fp
 fef5406:	4e75           	rts
 
-; Subroutine Hokey -- many calls
-; Strange hokey pokey with ffffe020
+; Subroutine getone -- many calls
+; Get next character from command line buffer
 fef5408:	4e56 0000      	linkw %fp,#0
-fef540c:	2078 e020      	moveal 0xffffe020,%a0	; Merlin
+fef540c:	2078 e020      	moveal 0xffffe020,%a0	; p_cmdline
 fef5410:	0c10 000d      	cmpib #0xd,%a0@			; do we see a \r ?
 fef5414:	6604           	bnes 0xfef541a
 
@@ -7070,18 +7190,20 @@ fef5416:	7000           	moveq #0,%d0			; yes we do!
 fef5418:	600a           	bras 0xfef5424			; return 0
 
 ; This effectively does d0 = *p++
-fef541a:	2078 e020      	moveal 0xffffe020,%a0	; Merlin
-fef541e:	52b8 e020      	addql #1,0xffffe020		; Merlin
+fef541a:	2078 e020      	moveal 0xffffe020,%a0	; p_cmdline
+fef541e:	52b8 e020      	addql #1,0xffffe020		; p_cmdline
 fef5422:	1010           	moveb %a0@,%d0
 
 fef5424:	0280 0000 00ff 	andil #0xff,%d0			; return value
 fef542a:	4e5e           	unlk %fp
 fef542c:	4e75           	rts
 
-; Subroutine
-; return value of Merlin byte
+; ----------------------------------
+; Subroutine - peekchar
+; return the pointer to the command line buffer
+; (look at next char without advancing pointer)
 fef542e:	4e56 0000      	linkw %fp,#0
-fef5432:	2078 e020      	moveal 0xffffe020,%a0	; Merlin
+fef5432:	2078 e020      	moveal 0xffffe020,%a0	; p_cmdline
 fef5436:	7000           	moveq #0,%d0
 fef5438:	1010           	moveb %a0@,%d0
 fef543a:	4e5e           	unlk %fp
@@ -7092,15 +7214,16 @@ fef543e:	4e56 0000      	linkw %fp,#0
 fef5442:	6002           	bras 0xfef5446
 
 ; loop
-fef5444:	61c2           	bsrs 0xfef5408		; Hokey
-fef5446:	61e6           	bsrs 0xfef542e
+fef5444:	61c2           	bsrs 0xfef5408		; getone
+fef5446:	61e6           	bsrs 0xfef542e		; peek_char
 fef5448:	0c00 0020      	cmpib #0x20,%d0
 fef544c:	67f6           	beqs 0xfef5444
 
 fef544e:	4e5e           	unlk %fp
 fef5450:	4e75           	rts
 
-; Subroutine
+; Subroutine - getnum
+; grab hex number from command line
 fef5452:	4e56 fff8      	linkw %fp,#-8
 fef5456:	42ae fffc      	clrl %fp@(-4)
 fef545a:	42ae fff8      	clrl %fp@(-8)
@@ -7109,8 +7232,8 @@ fef5460:	202e fff8      	movel %fp@(-8),%d0
 fef5464:	e980           	asll #4,%d0
 fef5466:	80ae fffc      	orl %fp@(-4),%d0
 fef546a:	2d40 fff8      	movel %d0,%fp@(-8)
-fef546e:	6198           	bsrs 0xfef5408		; Hokey
-fef5470:	61bc           	bsrs 0xfef542e
+fef546e:	6198           	bsrs 0xfef5408		; getone
+fef5470:	61bc           	bsrs 0xfef542e		; peek_char
 fef5472:	0280 0000 00ff 	andil #0xff,%d0
 fef5478:	2f00           	movel %d0,%sp@-
 fef547a:	6110           	bsrs 0xfef548c
@@ -7286,7 +7409,8 @@ fef5630:	584f           	addqw #4,%sp
 fef5632:	4e5e           	unlk %fp
 fef5634:	4e75           	rts
 
-; Subroutine -- to_hex2
+; Subroutine -- print_hex
+;  format N digits in hex
 fef5636:	4e56 fff8      	linkw %fp,#-8
 fef563a:	48d7 00c0      	moveml %d6-%d7,%sp@		; save regs
 
@@ -7319,6 +7443,7 @@ fef567c:	4e75           	rts
 
 ; -----------------------------
 ; Subroutine -- putchar
+; put a character to the "output sink"
 ; -- many calls
 
 fef5680:	4e56 fffc      	linkw %fp,#-4
@@ -7335,7 +7460,7 @@ fef5698:	7000           	moveq #0,%d0
 fef569a:	1007           	moveb %d7,%d0
 fef569c:	2f00           	movel %d0,%sp@-
 
-fef569e:	610e           	bsrs 0xfef56ae			; putchar2 (below)
+fef569e:	610e           	bsrs 0xfef56ae			; mayput (below)
 fef56a0:	584f           	addqw #4,%sp
 
 fef56a2:	4a80           	tstl %d0
@@ -7346,8 +7471,10 @@ fef56aa:	4e5e           	unlk %fp
 fef56ac:	4e75           	rts
 
 ; -----------------------------
-; subroutine -- "putchar2"
+; subroutine -- mayput"
 ; only called from the above.
+; (and referenced in the vectors)
+; possibly returns -1
 ;
 ; Remember that the normal thing with a sun3/60 was for
 ;  printf to be working with the framebuffer and keyboard.
@@ -7356,10 +7483,10 @@ fef56ac:	4e75           	rts
 ;
 ; Locations ffffe000 and ffffe001 are interesting:
 ;
-;    ffffe000 XX-0-A
+;    ffffe000 Global
 ;		only a byte
 ;		it may get set to 0x12 (18)
-;    ffffe001 XX-0-B
+;    ffffe001 Global+1
 ;		only a byte
 ;		1 says to use RS232-A
 ;		2 says to use RS232-B
@@ -7367,10 +7494,10 @@ fef56ac:	4e75           	rts
 fef56ae:	4e56 fffc      	linkw %fp,#-4
 fef56b2:	2e87           	movel %d7,%sp@
 
-fef56b4:	0c38 0012 e000 	cmpib #18,0xffffe000			; XX-0-A
+fef56b4:	0c38 0012 e000 	cmpib #18,0xffffe000			; Global
 fef56ba:	6650           	bnes 0xfef570c
 
-fef56bc:	1038 e001      	moveb 0xffffe001,%d0			; XX-0-B
+fef56bc:	1038 e001      	moveb 0xffffe001,%d0			; Global+1
 fef56c0:	49c0           	extbl %d0
 fef56c2:	7202           	moveq #2,%d1
 fef56c4:	9280           	subl %d0,%d1
@@ -7384,7 +7511,7 @@ fef56e0:	e2a7           	asrl %d1,%d7
 fef56e2:	5387           	subql #1,%d7
 fef56e4:	6efc           	bgts 0xfef56e2
 
-fef56e6:	1038 e001      	moveb 0xffffe001,%d0			; XX-0-B
+fef56e6:	1038 e001      	moveb 0xffffe001,%d0			; Global+1
 fef56ea:	49c0           	extbl %d0
 fef56ec:	7202           	moveq #2,%d1
 fef56ee:	9280           	subl %d0,%d1
@@ -7394,7 +7521,7 @@ fef56f4:	11ae 000b 1c02 	moveb %fp@(11),%a0@(2,%d1:l:4)
 fef56fa:	7000           	moveq #0,%d0
 fef56fc:	102e 000b      	moveb %fp@(11),%d0
 fef5700:	2f00           	movel %d0,%sp@-
-fef5702:	6100 1638      	bsrw 0xfef6d3c		; putcharX
+fef5702:	6100 1638      	bsrw 0xfef6d3c		; fb_putchar
 fef5706:	584f           	addqw #4,%sp
 fef5708:	7000           	moveq #0,%d0
 fef570a:	605a           	bras 0xfef5766		; return 0
@@ -7404,7 +7531,7 @@ fef5710:	6612           	bnes 0xfef5724
 fef5712:	7000           	moveq #0,%d0
 fef5714:	102e 000b      	moveb %fp@(11),%d0
 fef5718:	2f00           	movel %d0,%sp@-
-fef571a:	6100 1620      	bsrw 0xfef6d3c		; putcharX
+fef571a:	6100 1620      	bsrw 0xfef6d3c		; fb_putchar
 fef571e:	584f           	addqw #4,%sp
 fef5720:	7000           	moveq #0,%d0
 fef5722:	6042           	bras 0xfef5766		; return 0
@@ -7441,7 +7568,7 @@ fef576c:	4e75           	rts
 
 fef576e:	4e56 fffc      	linkw %fp,#-4
 fef5772:	2e87           	movel %d7,%sp@
-fef5774:	6122           	bsrs 0xfef5798		; Annie
+fef5774:	6122           	bsrs 0xfef5798		; mayget
 fef5776:	2e00           	movel %d0,%d7
 fef5778:	6dfa           	blts 0xfef5774
 fef577a:	4a38 e01a      	tstb 0xffffe01a
@@ -7457,13 +7584,13 @@ fef5790:	2e2e fffc      	movel %fp@(-4),%d7
 fef5794:	4e5e           	unlk %fp
 fef5796:	4e75           	rts
 
-; Subroutine Annie - at least 10 calls
+; Subroutine mayget - at least 10 calls
 ;  pretty big
 fef5798:	4e56 fff8      	linkw %fp,#-8
 fef579c:	48d7 00c0      	moveml %d6-%d7,%sp@
-fef57a0:	0c38 0012 e000 	cmpib #18,0xffffe000			; XX-0-A
+fef57a0:	0c38 0012 e000 	cmpib #18,0xffffe000			; Global
 fef57a6:	6600 0086      	bnew 0xfef582e
-fef57aa:	6100 02bc      	bsrw 0xfef5a68
+fef57aa:	6100 02bc      	bsrw 0xfef5a68			; getkey
 fef57ae:	2e00           	movel %d0,%d7
 fef57b0:	7cff           	moveq #-1,%d6
 fef57b2:	be86           	cmpl %d6,%d7
@@ -7480,7 +7607,7 @@ fef57ca:	6702           	beqs 0xfef57ce
 fef57cc:	7eff           	moveq #-1,%d7
 fef57ce:	2007           	movel %d7,%d0
 fef57d0:	6000 00aa      	braw 0xfef587c
-fef57d4:	1038 e001      	moveb 0xffffe001,%d0			; XX-0-B
+fef57d4:	1038 e001      	moveb 0xffffe001,%d0			; Global+1
 fef57d8:	49c0           	extbl %d0
 fef57da:	7202           	moveq #2,%d1
 fef57dc:	9280           	subl %d0,%d1
@@ -7494,7 +7621,7 @@ fef57f6:	e2a6           	asrl %d1,%d6
 fef57f8:	5386           	subql #1,%d6
 fef57fa:	6efc           	bgts 0xfef57f8
 
-fef57fc:	1038 e001      	moveb 0xffffe001,%d0			; XX-0-B
+fef57fc:	1038 e001      	moveb 0xffffe001,%d0			; Global+1
 fef5800:	49c0           	extbl %d0
 fef5802:	7202           	moveq #2,%d1
 fef5804:	9280           	subl %d0,%d1
@@ -7516,7 +7643,7 @@ fef582a:	2007           	movel %d7,%d0
 fef582c:	604e           	bras 0xfef587c
 fef582e:	4a38 e015      	tstb 0xffffe015
 fef5832:	6606           	bnes 0xfef583a
-fef5834:	6100 0232      	bsrw 0xfef5a68
+fef5834:	6100 0232      	bsrw 0xfef5a68			; getkey
 fef5838:	6042           	bras 0xfef587c
 fef583a:	7000           	moveq #0,%d0
 fef583c:	1038 e015      	moveb 0xffffe015,%d0
@@ -7567,14 +7694,14 @@ fef58c0:	e2a5           	asrl %d1,%d5
 fef58c2:	5385           	subql #1,%d5
 fef58c4:	6efc           	bgts 0xfef58c2
 
-fef58c6:	1038 e001      	moveb 0xffffe001,%d0			; XX-0-B
+fef58c6:	1038 e001      	moveb 0xffffe001,%d0			; Global+1
 fef58ca:	49c0           	extbl %d0
 fef58cc:	7202           	moveq #2,%d1
 fef58ce:	9280           	subl %d0,%d1
 fef58d0:	2078 e2ba      	moveal 0xffffe2ba,%a0
 fef58d4:	0830 0000 1c00 	btst #0,%a0@(0,%d1:l:4)
 fef58da:	67d4           	beqs 0xfef58b0
-fef58dc:	1038 e001      	moveb 0xffffe001,%d0			; XX-0-B
+fef58dc:	1038 e001      	moveb 0xffffe001,%d0			; Global+1
 fef58e0:	49c0           	extbl %d0
 fef58e2:	7202           	moveq #2,%d1
 fef58e4:	9280           	subl %d0,%d1
@@ -7590,7 +7717,7 @@ fef5900:	5385           	subql #1,%d5
 fef5902:	6f0e           	bles 0xfef5912
 fef5904:	60fa           	bras 0xfef5900
 
-fef5906:	6100 0160      	bsrw 0xfef5a68
+fef5906:	6100 0160      	bsrw 0xfef5a68			; getkey
 fef590a:	2c00           	movel %d0,%d6
 fef590c:	7aff           	moveq #-1,%d5
 fef590e:	b085           	cmpl %d5,%d0
@@ -7688,6 +7815,7 @@ fef5a42:	4e5e           	unlk %fp
 fef5a44:	4e75           	rts
 fef5a46:	0000
 
+; Subroutine init_getkey
 fef5a48:	4e56 0000      	linkw %fp,#0
 fef5a4c:	42b8 e17e      	clrl 0xffffe17e
 fef5a50:	11fc 004c e013 	moveb #0x4c,0xffffe013
@@ -7697,6 +7825,7 @@ fef5a5e:	11fc 007f e014 	moveb #0x7f,0xffffe014
 fef5a64:	4e5e           	unlk %fp
 fef5a66:	4e75           	rts
 
+; Subroutine - getkey
 fef5a68:	4e56 ffec      	linkw %fp,#-20
 fef5a6c:	48d7 00f0      	moveml %d4-%d7,%sp@
 fef5a70:	2038 e252      	movel 0xffffe252,%d0
@@ -8495,7 +8624,7 @@ fef61d4:	48d7 3080      	moveml %d7/%a4-%a5,%sp@
 fef61d8:	2e2e 000c      	movel %fp@(12),%d7
 fef61dc:	674e           	beqs 0xfef622c
 fef61de:	0687 0000 1fff 	addil #0x1fff,%d7
-fef61e4:	0287 ffff e000 	andil #0xffffe000,%d7
+fef61e4:	0287 ffff e000 	andil #0xffffe000,%d7		; Global
 fef61ea:	202e 0008      	movel %fp@(8),%d0
 fef61ee:	7203           	moveq #3,%d1
 fef61f0:	b081           	cmpl %d1,%d0
@@ -8510,20 +8639,20 @@ fef61fe:	0008		; fef6204
 fef6200:	0026		; fef6222
 fef6202:	0012		; fef620E
 
-fef6204:	2a78 e006      	moveal 0xffffe006,%a5		; XX-0
-fef6208:	dfb8 e006      	addl %d7,0xffffe006			; XX-0
+fef6204:	2a78 e006      	moveal 0xffffe006,%a5		; Global+6
+fef6208:	dfb8 e006      	addl %d7,0xffffe006			; Global+6
 fef620c:	6052           	bras 0xfef6260
 
-fef620e:	2a78 e00a      	moveal 0xffffe00a,%a5		; XX-0
-fef6212:	dfb8 e00a      	addl %d7,0xffffe00a			; XX-0
+fef620e:	2a78 e00a      	moveal 0xffffe00a,%a5		; Global+A
+fef6212:	dfb8 e00a      	addl %d7,0xffffe00a			; Global+A
 fef6216:	6048           	bras 0xfef6260
 
-fef6218:	2a78 e006      	moveal 0xffffe006,%a5		; XX-0
-fef621c:	dfb8 e006      	addl %d7,0xffffe006			; XX-0
+fef6218:	2a78 e006      	moveal 0xffffe006,%a5		; Global+6
+fef621c:	dfb8 e006      	addl %d7,0xffffe006			; Global+6
 fef6220:	600e           	bras 0xfef6230
 
-fef6222:	2a78 e00a      	moveal 0xffffe00a,%a5		; XX-0
-fef6226:	dfb8 e00a      	addl %d7,0xffffe00a			; XX-0
+fef6222:	2a78 e00a      	moveal 0xffffe00a,%a5		; Global+A
+fef6226:	dfb8 e00a      	addl %d7,0xffffe00a			; Global+A
 fef622a:	6004           	bras 0xfef6230
 
 fef622c:	7000           	moveq #0,%d0
@@ -8605,9 +8734,9 @@ fef6314:	4e5e           	unlk %fp
 fef6316:	4e75           	rts
 
 fef6318:	4e56 0000      	linkw %fp,#0
-fef631c:	21fc 0fe6 4000 	movel #266747904,0xffffe006			; XX-0
+fef631c:	21fc 0fe6 4000 	movel #266747904,0xffffe006			; Global+6
 fef6322:	e006
-fef6324:	21fc 0ff0 0000 	movel #267386880,0xffffe00a			; XX-0
+fef6324:	21fc 0ff0 0000 	movel #267386880,0xffffe00a			; Global+A
 fef632a:	e00a
 fef632c:	41f9 0fef de98 	lea 0xfefde98,%a0
 fef6332:	21d0 e38a      	movel %a0@,0xffffe38a		; Taco
@@ -8734,7 +8863,7 @@ fef643a:	4a80           	tstl %d0
 fef643c:	6662           	bnes 0xfef64a0		; return (2)
 
 ; loop 1
-fef643e:	6100 f358      	bsrw 0xfef5798		; Annie
+fef643e:	6100 f358      	bsrw 0xfef5798		; mayget
 fef6442:	7eff           	moveq #-1,%d7
 fef6444:	b087           	cmpl %d7,%d0
 fef6446:	66f6           	bnes 0xfef643e		; loop 1
@@ -8750,11 +8879,12 @@ fef645e:	2d40 fffc      	movel %d0,%fp@(-4)
 fef6462:	6028           	bras 0xfef648c
 
 ; loop 2
-fef6464:	6100 f332      	bsrw 0xfef5798		; Annie
+fef6464:	6100 f332      	bsrw 0xfef5798		; mayget
 fef6468:	7eff           	moveq #-1,%d7
 fef646a:	b087           	cmpl %d7,%d0
 fef646c:	6704           	beqs 0xfef6472
-fef646e:	6100 9dd8      	bsrw 0xfef0248			; restart
+fef646e:	6100 9dd8      	bsrw 0xfef0248			; exit_to_mon
+; ------------ Never returns
 
 fef6472:	2038 e0b2      	movel 0xffffe0b2,%d0
 fef6476:	b0ae fffc      	cmpl %fp@(-4),%d0
@@ -8765,7 +8895,8 @@ fef647c:	4879 0fef df77 	pea 0xfefdf77
 fef6482:	6100 f060      	bsrw 0xfef54e4			; printf
 fef6486:	584f           	addqw #4,%sp
 
-fef6488:	6100 9dbe      	bsrw 0xfef0248			; restart
+fef6488:	6100 9dbe      	bsrw 0xfef0248			; exit_to_mon
+; ------------ Never returns
 
 fef648c:	2f2e 0010      	movel %fp@(16),%sp@-
 fef6490:	2f2e 000c      	movel %fp@(12),%sp@-
@@ -9512,18 +9643,19 @@ fef6d36:	4e5e           	unlk %fp
 fef6d38:	4e75           	rts
 fef6d3a:   0000
 
-; Subroutine -- called by putchar2 twice, nowhere else
-; putcharX
+; Subroutine -- called by mayput twice, nowhere else
+; fb_putchar
 fef6d3c:	4e56 0000      	linkw %fp,#0
 fef6d40:	4878 0001      	pea 0x1
 fef6d44:	486e 000b      	pea %fp@(11)
-fef6d48:   6106            bsrs 0xfef6d50		; putcharY
+fef6d48:   6106            bsrs 0xfef6d50		; fb_puts
 fef6d4a:   504f            addqw #8,%sp
 fef6d4c:   4e5e            unlk %fp
 fef6d4e:   4e75            rts
 
 ; Subroutine -- called from the above.
-; putcharY -- BIG
+; fb_puts -- BIG
+; Quickly write string to frame buffer
 fef6d50:	4e56 ffe8      	linkw %fp,#-24
 fef6d54:	48d7 20c0      	moveml %d6-%d7/%a5,%sp@
 fef6d58:	2a6e 0008      	moveal %fp@(8),%a5
@@ -10972,7 +11104,7 @@ fef7e58:	48d7 30c0      	moveml %d6-%d7/%a4-%a5,%sp@
 fef7e5c:	2a6e 0008      	moveal %fp@(8),%a5
 fef7e60:	7c00           	moveq #0,%d6
 fef7e62:	6100 1c0c      	bsrw 0xfef9a70
-fef7e66:	0c38 0051 e002 	cmpib #81,0xffffe002			; XX-0
+fef7e66:	0c38 0051 e002 	cmpib #81,0xffffe002			; Global+2
 fef7e6c:	6604           	bnes 0xfef7e72
 fef7e6e:	7051           	moveq #81,%d0
 fef7e70:	604c           	bras 0xfef7ebe
@@ -10982,19 +11114,19 @@ fef7e72:	42b8 e0a6      	clrl 0xffffe0a6
 fef7e76:	42b8 e0a2      	clrl 0xffffe0a2
 fef7e7a:	284d           	moveal %a5,%a4
 
-fef7e7c:	21fc ffff e028 	movel #0xffffe028,0xffffe020	; Merlin
+fef7e7c:	21fc ffff e028 	movel #0xffffe028,0xffffe020	; p_cmdline
 fef7e82:	e020
 
 ; loop
-fef7e84:	2078 e020      	moveal 0xffffe020,%a0	; Merlin
-fef7e88:	52b8 e020      	addql #1,0xffffe020		; Merlin
+fef7e84:	2078 e020      	moveal 0xffffe020,%a0	; p_cmdline
+fef7e88:	52b8 e020      	addql #1,0xffffe020		; p_cmdline
 fef7e8c:	109c           	moveb %a4@+,%a0@
 fef7e8e:	66f4           	bnes 0xfef7e84
 
-fef7e90:	21fc ffff e028 	movel #0xffffe028,0xffffe020	; Merlin
+fef7e90:	21fc ffff e028 	movel #0xffffe028,0xffffe020	; p_cmdline
 fef7e96:	e020
 
-fef7e98:	2f38 e020      	movel 0xffffe020,%sp@-		; Merlin
+fef7e98:	2f38 e020      	movel 0xffffe020,%sp@-		; p_cmdline
 fef7e9c:	6100 ddba      	bsrw 0xfef5c58				; huge_boot
 fef7ea0:	584f           	addqw #4,%sp
 
@@ -11080,10 +11212,10 @@ fef7f8a:	66be           	bnes 0xfef7f4a
 fef7f8c:	0c07 0057      	cmpib #0x57,%d7
 fef7f90:	660a           	bnes 0xfef7f9c
 fef7f92:	6100 d4aa      	bsrw 0xfef543e
-fef7f96:	6100 d4ba      	bsrw 0xfef5452
+fef7f96:	6100 d4ba      	bsrw 0xfef5452			; getnum (hex)
 fef7f9a:	2a00           	movel %d0,%d5
 fef7f9c:	6100 1ad2      	bsrw 0xfef9a70
-fef7fa0:	0c38 0051 e002 	cmpib #81,0xffffe002			; XX-0
+fef7fa0:	0c38 0051 e002 	cmpib #81,0xffffe002			; Global+2
 fef7fa6:	6600 ff30      	bnew 0xfef7ed8
 fef7faa:	7051           	moveq #81,%d0
 fef7fac:	4cee 00a0 fff4 	moveml %fp@(-12),%d5/%d7
@@ -11129,8 +11261,8 @@ fef801e:	4e56 ffe8      	linkw %fp,#-24
 fef8022:	48d7 30f0      	moveml %d4-%d7/%a4-%a5,%sp@
 fef8026:	3e2e 000a      	movew %fp@(10),%d7
 fef802a:	7a00           	moveq #0,%d5
-fef802c:	2a7c 0fe1 0002 	moveal #0xfe10002,%a5
-fef8032:	287c 0fe1 0000 	moveal #0xfe10000,%a4
+fef802c:	2a7c 0fe1 0002 	moveal #0xfe10002,%a5		; lance
+fef8032:	287c 0fe1 0000 	moveal #0xfe10000,%a4		; lance
 fef8038:	42b8 e0a6      	clrl 0xffffe0a6
 fef803c:	42b8 e0a2      	clrl 0xffffe0a2
 fef8040:	4255           	clrw %a5@
@@ -11145,7 +11277,7 @@ fef8056:	6efc           	bgts 0xfef8054
 fef8058:	3c14           	movew %a4@,%d6
 fef805a:	0c46 0004      	cmpiw #4,%d6
 fef805e:	672a           	beqs 0xfef808a
-fef8060:	0c38 004e e002 	cmpib #78,0xffffe002			; XX-0
+fef8060:	0c38 004e e002 	cmpib #78,0xffffe002			; Global+2
 fef8066:	6722           	beqs 0xfef808a
 fef8068:	7801           	moveq #1,%d4
 fef806a:	21c4 e0a2      	movel %d4,0xffffe0a2
@@ -11169,7 +11301,7 @@ fef80a0:	6efc           	bgts 0xfef809e
 fef80a2:	3c14           	movew %a4@,%d6
 fef80a4:	bc47           	cmpw %d7,%d6
 fef80a6:	672c           	beqs 0xfef80d4
-fef80a8:	0c38 004e e002 	cmpib #78,0xffffe002			; XX-0
+fef80a8:	0c38 004e e002 	cmpib #78,0xffffe002			; Global+2
 fef80ae:	6724           	beqs 0xfef80d4
 fef80b0:	7801           	moveq #1,%d4
 fef80b2:	21c4 e0a2      	movel %d4,0xffffe0a2
@@ -11196,8 +11328,8 @@ fef80ec:	4e75           	rts
 fef80ee:	4e56 ffc8      	linkw %fp,#-56
 fef80f2:	48d7 3ce8      	moveml %d3/%d5-%d7/%a2-%a5,%sp@
 fef80f6:	3e2e 000a      	movew %fp@(10),%d7
-fef80fa:	2a7c 0fe1 0002 	moveal #0xfe10002,%a5
-fef8100:	287c 0fe1 0000 	moveal #0xfe10000,%a4
+fef80fa:	2a7c 0fe1 0002 	moveal #0xfe10002,%a5		; lance
+fef8100:	287c 0fe1 0000 	moveal #0xfe10000,%a4		; lance
 fef8106:	2d6e 000c fff0 	movel %fp@(12),%fp@(-16)
 fef810c:	202e 000c      	movel %fp@(12),%d0
 fef8110:	7a20           	moveq #32,%d5
@@ -11308,7 +11440,7 @@ fef827e:	4aae fffc      	tstl %fp@(-4)
 fef8282:	662a           	bnes 0xfef82ae
 fef8284:	7e01           	moveq #1,%d7
 fef8286:	21c7 e0a2      	movel %d7,0xffffe0a2
-fef828a:	0c38 004e e002 	cmpib #78,0xffffe002			; XX-0
+fef828a:	0c38 004e e002 	cmpib #78,0xffffe002			; Global+2
 fef8290:	671c           	beqs 0xfef82ae
 fef8292:	7000           	moveq #0,%d0
 fef8294:	3006           	movew %d6,%d0
@@ -11319,7 +11451,7 @@ fef82a0:	4879 0fef e7e5 	pea 0xfefe7e5
 fef82a6:	6100 d23c      	bsrw 0xfef54e4			; printf
 fef82aa:	4fef 000c      	lea %sp@(12),%sp
 fef82ae:	7601           	moveq #1,%d3
-fef82b0:	6100 d4e6      	bsrw 0xfef5798		; Annie
+fef82b0:	6100 d4e6      	bsrw 0xfef5798		; mayget
 fef82b4:	7eff           	moveq #-1,%d7
 fef82b6:	b087           	cmpl %d7,%d0
 fef82b8:	670e           	beqs 0xfef82c8
@@ -11429,7 +11561,7 @@ fef840c:	0280 0000 5800 	andil #0x5800,%d0
 fef8412:	6720           	beqs 0xfef8434
 fef8414:	7e01           	moveq #1,%d7
 fef8416:	21c7 e0a2      	movel %d7,0xffffe0a2
-fef841a:	0c38 004e e002 	cmpib #78,0xffffe002			; XX-0
+fef841a:	0c38 004e e002 	cmpib #78,0xffffe002			; Global+2
 fef8420:	6712           	beqs 0xfef8434
 fef8422:	7000           	moveq #0,%d0
 fef8424:	3014           	movew %a4@,%d0
@@ -11496,7 +11628,7 @@ fef84e0:	0280 0000 5800 	andil #0x5800,%d0
 fef84e6:	6720           	beqs 0xfef8508
 fef84e8:	7e01           	moveq #1,%d7
 fef84ea:	21c7 e0a2      	movel %d7,0xffffe0a2
-fef84ee:	0c38 004e e002 	cmpib #78,0xffffe002			; XX-0
+fef84ee:	0c38 004e e002 	cmpib #78,0xffffe002			; Global+2
 fef84f4:	6712           	beqs 0xfef8508
 fef84f6:	7000           	moveq #0,%d0
 fef84f8:	3014           	movew %a4@,%d0
@@ -11519,7 +11651,7 @@ fef8528:	7e01           	moveq #1,%d7
 fef852a:	21c7 e0a2      	movel %d7,0xffffe0a2
 fef852e:	4a2e fff7      	tstb %fp@(-9)
 fef8532:	662a           	bnes 0xfef855e
-fef8534:	0c38 004e e002 	cmpib #78,0xffffe002			; XX-0
+fef8534:	0c38 004e e002 	cmpib #78,0xffffe002			; Global+2
 fef853a:	6722           	beqs 0xfef855e
 fef853c:	7000           	moveq #0,%d0
 fef853e:	3006           	movew %d6,%d0
@@ -11544,7 +11676,7 @@ fef8578:	2a6e 000c      	moveal %fp@(12),%a5
 fef857c:	3e2e 0012      	movew %fp@(18),%d7
 fef8580:	3c2e 0016      	movew %fp@(22),%d6
 fef8584:	3a2e 001a      	movew %fp@(26),%d5
-fef8588:	0c38 004e e002 	cmpib #78,0xffffe002			; XX-0
+fef8588:	0c38 004e e002 	cmpib #78,0xffffe002			; Global+2
 fef858e:	672a           	beqs 0xfef85ba
 fef8590:	7000           	moveq #0,%d0
 fef8592:	3005           	movew %d5,%d0
@@ -11641,7 +11773,7 @@ fef86b0:	6000 00a0      	braw 0xfef8752
 fef86b4:	0c07 0053      	cmpib #0x53,%d7
 fef86b8:	6600 ff52      	bnew 0xfef860c
 fef86bc:	6100 13b2      	bsrw 0xfef9a70
-fef86c0:	0c38 0051 e002 	cmpib #81,0xffffe002			; XX-0
+fef86c0:	0c38 0051 e002 	cmpib #81,0xffffe002			; Global+2
 fef86c6:	6606           	bnes 0xfef86ce
 fef86c8:	7051           	moveq #81,%d0
 fef86ca:	6000 0086      	braw 0xfef8752
@@ -11686,7 +11818,7 @@ fef875a:	4e75           	rts
 
 fef875c:	4e56 ffe0      	linkw %fp,#-32
 fef8760:	48d7 30fc      	moveml %d2-%d7/%a4-%a5,%sp@
-fef8764:	2a7c 0fe1 2000 	moveal #0xfe12000,%a5
+fef8764:	2a7c 0fe1 2000 	moveal #0xfe12000,%a5		; scsi
 fef876a:	287c 0fe1 2014 	moveal #0xfe12014,%a4
 fef8770:	006c 0001 0004 	oriw #1,%a4@(4)
 fef8776:	7608           	moveq #8,%d3
@@ -12152,7 +12284,7 @@ fef8c6a:	b06e fff8      	cmpw %fp@(-8),%d0
 fef8c6e:	6730           	beqs 0xfef8ca0
 fef8c70:	7e01           	moveq #1,%d7
 fef8c72:	21c7 e0a2      	movel %d7,0xffffe0a2
-fef8c76:	0c38 004e e002 	cmpib #78,0xffffe002			; XX-0
+fef8c76:	0c38 004e e002 	cmpib #78,0xffffe002			; Global+2
 fef8c7c:	6722           	beqs 0xfef8ca0
 fef8c7e:	5488           	addql #2,%a0
 fef8c80:	2f08           	movel %a0,%sp@-
@@ -12228,9 +12360,9 @@ fef8d68:	4e75           	rts
 
 fef8d6a:	4e56 ffe4      	linkw %fp,#-28
 fef8d6e:	2e87           	movel %d7,%sp@
-fef8d70:	2d7c 0fe1 2000 	movel #0xfe12000,%fp@(-4)
+fef8d70:	2d7c 0fe1 2000 	movel #0xfe12000,%fp@(-4)		; scsi
 fef8d76:	fffc
-fef8d78:	2d7c 0fe1 2000 	movel #0xfe12000,%fp@(-8)
+fef8d78:	2d7c 0fe1 2000 	movel #0xfe12000,%fp@(-8)		; scsi
 fef8d7e:	fff8
 fef8d80:	2d7c 0fef e98a 	movel #0xfefe98a,%fp@(-24)
 fef8d86:	ffe8
@@ -12252,7 +12384,7 @@ fef8dba:	1d50 fff3      	moveb %a0@,%fp@(-13)
 fef8dbe:	6732           	beqs 0xfef8df2
 fef8dc0:	7e01           	moveq #1,%d7
 fef8dc2:	21c7 e0a2      	movel %d7,0xffffe0a2
-fef8dc6:	0c38 004e e002 	cmpib #78,0xffffe002			; XX-0
+fef8dc6:	0c38 004e e002 	cmpib #78,0xffffe002			; Global+2
 fef8dcc:	6724           	beqs 0xfef8df2
 fef8dce:	2f2e ffe8      	movel %fp@(-24),%sp@-
 fef8dd2:	4879 0fef e99f 	pea 0xfefe99f
@@ -12291,7 +12423,7 @@ fef8e40:	0c2e 00f0 fff3 	cmpib #0xf0,%fp@(-13)
 fef8e46:	673c           	beqs 0xfef8e84
 fef8e48:	7e01           	moveq #1,%d7
 fef8e4a:	21c7 e0a2      	movel %d7,0xffffe0a2
-fef8e4e:	0c38 004e e002 	cmpib #78,0xffffe002			; XX-0
+fef8e4e:	0c38 004e e002 	cmpib #78,0xffffe002			; Global+2
 fef8e54:	672e           	beqs 0xfef8e84
 fef8e56:	2f2e ffe8      	movel %fp@(-24),%sp@-
 fef8e5a:	4879 0fef e9d0 	pea 0xfefe9d0
@@ -12335,7 +12467,7 @@ fef8edc:	0c2e 000f fff3 	cmpib #0xf,%fp@(-13)
 fef8ee2:	673c           	beqs 0xfef8f20
 fef8ee4:	7e01           	moveq #1,%d7
 fef8ee6:	21c7 e0a2      	movel %d7,0xffffe0a2
-fef8eea:	0c38 004e e002 	cmpib #78,0xffffe002			; XX-0
+fef8eea:	0c38 004e e002 	cmpib #78,0xffffe002			; Global+2
 fef8ef0:	672e           	beqs 0xfef8f20
 fef8ef2:	2f2e ffe8      	movel %fp@(-24),%sp@-
 fef8ef6:	4879 0fef ea0d 	pea 0xfefea0d
@@ -12427,14 +12559,14 @@ fef900e:	7000           	moveq #0,%d0
 fef9010:	102e ffda      	moveb %fp@(-38),%d0
 fef9014:	6000 03e4      	braw 0xfef93fa
 fef9018:	6100 c424      	bsrw 0xfef543e
-fef901c:	6100 c410      	bsrw 0xfef542e
+fef901c:	6100 c410      	bsrw 0xfef542e		; peek_char
 fef9020:	7e0d           	moveq #13,%d7
 fef9022:	b087           	cmpl %d7,%d0
 fef9024:	660e           	bnes 0xfef9034
 fef9026:	522e ffd8      	addqb #1,%fp@(-40)
 fef902a:	1d6e ffd8 ffd8 	moveb %fp@(-40),%fp@(-40)
 fef9030:	6000 00a0      	braw 0xfef90d2
-fef9034:	6100 c3d2      	bsrw 0xfef5408		; Hokey
+fef9034:	6100 c3d2      	bsrw 0xfef5408		; getone
 fef9038:	0200 005f      	andib #0x5f,%d0
 fef903c:	1d40 ffdb      	moveb %d0,%fp@(-37)
 fef9040:	4aae 0008      	tstl %fp@(8)
@@ -12465,35 +12597,38 @@ fef909c:	0c2e 0049 ffda 	cmpib #0x49,%fp@(-38)
 fef90a2:	6708           	beqs 0xfef90ac
 fef90a4:	0c2e 0045 ffda 	cmpib #0x45,%fp@(-38)
 fef90aa:	660e           	bnes 0xfef90ba
-fef90ac:	6100 c3a4      	bsrw 0xfef5452
+fef90ac:	6100 c3a4      	bsrw 0xfef5452			; getnum (hex)
 fef90b0:	2d40 fff0      	movel %d0,%fp@(-16)
 fef90b4:	6100 c388      	bsrw 0xfef543e
 fef90b8:	6008           	bras 0xfef90c2
 fef90ba:	0c2e 0057 ffda 	cmpib #0x57,%fp@(-38)
 fef90c0:	6608           	bnes 0xfef90ca
-fef90c2:	6100 c38e      	bsrw 0xfef5452
+fef90c2:	6100 c38e      	bsrw 0xfef5452			; getnum (hex)
 fef90c6:	1d40 ffd8      	moveb %d0,%fp@(-40)
 fef90ca:	4aae ffe4      	tstl %fp@(-28)
 fef90ce:	6700 fece      	beqw 0xfef8f9e
 fef90d2:	6100 099c      	bsrw 0xfef9a70
-fef90d6:	0c38 0051 e002 	cmpib #81,0xffffe002			; XX-0
+fef90d6:	0c38 0051 e002 	cmpib #81,0xffffe002			; Global+2
 fef90dc:	6606           	bnes 0xfef90e4
 fef90de:	7051           	moveq #81,%d0
 fef90e0:	6000 0318      	braw 0xfef93fa
 fef90e4:	0c2e 0041 ffdb 	cmpib #0x41,%fp@(-37)
 fef90ea:	6612           	bnes 0xfef90fe
-fef90ec:	2d7c 0fe0 2004 	movel #0xfe02004,%fp@(-32)		; SCC
+
+fef90ec:	2d7c 0fe0 2004 	movel #0xfe02004,%fp@(-32)		; SCC - B
 fef90f2:	ffe0
-fef90f4:	2d7c 0fe0 2006 	movel #0xfe02006,%fp@(-36)		; SCC
+fef90f4:	2d7c 0fe0 2006 	movel #0xfe02006,%fp@(-36)		; SCC - B
 fef90fa:	ffdc
 fef90fc:	6044           	bras 0xfef9142
+
 fef90fe:	0c2e 0042 ffdb 	cmpib #0x42,%fp@(-37)
 fef9104:	6612           	bnes 0xfef9118
-fef9106:	2d7c 0fe0 2000 	movel #0xfe02000,%fp@(-32)	; SCC
+fef9106:	2d7c 0fe0 2000 	movel #0xfe02000,%fp@(-32)	; SCC - A
 fef910c:	ffe0
-fef910e:	2d7c 0fe0 2002 	movel #0xfe02002,%fp@(-36)	; SCC
+fef910e:	2d7c 0fe0 2002 	movel #0xfe02002,%fp@(-36)	; SCC - A
 fef9114:	ffdc
 fef9116:	602a           	bras 0xfef9142
+
 fef9118:	0c2e 004b ffdb 	cmpib #0x4b,%fp@(-37)
 fef911e:	6612           	bnes 0xfef9132
 fef9120:	2d7c 0fe0 0004 	movel #0xfe00004,%fp@(-32)			; KB
@@ -12505,6 +12640,7 @@ fef9132:	2d7c 0fe0 0000 	movel #0xfe00000,%fp@(-32)			; KB
 fef9138:	ffe0
 fef913a:	2d7c 0fe0 0002 	movel #0xfe00002,%fp@(-36)			; KB
 fef9140:	ffdc
+
 fef9142:	42a7           	clrl %sp@-
 fef9144:	2f2e ffe0      	movel %fp@(-32),%sp@-
 fef9148:	6100 be26      	bsrw 0xfef4f70
@@ -12884,7 +13020,7 @@ fef95d0:	67c2           	beqs 0xfef9594
 fef95d2:	7000           	moveq #0,%d0
 fef95d4:	60ca           	bras 0xfef95a0
 fef95d6:	4e56 0000      	linkw %fp,#0
-fef95da:	0c38 004e e002 	cmpib #78,0xffffe002			; XX-0
+fef95da:	0c38 004e e002 	cmpib #78,0xffffe002			; Global+2
 fef95e0:	6722           	beqs 0xfef9604
 fef95e2:	7000           	moveq #0,%d0
 fef95e4:	102e 0013      	moveb %fp@(19),%d0
@@ -12902,7 +13038,7 @@ fef9606:	4e5e           	unlk %fp
 fef9608:	4e75           	rts
 
 fef960a:	4e56 0000      	linkw %fp,#0
-fef960e:	0c38 004e e002 	cmpib #78,0xffffe002			; XX-0
+fef960e:	0c38 004e e002 	cmpib #78,0xffffe002			; Global+2
 fef9614:	6738           	beqs 0xfef964e
 fef9616:	7000           	moveq #0,%d0
 fef9618:	102e 0013      	moveb %fp@(19),%d0
@@ -12940,10 +13076,10 @@ fef9668:	4a38 e015      	tstb 0xffffe015
 fef966c:	6700 00d0      	beqw 0xfef973e
 fef9670:	0c38 0001 e015 	cmpib #1,0xffffe015
 fef9676:	660a           	bnes 0xfef9682
-fef9678:	2d7c 0fe0 2004 	movel #0xfe02004,%fp@(-8)		; SCC
+fef9678:	2d7c 0fe0 2004 	movel #0xfe02004,%fp@(-8)		; SCC - B
 fef967e:	fff8
 fef9680:	6008           	bras 0xfef968a
-fef9682:	2d7c 0fe0 2000 	movel #0xfe02000,%fp@(-8)	; SCC
+fef9682:	2d7c 0fe0 2000 	movel #0xfe02000,%fp@(-8)		; SCC - A
 fef9688:	fff8
 
 fef968a:	7000           	moveq #0,%d0
@@ -12961,7 +13097,7 @@ fef96ae:	4878 0002      	pea 0x2
 fef96b2:	102e ffff      	moveb %fp@(-1),%d0
 fef96b6:	49c0           	extbl %d0
 fef96b8:	2f00           	movel %d0,%sp@-
-fef96ba:	6100 bf7a      	bsrw 0xfef5636			; to_hex2
+fef96ba:	6100 bf7a      	bsrw 0xfef5636			; print_hex
 fef96be:	504f           	addqw #8,%sp
 fef96c0:	0c2e 0020 ffff 	cmpib #0x20,%fp@(-1)
 fef96c6:	6f1c           	bles 0xfef96e4
@@ -12991,7 +13127,7 @@ fef9708:	4878 0002      	pea 0x2
 fef970c:	102e ffff      	moveb %fp@(-1),%d0
 fef9710:	49c0           	extbl %d0
 fef9712:	2f00           	movel %d0,%sp@-
-fef9714:	6100 bf20      	bsrw 0xfef5636			; to_hex2
+fef9714:	6100 bf20      	bsrw 0xfef5636			; print_hex
 fef9718:	504f           	addqw #8,%sp
 
 fef971a:	0c2e 0020 ffff 	cmpib #0x20,%fp@(-1)
@@ -13055,10 +13191,10 @@ fef97c8:	4879 0fef ecb8 	pea 0xfefecb8
 fef97ce:	6100 bd14      	bsrw 0xfef54e4			; printf
 fef97d2:	584f           	addqw #4,%sp
 fef97d4:	4878 0001      	pea 0x1
-fef97d8:	6100 bb92      	bsrw 0xfef536c
+fef97d8:	6100 bb92      	bsrw 0xfef536c			; getline
 fef97dc:	584f           	addqw #4,%sp
 fef97de:	6100 bc5e      	bsrw 0xfef543e
-fef97e2:	6100 bc24      	bsrw 0xfef5408		; Hokey
+fef97e2:	6100 bc24      	bsrw 0xfef5408		; getone
 fef97e6:	0200 005f      	andib #0x5f,%d0
 fef97ea:	1d40 ffff      	moveb %d0,%fp@(-1)
 fef97ee:	0c00 0051      	cmpib #0x51,%d0
@@ -13069,14 +13205,14 @@ fef97fa:	6000 017c      	braw 0xfef9978
 fef97fe:	0c2e 0041 ffff 	cmpib #0x41,%fp@(-1)
 fef9804:	6600 ff6c      	bnew 0xfef9772
 fef9808:	6100 bc34      	bsrw 0xfef543e
-fef980c:	6100 bc20      	bsrw 0xfef542e
+fef980c:	6100 bc20      	bsrw 0xfef542e		; peek_char
 fef9810:	7e0d           	moveq #13,%d7
 fef9812:	b087           	cmpl %d7,%d0
 fef9814:	6708           	beqs 0xfef981e
-fef9816:	6100 bc3a      	bsrw 0xfef5452
+fef9816:	6100 bc3a      	bsrw 0xfef5452			; getnum (hex)
 fef981a:	1d40 fffe      	moveb %d0,%fp@(-2)
 fef981e:	6100 0250      	bsrw 0xfef9a70
-fef9822:	0c38 0051 e002 	cmpib #81,0xffffe002			; XX-0
+fef9822:	0c38 0051 e002 	cmpib #81,0xffffe002			; Global+2
 fef9828:	6606           	bnes 0xfef9830
 fef982a:	7071           	moveq #113,%d0
 fef982c:	6000 014a      	braw 0xfef9978
@@ -13264,22 +13400,22 @@ fef9a74:	4879 0fef ed4d 	pea 0xfefed4d
 fef9a7a:	6100 ba68      	bsrw 0xfef54e4			; printf
 fef9a7e:	584f           	addqw #4,%sp
 fef9a80:	4878 0001      	pea 0x1
-fef9a84:	6100 b8e6      	bsrw 0xfef536c
+fef9a84:	6100 b8e6      	bsrw 0xfef536c			; getline
 fef9a88:	584f           	addqw #4,%sp
-fef9a8a:	6100 b97c      	bsrw 0xfef5408		; Hokey
+fef9a8a:	6100 b97c      	bsrw 0xfef5408		; getone
 fef9a8e:	0200 005f      	andib #0x5f,%d0
-fef9a92:	11c0 e002      	moveb %d0,0xffffe002			; XX-0
-fef9a96:	0c38 0046 e002 	cmpib #70,0xffffe002			; XX-0
+fef9a92:	11c0 e002      	moveb %d0,0xffffe002			; Global+2
+fef9a96:	0c38 0046 e002 	cmpib #70,0xffffe002			; Global+2
 fef9a9c:	6726           	beqs 0xfef9ac4
-fef9a9e:	0c38 0048 e002 	cmpib #72,0xffffe002			; XX-0
+fef9a9e:	0c38 0048 e002 	cmpib #72,0xffffe002			; Global+2
 fef9aa4:	671e           	beqs 0xfef9ac4
-fef9aa6:	0c38 004c e002 	cmpib #76,0xffffe002			; XX-0
+fef9aa6:	0c38 004c e002 	cmpib #76,0xffffe002			; Global+2
 fef9aac:	6716           	beqs 0xfef9ac4
-fef9aae:	0c38 0051 e002 	cmpib #81,0xffffe002			; XX-0
+fef9aae:	0c38 0051 e002 	cmpib #81,0xffffe002			; Global+2
 fef9ab4:	670e           	beqs 0xfef9ac4
-fef9ab6:	0c38 004e e002 	cmpib #78,0xffffe002			; XX-0
+fef9ab6:	0c38 004e e002 	cmpib #78,0xffffe002			; Global+2
 fef9abc:	6706           	beqs 0xfef9ac4
-fef9abe:	4a38 e002      	tstb 0xffffe002			; XX-0
+fef9abe:	4a38 e002      	tstb 0xffffe002					; Global+2
 fef9ac2:	6610           	bnes 0xfef9ad4
 fef9ac4:	4879 0fef ee3f 	pea 0xfefee3f
 ; 0xfefee3f \n
@@ -13328,11 +13464,11 @@ fef9b2c:	6100 b9b6      	bsrw 0xfef54e4			; printf
 fef9b30:	584f           	addqw #4,%sp
 
 fef9b32:	4878 0001      	pea 0x1
-fef9b36:	6100 b834      	bsrw 0xfef536c
+fef9b36:	6100 b834      	bsrw 0xfef536c			; getline
 fef9b3a:	584f           	addqw #4,%sp
 
 fef9b3c:	6100 b900      	bsrw 0xfef543e
-fef9b40:	6100 b8c6      	bsrw 0xfef5408		; Hokey
+fef9b40:	6100 b8c6      	bsrw 0xfef5408		; getone
 
 fef9b44:	725f           	moveq #0x5f,%d1			; force uppercase
 fef9b46:	c081           	andl %d1,%d0
@@ -13340,7 +13476,7 @@ fef9b48:	4e5e           	unlk %fp
 fef9b4a:	4e75           	rts
 
 fef9b4c:	4e56 0000      	linkw %fp,#0
-fef9b50:	0c38 004e e002 	cmpib #78,0xffffe002			; XX-0
+fef9b50:	0c38 004e e002 	cmpib #78,0xffffe002			; Global+2
 fef9b56:	6710           	beqs 0xfef9b68
 fef9b58:	2f2e 0008      	movel %fp@(8),%sp@-
 fef9b5c:	4879 0fef ee97 	pea 0xfefee97
@@ -13361,7 +13497,7 @@ fef9b7e:	4e75           	rts
 ; Subroutine, called after a successful boot/load
 ;  and many other cases.
 fef9b80:	4e56 0000      	linkw %fp,#0
-fef9b84:	0c38 004e e002 	cmpib #78,0xffffe002			; XX-0
+fef9b84:	0c38 004e e002 	cmpib #78,0xffffe002			; Global+2
 fef9b8a:	672c           	beqs 0xfef9bb8
 
 ; set up big printf
@@ -13378,23 +13514,23 @@ fef9baa:	4879 0fef eeaf 	pea 0xfefeeaf
 fef9bb0:	6100 b932      	bsrw 0xfef54e4			; printf
 fef9bb4:	4fef 0010      	lea %sp@(16),%sp
 
-fef9bb8:	0c38 0046 e002 	cmpib #70,0xffffe002			; 'p' -- XX-0
+fef9bb8:	0c38 0046 e002 	cmpib #70,0xffffe002			; 'p' -- Global+2
 fef9bbe:	6724           	beqs 0xfef9be4
 
-fef9bc0:	0c38 004e e002 	cmpib #78,0xffffe002			; 'x' -- XX-0
+fef9bc0:	0c38 004e e002 	cmpib #78,0xffffe002			; 'x' -- Global+2
 fef9bc6:	671c           	beqs 0xfef9be4
 
-fef9bc8:	0c38 004c e002 	cmpib #76,0xffffe002			; 'v' -- XX-0
+fef9bc8:	0c38 004c e002 	cmpib #76,0xffffe002			; 'v' -- Global+2
 fef9bce:	6606           	bnes 0xfef9bd6
 fef9bd0:	4ab8 e0a2      	tstl 0xffffe0a2
 fef9bd4:	660e           	bnes 0xfef9be4
 
-fef9bd6:	0c38 0048 e002 	cmpib #72,0xffffe002			; 'r' -- XX-0
+fef9bd6:	0c38 0048 e002 	cmpib #72,0xffffe002			; 'r' -- Global+2
 fef9bdc:	6612           	bnes 0xfef9bf0
 fef9bde:	4ab8 e0a2      	tstl 0xffffe0a2
 fef9be2:	660c           	bnes 0xfef9bf0
 
-fef9be4:	6100 bbb2      	bsrw 0xfef5798		; Annie
+fef9be4:	6100 bbb2      	bsrw 0xfef5798		; mayget
 
 fef9be8:	4a80           	tstl %d0
 fef9bea:	6c04           	bges 0xfef9bf0		; return 0
@@ -13653,7 +13789,7 @@ fef9ee6:	41f9 3000 0000 	lea 0x30000000,%a0		; CONTEXT
 fef9eec:	0e10 2000      	movesb %a0@,%d2
 fef9ef0:	0e10 0800      	movesb %d0,%a0@
 fef9ef4:	202f 0008      	movel %sp@(8),%d0
-fef9ef8:	0280 ffff e000 	andil #0xffffe000,%d0
+fef9ef8:	0280 ffff e000 	andil #0xffffe000,%d0		; Global
 fef9efe:	0080 a000 0000 	oril #0xa0000000,%d0
 fef9f04:	2040           	moveal %d0,%a0
 fef9f06:	700f           	moveq #15,%d0
@@ -16121,25 +16257,25 @@ fefbc1e:	2f2e fffc      	movel %fp@(-4),%sp@-
 fefbc22:	7000           	moveq #0,%d0
 fefbc24:	102e 0008      	moveb %fp@(8),%d0
 fefbc28:	2f00           	movel %d0,%sp@-
-fefbc2a:	6100 9a0a      	bsrw 0xfef5636			; to_hex2
+fefbc2a:	6100 9a0a      	bsrw 0xfef5636			; print_hex
 fefbc2e:	504f           	addqw #8,%sp
 fefbc30:	2f2e fffc      	movel %fp@(-4),%sp@-
 fefbc34:	7000           	moveq #0,%d0
 fefbc36:	102e 0009      	moveb %fp@(9),%d0
 fefbc3a:	2f00           	movel %d0,%sp@-
-fefbc3c:	6100 99f8      	bsrw 0xfef5636			; to_hex2
+fefbc3c:	6100 99f8      	bsrw 0xfef5636			; print_hex
 fefbc40:	504f           	addqw #8,%sp
 fefbc42:	2f2e fffc      	movel %fp@(-4),%sp@-
 fefbc46:	7000           	moveq #0,%d0
 fefbc48:	102e 000a      	moveb %fp@(10),%d0
 fefbc4c:	2f00           	movel %d0,%sp@-
-fefbc4e:	6100 99e6      	bsrw 0xfef5636			; to_hex2
+fefbc4e:	6100 99e6      	bsrw 0xfef5636			; print_hex
 fefbc52:	504f           	addqw #8,%sp
 fefbc54:	2f2e fffc      	movel %fp@(-4),%sp@-
 fefbc58:	7000           	moveq #0,%d0
 fefbc5a:	102e 000b      	moveb %fp@(11),%d0
 fefbc5e:	2f00           	movel %d0,%sp@-
-fefbc60:	6100 99d4      	bsrw 0xfef5636			; to_hex2
+fefbc60:	6100 99d4      	bsrw 0xfef5636			; print_hex
 fefbc64:	504f           	addqw #8,%sp
 fefbc66:	4879 0fef f2e1 	pea 0xfeff2e1
 ; 0xfeff2e1 \n
