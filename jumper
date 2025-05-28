@@ -1,0 +1,70 @@
+#!/bin/python
+
+# Tom Trebisky  5-27-2025
+#
+# This is a python program to make sense out of a jump table
+# in the disassembled code.  Amazingly, the Sun C compiler
+# turned C switch statements into something like the following
+#
+# fef3ba0:	303b 0a06      	movew %pc@(0xfef3ba8,%d0:l:2),%d0
+# fef3ba4:	4efb 0002      	jmp %pc@(0xfef3ba8,%d0:w)
+# fef3ba8:	0212 021a      	andib #0x1a,%a2@
+# fef3bac:	026c 02dc 02e4 	andiw #0x2dc,%a4@(740)
+# fef3bb2:	0324           	btst %d1,%a4@-
+# fef3bb4:	03e8 0434      	bset %d1,%a0@(1076)
+# fef3bb8:	0b22           	btst %d5,%a2@-
+# fef3bba:	0b22           	btst %d5,%a2@-
+# fef3bbc:	043c           	.short 0x043c
+# fef3bbe:	0504           	btst %d2,%d4
+# fef3bc0:	0544           	bchg %d2,%d4
+# fef3bc2:	0b22           	btst %d5,%a2@-
+# fef3bc4:	05a6           	bclr %d2,%fp@-
+# fef3bc6:	05e6           	bset %d2,%fp@-
+# fef3bc8:	065a 076a      	addiw #0x76a,%a2@+
+# fef3bcc:	0784           	bclr %d3,%d4
+# fef3bce:	07ac 082e      	bclr %d3,%a4@(2094)
+# fef3bd2:	0836 09ac 09d2 	btst #0xffffffac,@(0)@(b22)
+# fef3bd8:	0b22
+# fef3bda:	09e2           	bset %d4,%a2@-
+# fef3bdc:	0b22           	btst %d5,%a2@-
+# fef3bde:	0b22           	btst %d5,%a2@-
+# fef3be0:	0b22           	btst %d5,%a2@-
+# fef3be2:	003c
+
+# I could try to write code that would parse the whole thing as is,
+# but I decided to hand edit the table itself to have one
+# 16 bit offset per line
+
+infile = "zzz"
+first = True
+index = 0
+
+def mk_noteX () :
+    global index
+    cc = ord('A') + index
+    index += 1
+    xx = chr(cc)
+    return " ; " + xx
+
+def mk_note () :
+    return ""
+
+with open ( infile, 'r') as f:
+    for line in f:
+        #print ( line.strip() )
+        ww = line.split()
+        if first and len(ww) > 3 :
+            continue
+        if first :
+            base = int ( ww[0][:-1], 16 )
+            first = False
+            #print ( "Base: ", base )
+        for w in ww[1:] :
+            #print ( w )
+            off = int ( w, 16 )
+            # print ( off )
+            addr = base + off
+            note = mk_note ()
+            print ( ww[0], " ", w, " ", f'{addr:x}', note )
+
+# THE END
